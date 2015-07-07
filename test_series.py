@@ -2,7 +2,7 @@ from flask import flash, render_template, Blueprint, url_for, redirect, request,
 from forms import *
 from uuid import uuid1
 from time import time
-import kunjika
+import memoir
 import urllib2
 import json
 import utility
@@ -204,7 +204,7 @@ def add_objective_question():
             question['_type'] = 'tq'
 
             # print str(question['qid'])
-            kunjika.kb.add(question['qid'], question)
+            memoir.kb.add(question['qid'], question)
 
             return redirect(url_for('administration'))
 
@@ -221,13 +221,13 @@ def browse_objective_questions(page=None):
 
     if g.user.id == 1:
         if boqForm.validate_on_submit() and request.method == 'POST':
-            skip = (page - 1) * kunjika.QUESTIONS_PER_PAGE
+            skip = (page - 1) * memoir.QUESTIONS_PER_PAGE
             tech = boqForm.tech.data
             cat = boqForm.cat.data
-            questions = urllib2.urlopen(kunjika.DB_URL + 'kunjika/_design/dev_qa/_view/get_by_ts?limit=' +
-                                        str(kunjika.QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key="' +
+            questions = urllib2.urlopen(memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_by_ts?limit=' +
+                                        str(memoir.QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key="' +
                                         urllib2.quote(str(tech)) + '"&reduce=false').read()
-            count = urllib2.urlopen(kunjika.DB_URL + 'kunjika/_design/dev_qa/_view/get_by_ts?key="' +
+            count = urllib2.urlopen(memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_by_ts?key="' +
                                     urllib2.quote(str(tech)) + '"&reduce=true').read()
             count = json.loads(count)['rows']
             if len(count) != 0:
@@ -240,7 +240,7 @@ def browse_objective_questions(page=None):
                 for row in questions['rows']:
                     qids.append(str(row['id']))
             if len(qids) > 0:
-                val_res = kunjika.kb.get_multi(qids)
+                val_res = memoir.kb.get_multi(qids)
             questions_list = []
             for qid in qids:
                 questions_list.append(val_res[str(qid)].value)
@@ -250,7 +250,7 @@ def browse_objective_questions(page=None):
             # count = len(questions_list)
             if not questions_list and page != 1:
                 abort(404)
-            pagination = utility.Pagination(page, kunjika.QUESTIONS_PER_PAGE, int(count))
+            pagination = utility.Pagination(page, memoir.QUESTIONS_PER_PAGE, int(count))
 
             return render_template('browse.html', title='Questions', qpage=True, questions=questions_list,
                                    pagination=pagination, name=g.user.name, role=g.user.role,
@@ -263,7 +263,7 @@ def browse_objective_questions(page=None):
 
 @test_series.route('/edit_test/<element>', methods=['GET', 'POST'])
 def edit_test(element):
-    question = kunjika.kb.get(element).value
+    question = memoir.kb.get(element).value
     options = len(question['content']['options'])
 
     class ChoiceForm(Form):
@@ -318,7 +318,7 @@ def edit_test(element):
             question['updated'] = question['content']['ts']
             question['content']['ip'] = request.remote_addr
 
-            kunjika.kb.replace(question['qid'], question)  # tq stands for test question. prefix is used for increasing period
+            memoir.kb.replace(question['qid'], question)  # tq stands for test question. prefix is used for increasing period
             # before uuid will repeat
 
             return redirect(url_for('test_series.browse_objective_questions'))

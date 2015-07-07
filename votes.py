@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-import kunjika
+import memoir
 from flask import g, jsonify
 
 
@@ -40,15 +40,15 @@ def handle_vote(request):
     elif len(id_list) == 1:
         qid = id_list[0]
 
-    question = kunjika.qb.get(qid).value
+    question = memoir.qb.get(qid).value
 
     if aid != 0:
         answer = question['answers'][int(aid) - 1]
         if answer['poster'] == g.user.id:
             return jsonify({'vote_count': answer['votes']})
         else:
-            user = kunjika.cb.get(str(g.user.id)).value
-            receiver = kunjika.cb.get(str(answer['poster'])).value
+            user = memoir.cb.get(str(g.user.id)).value
+            receiver = memoir.cb.get(str(answer['poster'])).value
             #for votes in user['votes']:
             for votes in answer['votes_list']:
                 if votes['uid'] == g.user.id:
@@ -65,9 +65,9 @@ def handle_vote(request):
                             user['votes_count']['down'] -= 1
                             user['votes_count']['answers'] -= 1
 
-                        kunjika.cb.replace(str(g.user.id), user)
-                        kunjika.cb.replace(str(answer['poster']), receiver)
-                        kunjika.qb.replace(str(qid), question)
+                        memoir.cb.replace(str(g.user.id), user)
+                        memoir.cb.replace(str(answer['poster']), receiver)
+                        memoir.qb.replace(str(qid), question)
                         return jsonify({'vote_count': answer['votes']})
                     elif direction == 'up' and votes['value'] == 1:
                         return jsonify({'vote_count': answer['votes']})
@@ -84,9 +84,9 @@ def handle_vote(request):
                             user['votes_count']['up'] -= 1
                             user['votes_count']['answers'] -= 1
 
-                        kunjika.cb.replace(str(g.user.id), user)
-                        kunjika.cb.replace(str(answer['poster']), receiver)
-                        kunjika.qb.replace(str(qid), question)
+                        memoir.cb.replace(str(g.user.id), user)
+                        memoir.cb.replace(str(answer['poster']), receiver)
+                        memoir.qb.replace(str(qid), question)
                         return jsonify({'vote_count': answer['votes']})
                     elif direction == 'down' and votes['value'] == -1:
                         return jsonify({'vote_count': answer['votes']})
@@ -103,9 +103,9 @@ def handle_vote(request):
                 user['votes_count']['answers'] += 1
 
                 answer['votes_list'].append(vote)
-                kunjika.cb.replace(str(g.user.id), user)
-                kunjika.cb.replace(str(answer['poster']), receiver)
-                kunjika.qb.replace(str(qid), question)
+                memoir.cb.replace(str(g.user.id), user)
+                memoir.cb.replace(str(answer['poster']), receiver)
+                memoir.qb.replace(str(qid), question)
                 return jsonify({'vote_count': answer['votes']})
             else:
                 answer['votes'] -= 1
@@ -117,17 +117,17 @@ def handle_vote(request):
 
                 answer['votes_list'].append(vote)
 
-                kunjika.cb.replace(str(g.user.id), user)
-                kunjika.cb.replace(str(answer['poster']), receiver)
-                kunjika.qb.replace(str(qid), question)
+                memoir.cb.replace(str(g.user.id), user)
+                memoir.cb.replace(str(answer['poster']), receiver)
+                memoir.qb.replace(str(qid), question)
                 return jsonify({'vote_count': answer['votes']})
 
     else:
         if str(g.user.id) == question['content']['op']:
             return jsonify({'vote_count': question['votes']})
         else:
-            user = kunjika.cb.get(str(g.user.id)).value
-            receiver = kunjika.cb.get(question['content']['op']).value
+            user = memoir.cb.get(str(g.user.id)).value
+            receiver = memoir.cb.get(question['content']['op']).value
             #for votes in user['votes']:
             for votes in question['votes_list']:
                 if votes['uid'] == g.user.id:
@@ -142,9 +142,9 @@ def handle_vote(request):
                         elif votes['value'] == 0:
                             user['votes_count']['down'] -= 1
                             user['votes_count']['question'] -= 1
-                        kunjika.cb.replace(str(g.user.id), user)
-                        kunjika.cb.replace(str(question['content']['op']), receiver)
-                        kunjika.qb.replace(str(qid), question)
+                        memoir.cb.replace(str(g.user.id), user)
+                        memoir.cb.replace(str(question['content']['op']), receiver)
+                        memoir.qb.replace(str(qid), question)
                         return jsonify({'vote_count': question['votes']})
                     elif direction == 'up' and votes['value'] == 1:
                         return jsonify({'vote_count': question['votes']})
@@ -160,9 +160,9 @@ def handle_vote(request):
                             user['votes_count']['up'] -= 1
                             user['votes_count']['question'] -= 1
 
-                        kunjika.cb.replace(str(g.user.id), user)
-                        kunjika.cb.replace(str(question['content']['op']), receiver)
-                        kunjika.qb.replace(str(qid), question)
+                        memoir.cb.replace(str(g.user.id), user)
+                        memoir.cb.replace(str(question['content']['op']), receiver)
+                        memoir.qb.replace(str(qid), question)
                         return jsonify({'vote_count': question['votes']})
                     elif direction == 'down' and votes['value'] == -1:
                         return jsonify({'vote_count': question['votes']})
@@ -180,9 +180,9 @@ def handle_vote(request):
                 user['votes_count']['question'] += 1
 
                 question['votes_list'].append(vote)
-                kunjika.cb.replace(str(g.user.id), user)
-                kunjika.cb.replace(str(question['content']['op']), receiver)
-                kunjika.qb.replace(str(qid), question)
+                memoir.cb.replace(str(g.user.id), user)
+                memoir.cb.replace(str(question['content']['op']), receiver)
+                memoir.qb.replace(str(qid), question)
                 return jsonify({'vote_count': question['votes']})
             elif direction == 'down':
                 question['votes'] -= 1
@@ -193,7 +193,7 @@ def handle_vote(request):
                 user['votes_count']['question'] += 1
 
                 question['votes_list'].append(vote)
-                kunjika.cb.replace(str(g.user.id), user)
-                kunjika.cb.replace(str(question['content']['op']), receiver)
-                kunjika.qb.replace(str(qid), question)
+                memoir.cb.replace(str(g.user.id), user)
+                memoir.cb.replace(str(question['content']['op']), receiver)
+                memoir.qb.replace(str(qid), question)
                 return jsonify({'vote_count': question['votes']})

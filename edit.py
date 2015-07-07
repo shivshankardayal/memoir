@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-import kunjika
+import memoir
 from flask import Flask, render_template
 
 def handle_edit(element):
@@ -35,6 +35,6 @@ def handle_edit(element):
         aid = arg_list[1]
         cid = arg_list[2]
         
-    question = kunjika.qb.get(qid).value
+    question = memoir.qb.get(qid).value
 
     return [question, qid, aid, cid]

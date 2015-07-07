@@ -14,17 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
-import kunjika
+import memoir
 import urllib2
 import json
 from time import localtime, strftime
 from flaskext.gravatar import Gravatar
 
 def get_question_by_id(qid, question):
-    question = kunjika.qb.get(qid).value
+    question = memoir.qb.get(qid).value
 
     question['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(question['content']['ts']))
-    user = kunjika.cb.get(question['content']['op']).value
+    user = memoir.cb.get(question['content']['op']).value
     question['email'] = user['email']
     question['opname'] = user['name']
 
@@ -33,7 +33,7 @@ def get_question_by_id(qid, question):
             i['tstamp'] = strftime("%a, %d %b %Y %H:%M:%S", localtime(i['ts']))
     if 'answers' in question:
         for i in question['answers']:
-            user = kunjika.cb.get(str(i['poster'])).value
+            user = memoir.cb.get(str(i['poster'])).value
             #user = json.loads(user)
             i['opname'] = user['name']
             i['email'] = user['email']
@@ -45,7 +45,7 @@ def get_question_by_id(qid, question):
     return question
 
 def get_questions():
-    questions = urllib2.urlopen(kunjika.DB_URL + "/_design/dev_qa/_view/get_questions?stale=false").read()
+    questions = urllib2.urlopen(memoir.DB_URL + "/_design/dev_qa/_view/get_questions?stale=false").read()
     questions = json.loads(questions)
     ###print questions
     question_list = []
@@ -55,7 +55,7 @@ def get_questions():
     for i in question_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
 
-        user = kunjika.cb.get(i['content']['op']).value
+        user = memoir.cb.get(i['content']['op']).value
         i['opname'] = user['name']
 
     return question_list

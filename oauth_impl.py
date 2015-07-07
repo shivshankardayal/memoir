@@ -1,16 +1,16 @@
 from flask import Flask, redirect, url_for, session, request, jsonify, Blueprint, flash
 from flask_oauthlib.client import OAuth, OAuthException
 import json
-import kunjika
+import memoir
 
 OA = Blueprint('oauth', __name__, template_folder='templates')
 
-oauth = OAuth(kunjika)
+oauth = OAuth(memoir)
 
 google = oauth.remote_app(
     'google',
-    consumer_key=kunjika.GOOGLE_ID,
-    consumer_secret=kunjika.GOOGLE_SECRET,
+    consumer_key=memoir.GOOGLE_ID,
+    consumer_secret=memoir.GOOGLE_SECRET,
     request_token_params={
         'scope': 'https://www.googleapis.com/auth/userinfo.email'
     },
@@ -23,8 +23,8 @@ google = oauth.remote_app(
 
 facebook = oauth.remote_app(
     'facebook',
-    consumer_key=kunjika.FACEBOOK_ID,
-    consumer_secret=kunjika.FACEBOOK_SECRET,
+    consumer_key=memoir.FACEBOOK_ID,
+    consumer_secret=memoir.FACEBOOK_SECRET,
     request_token_params={'scope': 'email'},
     base_url='https://graph.facebook.com',
     request_token_url=None,
