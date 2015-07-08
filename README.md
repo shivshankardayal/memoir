@@ -6,6 +6,10 @@ off Kunjika then this will not have any impact on their work. The new change wil
 result in a lot less memory consumption from Couchbasse at least to start with
 as all of data is being put in one bucket.
 
+Note that in code the app name is still kunjika just the module kunjika.py is
+renamed memoir.py. I have decided to keep the same name in code so that people
+willing to adapt code from Memoir to Kunjika should have little problem.
+
 Note
 ----
 The server hosting original demo of Kunjika was getting hacked repeatedly which

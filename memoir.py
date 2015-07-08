@@ -118,6 +118,7 @@ qb = Bucket("couchbase:///questions")
 tb = Bucket("couchbase:///tags")
 pb = Bucket("couchbase:///polls")
 kb = Bucket("couchbase:///kunjika")
+mb = Bucket("couchbase:///memoir")
 
 es_conn = pyes.ES(ES_URL)
 

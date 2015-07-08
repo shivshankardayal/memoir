@@ -78,7 +78,7 @@ COMMENTS_PER_DAY = 50
 
 #  You database URL, DNS and mail server IP. You must edit these.
 DB_URL = 'http://localhost:8092/'
-HOST_URL = 'http://kunjika.libreprogramming.org/'
+HOST_URL = 'http://localhost:5000/'
 MAIL_SERVER_IP = '127.0.0.1'
 ES_URL = 'http://localhost:9200/'
 
