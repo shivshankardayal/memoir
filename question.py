@@ -1,4 +1,7 @@
-# Copyright (c) 2013 Shiv Shankar Dayal
+
+
+ARTICLES_PER_PAGE = 20
+MAINTENANCE_MODE = False# Copyright (c) 2013 Shiv Shankar Dayal
 # This file is part of Kunjika.
 #
 # Kunjika is free software: you can redistribute it and/or modify it
@@ -18,7 +21,7 @@ import memoir
 import urllib2
 import json
 from time import localtime, strftime
-from flaskext.gravatar import Gravatar
+from flask_gravatar import Gravatar
 
 def get_question_by_id(qid, question):
     question = memoir.qb.get(qid).value

@@ -24,7 +24,7 @@ from flask.ext.bcrypt import Bcrypt
 from couchbase import Couchbase
 from couchbase.exceptions import *
 import urllib2
-from flaskext.gravatar import Gravatar
+from flask_gravatar import Gravatar
 from werkzeug import SharedDataMiddleware
 from time import localtime, strftime, time
 from datetime import datetime
@@ -43,7 +43,9 @@ from flask_wtf import Form
 from wtforms import (BooleanField, StringField, validators, TextAreaField, RadioField)
 import pyes
 import urllib
-from couchbase.views.iterator import View, Query
+from couchbase.views.params import Query
+from couchbase.views.iterator import View
+from couchbase.bucket import Bucket
 from uuid import uuid1
 import base64
 from test_series import test_series
@@ -58,10 +60,10 @@ GOOGLE_ID = kunjika.config['GOOGLE_ID']
 GOOGLE_SECRET = kunjika.config['GOOGLE_SECRET']
 FACEBOOK_ID = kunjika.config['FACEBOOK_ID']
 FACEBOOK_SECRET = kunjika.config['FACEBOOK_SECRET']
-TWITTER_KEY = kunjika.config['TWITTER_KEY']
-TWITTER_SECRET = kunjika.config['TWITTER_SECRET']
-LINKEDIN_KEY = kunjika.config['LINKEDIN_KEY']
-LINKEDIN_SECRET = kunjika.config['LINKEDIN_SECRET']
+#TWITTER_KEY = kunjika.config['TWITTER_KEY']
+#TWITTER_SECRET = kunjika.config['TWITTER_SECRET']
+#LINKEDIN_KEY = kunjika.config['LINKEDIN_KEY']
+#LINKEDIN_SECRET = kunjika.config['LINKEDIN_SECRET']
 
 from oauth_impl import OA
 
@@ -77,8 +79,8 @@ POST_INTERVAL = kunjika.config['POST_INTERVAL']
 kunjika.debug = kunjika.config['DEBUG_MODE']
 kunjika.add_url_rule('/uploads/<filename>', 'uploaded_file',
                      build_only=True)
-kunjika.wsgi_app = SharedDataMiddleware(kunjika.wsgi_app, {
-    '/uploads': kunjika.config['UPLOAD_FOLDER']})
+#kunjika.wsgi_app = SharedDataMiddleware(kunjika.wsgi_app, {
+#    '/uploads': kunjika.config['UPLOAD_FOLDER']})
 QUESTIONS_PER_PAGE = kunjika.config['QUESTIONS_PER_PAGE']
 TAGS_PER_PAGE = kunjika.config['TAGS_PER_PAGE']
 USERS_PER_PAGE = kunjika.config['USERS_PER_PAGE']
@@ -90,6 +92,8 @@ USER_ANSWERS_PER_PAGE = kunjika.config['USER_ANSWERS_PER_PAGE']
 ARTICLES_PER_PAGE = kunjika.config['ARTICLES_PER_PAGE']
 
 is_maintenance_mode = kunjika.config['MAINTENANCE_MODE']
+
+ADMIN_EMAIL = kunjika.config['ADMIN_EMAIL']
 
 #oid = OpenID(kunjika, '/tmp')
 
@@ -109,11 +113,11 @@ lm = LoginManager()
 lm.init_app(kunjika)
 lm.session_protection = "strong"
 
-cb = Couchbase.connect("default")
-qb = Couchbase.connect("questions")
-tb = Couchbase.connect("tags")
-pb = Couchbase.connect("polls")
-kb = Couchbase.connect("kunjika")
+cb = Bucket("couchbase:///default")
+qb = Bucket("couchbase:///questions")
+tb = Bucket("couchbase:///tags")
+pb = Bucket("couchbase:///polls")
+kb = Bucket("couchbase:///kunjika")
 
 es_conn = pyes.ES(ES_URL)
 
@@ -332,38 +336,38 @@ def load_user(uid):
     return user
 
 
-@kunjika.route('/')
-def index():
-    contactForm = ContactForm(request.form)
-    (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
-    art_count = urllib2.urlopen(
-        DB_URL + 'kunjika/_design/dev_qa/_view/get_articles?stale=false'
-    ).read()
-    art_count = json.loads(art_count)
-    r = random.randint(0, 0xff)
-    green = random.randint(0, 0xff)
-    b = random.randint(0, 0xff)
-    return render_template('index.html', qcount=qcount, acount=acount, art_count=art_count['rows'][0]['value'],
-                           form=contactForm, r=r, green=green, b=b)
+#@kunjika.route('/')
+#def index():
+#    contactForm = ContactForm(request.form)
+#    (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
+#    art_count = urllib2.urlopen(
+#        DB_URL + 'kunjika/_design/dev_qa/_view/get_articles?stale=false'
+#    ).read()
+#    art_count = json.loads(art_count)
+#    r = random.randint(0, 0xff)
+#    green = random.randint(0, 0xff)
+#    b = random.randint(0, 0xff)
+#    return render_template('index.html', qcount=qcount, acount=acount, art_count=art_count['rows'][0]['value'],
+#                           form=contactForm, r=r, green=green, b=b)
 
 
-@kunjika.route('/query', methods=['POST'])
-def query():
-    contactForm = ContactForm(request.form)
-    if request.method == 'POST' and contactForm.validate_on_submit():
-        name = contactForm.name.data
-        email = contactForm.email.data
-        message = contactForm.message.data
+#@kunjika.route('/query', methods=['POST'])
+#def query():
+#    contactForm = ContactForm(request.form)
+#    if request.method == 'POST' and contactForm.validate_on_submit():
+#        name = contactForm.name.data
+#        email = contactForm.email.data
+#        message = contactForm.message.data
 
-        msg = Message("A new query from" + name)
-        msg.recipients = ['shivshankar.dayal@gmail.com']
-        msg.sender = admin
-        msg.html = "A new query from " + email + "is below</br>" + message
-        mail.send(msg)
-        flash('Your message has been successfully sent!', 'info')
-        return redirect(url_for('index'))
+#        msg = Message("A new query from" + name)
+#        msg.recipients = [ADMIN_EMAIL]
+#        msg.sender = admin
+#        msg.html = "A new query from " + email + "is below</br>" + message
+#        mail.send(msg)
+#        flash('Your message has been successfully sent!', 'info')
+#        return redirect(url_for('index'))
 
-
+@kunjika.route('/', defaults={'page': 1}, methods=['GET', 'POST'])
 @kunjika.route('/questions', defaults={'page': 1}, methods=['GET', 'POST'])
 @kunjika.route('/questions/<qid>', methods=['GET', 'POST'])
 @kunjika.route('/questions/<qid>/<url>', methods=['GET', 'POST'])
