@@ -1,5 +1,4 @@
 # Copyright (c) 2013 Shiv Shankar Dayal
-# Copyright (c) 2013 Shiv Shankar Dayal
 # This file is part of Kunjika.
 #
 # Kunjika is free software: you can redistribute it and/or modify it
@@ -21,11 +20,9 @@ import io
 import json
 from forms import *
 from flask.ext.bcrypt import Bcrypt
-from couchbase import Couchbase
 from couchbase.exceptions import *
 import urllib2
 from flask_gravatar import Gravatar
-from werkzeug import SharedDataMiddleware
 from time import localtime, strftime, time
 from datetime import datetime
 from flask.ext.login import (LoginManager, current_user, login_user,
@@ -49,7 +46,6 @@ from couchbase.bucket import Bucket
 from uuid import uuid1
 import base64
 from test_series import test_series
-import random
 import markdown
 import bleach
 
@@ -60,10 +56,13 @@ GOOGLE_ID = kunjika.config['GOOGLE_ID']
 GOOGLE_SECRET = kunjika.config['GOOGLE_SECRET']
 FACEBOOK_ID = kunjika.config['FACEBOOK_ID']
 FACEBOOK_SECRET = kunjika.config['FACEBOOK_SECRET']
-#TWITTER_KEY = kunjika.config['TWITTER_KEY']
-#TWITTER_SECRET = kunjika.config['TWITTER_SECRET']
-#LINKEDIN_KEY = kunjika.config['LINKEDIN_KEY']
-#LINKEDIN_SECRET = kunjika.config['LINKEDIN_SECRET']
+
+APP_ROOT = kunjika.config['APPLICATION_ROOT']
+
+# TWITTER_KEY = kunjika.config['TWITTER_KEY']
+# TWITTER_SECRET = kunjika.config['TWITTER_SECRET']
+# LINKEDIN_KEY = kunjika.config['LINKEDIN_KEY']
+# LINKEDIN_SECRET = kunjika.config['LINKEDIN_SECRET']
 
 from oauth_impl import OA
 
@@ -100,10 +99,10 @@ ADMIN_EMAIL = kunjika.config['ADMIN_EMAIL']
 mail = Mail(kunjika)
 admin = kunjika.config['ADMIN_EMAIL']
 
-kunjika.config.update(
+update = kunjika.config.update(
     DEBUG=True,
     # EMAIL SETTINGS
-    MAIL_SERVER='10hash.com',
+    MAIL_SERVER='localhost',
     MAIL_PORT=25,
     MAIL_USE_TLS=True,
     MAIL_USERNAME='noreply@10hash.com',
@@ -113,30 +112,26 @@ lm = LoginManager()
 lm.init_app(kunjika)
 lm.session_protection = "strong"
 
-cb = Bucket("couchbase:///default")
-qb = Bucket("couchbase:///questions")
-tb = Bucket("couchbase:///tags")
-pb = Bucket("couchbase:///polls")
-kb = Bucket("couchbase:///kunjika")
 mb = Bucket("couchbase:///memoir")
 
 es_conn = pyes.ES(ES_URL)
 
-# Initialize count at first run. Later it is useless
+# Initialize counters at first run. Later it should generate exception.
 try:
-    cb.add('count', 0)
+    mb.add('count', 0) # user count
 except:
     pass
-
-# Initialize question count at first run. Later it is useless
 try:
-    qb.add('qcount', 0)
+    mb.add('qcount', 0) # questions count
 except:
     pass
-
-# Initialize question count at first run. Later it is useless
 try:
-    tb.add('tcount', 0)
+    mb.add('tcount', 0) # tags count
+except:
+    pass
+try:
+    # article ids will be no longer uuids but sequentially generated
+    mb.add('acount', 0) # articles count
 except:
     pass
 
@@ -322,7 +317,7 @@ def before_request():
 
 def get_user(uid):
     try:
-        user_from_db = cb.get(str(uid)).value
+        user_from_db = mb.get(str(uid)).value
         if 'role' in user_from_db:
             return User(user_from_db['name'], user_from_db, user_from_db['id'], user_from_db['role'])
         else:
@@ -333,7 +328,7 @@ def get_user(uid):
 
 @lm.user_loader
 def load_user(uid):
-    user = get_user(int(uid))
+    user = get_user(uid)
     return user
 
 
@@ -342,7 +337,7 @@ def load_user(uid):
 #    contactForm = ContactForm(request.form)
 #    (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
 #    art_count = urllib2.urlopen(
-#        DB_URL + 'kunjika/_design/dev_qa/_view/get_articles?stale=false'
+#        DB_URL + 'memoir/_design/dev_kunjika/_view/get_articles?stale=false'
 #    ).read()
 #    art_count = json.loads(art_count)
 #    r = random.randint(0, 0xff)
@@ -391,16 +386,16 @@ def questions(tag=None, page=None, qid=None, url=None):
         pagination = utility.Pagination(page, QUESTIONS_PER_PAGE, count)
         if g.user is None:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
-                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
         elif g.user is not None and g.user.is_authenticated():
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, qcount=qcount,
-                                   ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                                   ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
         else:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
-                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     if qid is None:
-        count = qb.get('qcount').value
+        count = mb.get('qcount').value
         questions_list = utility.get_questions_for_page(page, QUESTIONS_PER_PAGE, count)
         if not questions_list and page != 1:
             abort(404)
@@ -408,14 +403,14 @@ def questions(tag=None, page=None, qid=None, url=None):
         # questions_list = question.get_questions()
         if g.user is None:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
-                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
         elif g.user is not None and g.user.is_authenticated():
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, qcount=qcount,
-                                   ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                                   ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
         else:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
-                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     else:
         questions_dict = question.get_question_by_id(qid, questions_dict)
         ccount = 0
@@ -427,11 +422,11 @@ def questions(tag=None, page=None, qid=None, url=None):
                     ccount += len(answer['comments'])
 
         try:
-            kb.get(str(g.user.id) + '_' + str(qid) + '_' + str(request.remote_addr))
+            mb.get(str(g.user.id) + '_' + str(qid) + '_' + str(request.remote_addr))
         except:
-            kb.set(str(g.user.id) + '_' + str(qid) + '_' + str(request.remote_addr), {"viewed": "true"}, ttl=900)
+            mb.set(str(g.user.id) + '_' + str(qid) + '_' + str(request.remote_addr), {"viewed": "true"}, ttl=900)
             questions_dict['views'] += 1
-            qb.replace(str(questions_dict['qid']), questions_dict)
+            mb.replace(str(questions_dict['qid']), questions_dict)
 
         choices = []
         votes = []
@@ -444,7 +439,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                 j += 1
                 if j == 1:
                     option1_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option1_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option1_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option1_votes = json.loads(option1_votes)
                     if len(option1_votes['rows']) != 0:
@@ -454,7 +449,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option1_votes, option))
                 elif j == 2:
                     option2_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option2_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option2_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option2_votes = json.loads(option2_votes)
                     if len(option2_votes['rows']) != 0:
@@ -466,7 +461,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     # print option
                 elif j == 3:
                     option3_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option3_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option3_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option3_votes = json.loads(option3_votes)
                     if len(option3_votes['rows']) != 0:
@@ -476,7 +471,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option3_votes, option))
                 elif j == 4:
                     option4_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option4_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option4_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option4_votes = json.loads(option4_votes)
                     if len(option4_votes['rows']) != 0:
@@ -486,7 +481,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option4_votes, option))
                 elif j == 5:
                     option5_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option5_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option5_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option5_votes = json.loads(option5_votes)
                     if len(option5_votes['rows']) != 0:
@@ -496,7 +491,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option5_votes, option))
                 elif j == 6:
                     option6_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option6_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option6_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option6_votes = json.loads(option6_votes)
                     if len(option6_votes['rows']) != 0:
@@ -506,7 +501,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option6_votes, option))
                 elif j == 7:
                     option7_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option7_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option7_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option7_votes = json.loads(option7_votes)
                     if len(option7_votes['rows']) != 0:
@@ -516,7 +511,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option7_votes, option))
                 elif j == 8:
                     option8_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option8_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option8_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option8_votes = json.loads(option8_votes)
                     if len(option8_votes['rows']) != 0:
@@ -526,7 +521,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option8_votes, option))
                 elif j == 9:
                     option9_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option9_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option9_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option9_votes = json.loads(option9_votes)
                     if len(option9_votes['rows']) != 0:
@@ -536,7 +531,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option9_votes, option))
                 elif j == 10:
                     option10_votes = urllib2.urlopen(
-                        DB_URL + 'polls/_design/dev_qa/_view/get_option10_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
+                        DB_URL + 'memoir/_design/dev_polls/_view/get_option10_votes?key=' + '"' + qid + '"' + '&reduce=true&stale=false'
                     ).read()
                     option10_votes = json.loads(option10_votes)
                     if len(option10_votes['rows']) != 0:
@@ -545,19 +540,19 @@ def questions(tag=None, page=None, qid=None, url=None):
                         option10_votes = 0
                     votes.append((option10_votes, option))
         if g.user is AnonymousUserMixin:
-            return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict, ccount=ccount)
+            return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict, ccount=ccount, APP_ROOT=APP_ROOT)
         elif g.user is not None and g.user.is_authenticated():
-            user = cb.get(str(g.user.id)).value
+            user = mb.get(str(g.user.id)).value
             if 'mc' not in questions_dict['content'] and 'sc' not in questions_dict['content']:
                 answerForm = AnswerForm(request.form)
                 if answerForm.validate_on_submit() and request.method == 'POST':
                     try:
-                        kb.get(str(g.user.id) + '_' + str(request.remote_addr))
+                        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
                         flash('You are allowed only one post per 30 seconds.', 'error')
                         return redirect(request.referrer)
                     except:
-                        if g.user.id != 1:
-                            kb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+                        if g.user.id !='u1':
+                            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
                         answer = {}
                         if 'answers' in questions_dict:
                             answer['aid'] = questions_dict['acount'] + 1
@@ -596,8 +591,8 @@ def questions(tag=None, page=None, qid=None, url=None):
                                                                         output_format='html5'), tags_wl, attrs_wl)
                         questions_dict['updated'] = int(time())
                         user['rep'] += 4
-                        cb.replace(str(g.user.id), user)
-                        qb.replace(str(questions_dict['qid']), questions_dict)
+                        mb.replace(str(g.user.id), user)
+                        mb.replace(str(questions_dict['qid']), questions_dict)
 
                         email_list = []
                         email_list.append(str(questions_dict['content']['op']))
@@ -617,7 +612,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                         email_list = list(email_list)
                         email_users = None
                         if email_list:
-                            email_users = cb.get_multi(email_list)
+                            email_users = mb.get_multi(email_list)
                         email_list = []
                         if email_users is not None:
                             for id in email_users:
@@ -637,7 +632,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                 return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
                                        form=answerForm, name=g.user.name, role=g.user.role, user_id=unicode(g.user.id), gravatar=gravatar32,
                                        qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
-                                       similar_questions=similar_questions, ccount=ccount)
+                                       similar_questions=similar_questions, ccount=ccount, APP_ROOT=APP_ROOT)
             elif 'sc' in questions_dict['content']:
                 class PollForm(Form):
                     pass
@@ -686,18 +681,18 @@ def questions(tag=None, page=None, qid=None, url=None):
                     user['rep'] += 4
 
                     try:
-                        pb.add(poll_id, vote)
-                        cb.replace(str(g.user.id), user)
-                        qb.replace(str(questions_dict['qid']), questions_dict)
+                        mb.add(poll_id, vote)
+                        mb.replace(str(g.user.id), user)
+                        mb.replace(str(questions_dict['qid']), questions_dict)
                     except:
                         flash('You have already voted on this question', 'error')
 
                     return redirect(url_for('questions', qid=questions_dict['qid'], url=questions_dict['content']['url'], ccount=ccount))
-                qb.replace(str(questions_dict['qid']), questions_dict)
+                mb.replace(str(questions_dict['qid']), questions_dict)
                 return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
                                        form=answerForm, name=g.user.name, role=g.user.role, user_id=unicode(g.user.id), gravatar=gravatar32,
                                        qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
-                                       votes=votes, similar_questions=similar_questions, ccount=ccount)
+                                       votes=votes, similar_questions=similar_questions, ccount=ccount, APP_ROOT=APP_ROOT)
             elif 'mc' in questions_dict['content']:
                 class PollForm(Form):
                     pass
@@ -752,24 +747,24 @@ def questions(tag=None, page=None, qid=None, url=None):
                     user['rep'] += 4
 
                     try:
-                        pb.add(poll_id, vote)
-                        cb.replace(str(g.user.id), user)
-                        qb.replace(str(questions_dict['qid']), questions_dict)
+                        mb.add(poll_id, vote)
+                        mb.replace(str(g.user.id), user)
+                        mb.replace(str(questions_dict['qid']), questions_dict)
                     except:
                         flash('You have already voted on this poll!', 'error')
 
                     return redirect(url_for('questions', qid=questions_dict['qid'], url=questions_dict['content']['url'], ccount=ccount))
-            qb.replace(str(questions_dict['qid']), questions_dict)
+            mb.replace(str(questions_dict['qid']), questions_dict)
             return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
                                        form=answerForm, name=g.user.name, role=g.user.role, user_id=unicode(g.user.id), gravatar=gravatar32,
                                        qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
-                                       options=i, field_names=options, votes=votes, similar_questions=similar_questions, ccount=ccount)
+                                       options=i, field_names=options, votes=votes, similar_questions=similar_questions, ccount=ccount, APP_ROOT=APP_ROOT)
 
         else:
-            qb.replace(str(questions_dict['qid']), questions_dict)
+            mb.replace(str(questions_dict['qid']), questions_dict)
             return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
                                    qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
-                                   votes=votes, similar_questions=similar_questions, ccount=ccount)
+                                   votes=votes, similar_questions=similar_questions, ccount=ccount, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/users/<uid>/<path:uname>/messages', defaults={'qpage': 1, 'apage': 1})
@@ -783,7 +778,7 @@ def messages(qpage=None, apage=None, uid=None, uname=None):
 def users(qpage=None, apage=None, uid=None, uname=None):
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
     try:
-        user = cb.get(str(uid)).value
+        user = mb.get(str(uid)).value
     except:
         return render_template('502.html') 
     questions = utility.get_user_questions_per_page(user, qpage, USER_QUESTIONS_PER_PAGE, user['qcount'])
@@ -824,15 +819,15 @@ def ask():
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
     questionForm = QuestionForm(request.form)
     if g.user is not None and g.user.is_authenticated():
-        user = cb.get(str(g.user.id)).value
+        user = mb.get(str(g.user.id)).value
         if questionForm.validate_on_submit() and request.method == 'POST':
             try:
-                kb.get(str(g.user.id) + '_' + str(request.remote_addr))
+                mb.get(str(g.user.id) + '_' + str(request.remote_addr))
                 flash('You are allowed only one post per 30 seconds.', 'error')
                 return redirect(request.referrer)
             except:
-                if g.user.id != 1:
-                    kb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+                if g.user.id !='u1':
+                    mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
                 question = {}
                 question['content'] = {}
                 title = questionForm.question.data
@@ -854,9 +849,9 @@ def ask():
 
                 for tag in tag_list:
                     try:
-                        tag = urllib2.urlopen(DB_URL + 'tags/_design/dev_qa/_view/get_tag_by_id?stale=false&key=' + urllib2.quote(str(tag))).read()
+                        tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id?stale=false&key=' + urllib2.quote(str(tag))).read()
                         tid = json.loads(tag)['rows'][0]['id']
-                        tag = tb.get(str(tid)).value
+                        tag = mb.get(str(tid)).value
                         new_tag_list.append(tag['tag'])
 
                     except:
@@ -873,33 +868,35 @@ def ask():
                 question['content']['ts'] = int(time())
                 question['updated'] = question['content']['ts']
                 question['content']['ip'] = request.remote_addr
-                question['qid'] = qb.incr('qcount', 1).value
+                question['qid'] = mb.incr('qcount', 1).value
+                question['qid'] = 'q' + str(question['qid'])
                 question['votes'] = 0
                 question['acount'] = 0
                 question['views'] = 0
                 question['votes_list'] = []
                 question['opname'] = g.user.name
                 question['close'] = False
+                question['type'] = 'q'
 
-                user = cb.get(str(g.user.id)).value
+                user = mb.get(str(g.user.id)).value
 
                 user['rep'] += 1
                 # Isuue 9
                 # user['questions'].append(question['qid'])
                 user['qcount'] += 1
                 print question['qid']
-                es_conn.index({'title': title, 'description': question['content']['description'], 'qid': question['qid'],
-                               'position': question['qid']}, 'questions', 'questions-type', question['qid'])
+                es_conn.index({'title': title, 'description': question['content']['description'], 'qid': int(question['qid'][1:]),
+                               'position': int(question['qid'][1:])}, 'questions', 'questions-type', int(question['qid'][1:]))
                 es_conn.indices.refresh('questions')
-                qb.add(str(question['qid']), question)
+                mb.add(str(question['qid']), question)
 
-                cb.replace(str(g.user.id), user)
+                mb.replace(str(g.user.id), user)
                 add_tags(question['content']['tags'], question['qid'])
 
                 return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
 
         return render_template('ask.html', title='Ask', form=questionForm, apage=True, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     return redirect(url_for('login'))
 
 
@@ -936,16 +933,17 @@ def create_profile():
     if profileForm.validate_on_submit() and request.method == 'POST':
         data = {}
         # print profileForm.email1.data
-        view = urllib2.urlopen(DB_URL + 'default/_design/dev_qa/_view/get_role?stale=false').read()
+        view = urllib2.urlopen(DB_URL + 'memoir/_design/dev_users/_view/get_role?stale=false').read()
         view = json.loads(view)
 
         if len(view['rows']) == 0:
             data['role'] = 'admin'
             populate_user_fields(data, profileForm)
 
-            did = cb.incr('count', 1).value
-            data['id'] = did
-            cb.add(str(did), data)
+            did = mb.incr('count', 1).value
+            data['id'] = 'u' + str(did)
+            data['type'] = 'user'
+            mb.add(data['id'], data)
             user = User(data['name'], data, data['id'])
             login_user(user, remember=True)
             es_conn.index({'name': data['name'], 'uid': did, 'position': did}, 'users', 'users-type', did)
@@ -965,14 +963,15 @@ def create_profile():
                 return make_response("cant login")
 
         document = urllib2.urlopen(
-            DB_URL + 'default/_design/dev_qa/_view/get_id_from_email?key=' + '"' + profileForm.email1.data + '"&stale=false').read()
+            DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + profileForm.email1.data + '"&stale=false').read()
         document = json.loads(document)
         if len(document['rows']) == 0:
             populate_user_fields(data, profileForm)
 
-            did = cb.incr('count', 1).value
-            data['id'] = did
-            cb.add(str(did), data)
+            did = mb.incr('count', 1).value
+            data['id'] = 'u' + str(did)
+            data['type'] = 'user'
+            mb.add(data['id'], data)
             user = User(data['name'], data, did)
             login_user(user, remember=True)
             es_conn.index({'name': data['name'], 'uid':did, 'position': did}, 'users', 'users-type', did)
@@ -1048,10 +1047,10 @@ def login():
     if loginForm.validate_on_submit() and request.method == 'POST':
         try:
             document = urllib2.urlopen(
-                DB_URL + 'default/_design/dev_qa/_view/get_id_from_email?stale=false&key=' + '"' + urllib2.quote(loginForm.email.data) + '"&stale=false').read()
+                DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?stale=false&key=' + '"' + urllib2.quote(loginForm.email.data) + '"&stale=false').read()
             document = json.loads(document)['rows']
             if len(document) != 0:
-                document = cb.get(document[0]['id']).value
+                document = mb.get(document[0]['id']).value
             else:
                 flash('Either email or password is wrong', 'error')
                 return redirect(url_for('login'))
@@ -1078,10 +1077,10 @@ def login():
 
             else:
                 try:
-                    user = kb.get(document['email'])
+                    user = mb.get(document['email'])
                     flash('Either email or password is wrong.', 'error')
                     user['login_attemps'] += 1
-                    kb.replace(user['email'], user, ttl=600)
+                    mb.replace(user['email'], user, ttl=600)
                     if user['login_attempts'] == kunjika.config['MAX_FAILED_LOGINS']:
                         document['password'] = kunjika.config['RESET_PASSWORD']
                         msg = Message("Account banned")
@@ -1095,22 +1094,22 @@ def login():
                     user = {}
                     user['email'] = document['email']
                     user['login_attempts'] = 1
-                    kb.add(user['email'], user, ttl=600)
+                    mb.add(user['email'], user, ttl=600)
                     flash('Either email or password is wrong.', 'error')
 
                 render_template('login.html', form=registrationForm, loginForm=loginForm, title='Sign In',
-                                lpage=True)
+                                lpage=True, APP_ROOT=APP_ROOT)
 
         except:
             return render_template('login.html', form=registrationForm, loginForm=loginForm,
-                                   title='Sign In', lpage=True)
+                                   title='Sign In', lpage=True, APP_ROOT=APP_ROOT)
 
     else:
         render_template('login.html', form=registrationForm, loginForm=loginForm, title='Sign In',
-                        lpage=True)
+                        lpage=True, APP_ROOT=APP_ROOT)
 
     return render_template('login.html', form=registrationForm, loginForm=loginForm, title='Sign In',
-                           lpage=True)
+                           lpage=True, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/register', methods=['GET', 'POST'])
@@ -1124,16 +1123,18 @@ def register():
         passwd_hash = bcrypt.generate_password_hash(registrationForm.password.data)
 
         data = {}
-        view = urllib2.urlopen(DB_URL + 'default/_design/dev_qa/_view/get_role?stale=false').read()
+        view = urllib2.urlopen(DB_URL + 'memoir/_design/dev_users/_view/get_role?stale=false').read()
         view = json.loads(view)
+        print view
         if len(view['rows']) == 0:
             data['password'] = passwd_hash
             data['role'] = 'admin'
             populate_user_fields(data, registrationForm)
 
-            did = cb.incr('count', 1).value
-            data['id'] = did
-            cb.add(str(did), data)
+            did = mb.incr('count', 1).value
+            data['id'] = 'u' + str(did)
+            data['type'] = 'user'
+            mb.add(data['id'], data)
             session['admin'] = True
             user = User(data['name'], data, data['id'])
             login_user(user, remember=True)
@@ -1143,20 +1144,21 @@ def register():
             return redirect(url_for('questions'))
 
         document = urllib2.urlopen(
-            DB_URL + 'default/_design/dev_qa/_view/get_id_from_email?key=' + '"' + registrationForm.email1.data + '"&stale=false').read()
+            DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + registrationForm.email1.data + '"&stale=false').read()
         document = json.loads(document)
         if len(document['rows']) != 0:
             if 'id' in document['rows'][0]:
-                document = cb.get(document['rows'][0]['id']).value
+                document = mb.get(document['rows'][0]['id']).value
         else:
             data['password'] = passwd_hash
             populate_user_fields(data, registrationForm)
 
-            did = cb.incr('count', 1).value
-            data['id'] = did
-            cb.add(str(did), data)
+            did = mb.incr('count', 1).value
+            data['id'] = 'u' + str(did)
+            data['type'] = 'user'
+            mb.add(data['id'], data)
 
-            user = User(data['name'], data, did)
+            user = User(data['name'], data, 'u' + str(did))
             try:
                 login_user(user, remember=True)
                 g.user = user
@@ -1185,11 +1187,11 @@ def check_email():
 
     try:
         document = urllib2.urlopen(
-            DB_URL + 'default/_design/dev_qa/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
+            DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
         document = json.loads(document)
         if 'id' in document['rows'][0]:
             try:
-                document = cb.get(document['rows'][0]['id']).value
+                document = mb.get(document['rows'][0]['id']).value
                 return '0'
             except:
                 '1'
@@ -1219,10 +1221,10 @@ def image_upload():
         content = file.read()
         extension = file.filename.split(".")[-1]
         encoded_file = base64.b64encode(content)
-        id = 'u-' + str(uuid1()) + "." + extension
+        id = 'upload-' + str(uuid1()) + "." + extension
         data = {}
         try:
-            kb.add(id, {'content': encoded_file})
+            mb.add(id, {'content': encoded_file})
             data['success'] = "true"
             data['imagePath'] = HOST_URL + "uploads/" + id
         except:
@@ -1234,7 +1236,7 @@ def image_upload():
 
 @kunjika.route('/uploads/<string:filename>', methods=['GET'])
 def get_uploads(filename):
-    content = kb.get(filename).value['content']
+    content = mb.get(filename).value['content']
     content = base64.b64decode(content)
 
     return send_file(io.BytesIO(content))
@@ -1293,19 +1295,19 @@ def get_tags(qid=None):
     print request.url
     if qid is not None:
         print "hello"
-        question = qb.get(str(qid)).value
+        question = mb.get(str(qid)).value
 
         tags = question['content']['tags']
 
         tags_list = []
         tids_list = []
         for i in tags:
-            tag = urllib2.urlopen(DB_URL + 'tags/_design/dev_qa/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(i)) + '"&stale=false').read()
+            tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(i)) + '"&stale=false').read()
             tag = json.loads(tag)['rows'][0]['id']
             tids_list.append(tag)
 
         if len(tids_list) != 0:
-            val_res = tb.get_multi(tids_list)
+            val_res = mb.get_multi(tids_list)
         tags = []
         for tid in tids_list:
             tags_list.append({"id": val_res[str(tid)].value['tid'], "name": val_res[str(tid)].value['tag']})
@@ -1315,11 +1317,13 @@ def get_tags(qid=None):
 @kunjika.route('/get_tags/')
 def get_tags_ajax():
     query = request.args.get('q')
+    print query
     if query is not None:
         q = pyes.PrefixQuery('tag', query)
         tags_result = es_conn.search(query=q)
         results = []
         for r in tags_result:
+            print r
             results.append({'id': str(r['tid']), 'name': r['tag']})
 
         return json.dumps(results)
@@ -1328,9 +1332,9 @@ def get_tags_ajax():
 def add_tags(tags_passed, qid):
     for tag in tags_passed:
         try:
-            document = tb.get(tag).value
+            document = mb.get(tag).value
             document['count'] += 1
-            tb.replace(tag.lower(), document)
+            mb.replace(tag.lower(), document)
 
         except:
             data = {}
@@ -1339,10 +1343,10 @@ def add_tags(tags_passed, qid):
             data['tag'] = tag
             data['count'] = 1
             data['info'] = ""
-            tid = tb.incr('tcount', 1).value
+            tid = mb.incr('tcount', 1).value
             data['tid'] = tid
 
-            tb.add(tag, data)
+            mb.add(tag, data)
             es_conn.index({'tag': tag, 'tid': tid, 'position': tid}, 'tags', 'tags-type', tid)
             es_conn.indices.refresh('tags')
 
@@ -1352,9 +1356,9 @@ def replace_tags(tags_passed, qid, current_tags):
         if tag not in current_tags:
             tid = 0
             try:
-                document = tb.get(tag).value
+                document = mb.get(tag).value
                 document['count'] += 1
-                tb.replace(tag, document)
+                mb.replace(tag, document)
 
             except:
                 data = {}
@@ -1363,22 +1367,22 @@ def replace_tags(tags_passed, qid, current_tags):
                 data['tag'] = tag
                 data['count'] = 1
                 data['info'] = ""
-                tid = tb.incr('tcount', 1).value
+                tid = mb.incr('tcount', 1).value
                 data['tid'] = tid
 
-                tb.add(tag, data)
+                mb.add(tag, data)
                 es_conn.index({'tag': tag, 'tid': tid, 'position': tid}, 'tags', 'tags-type', tid)
                 es_conn.indices.refresh('tags')
 
     for tag in current_tags:
         if tag not in tags_passed:
             print tag
-            tag = urllib2.urlopen(DB_URL + 'tags/_design/dev_qa/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(tag)) + '"&stale=false').read()
+            tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(tag)) + '"&stale=false').read()
             tid = json.loads(tag)['rows'][0]['id']
-            tag = tb.get(tid).value
+            tag = mb.get(tid).value
             tag['count'] -= 1
 
-            tb.replace(tag['tag'], tag)
+            mb.replace(tag['tag'], tag)
             # deletion of tag decreases counter which produces duplicate ids
             # this causes bad tagging while asking question. Disabling
             # if tag['count'] == 0:
@@ -1401,7 +1405,7 @@ def edits(element):
 
     edit_list = element.split('-')
 
-    question = qb.get(edit_list[1]).value
+    question = mb.get(edit_list[1]).value
     type = edit_list[0]
     form = ""
     qid = edit_list[1]
@@ -1421,7 +1425,6 @@ def edits(element):
     if request.method == 'POST':
         if 'version' not in question:
             question['version'] = 1
-            question['type'] = 'qb'  # question backup
             question['editor'] = g.user.id
             question['edited'] = True
         else:
@@ -1430,7 +1433,7 @@ def edits(element):
         if type == 'ce':
             if form.validate_on_submit():
                 if aid != 0:
-                    if question['answers'][int(aid) - 1]['comments'][int(cid) - 1]['poster'] != g.user.id and g.user.id != 1:
+                    if question['answers'][int(aid) - 1]['comments'][int(cid) - 1]['poster'] != g.user.id and g.user.id !='u1':
                         flash('You are not author of this comment!', 'error')
                         return redirect(request.referrer)
                     question['answers'][int(aid) - 1]['comments'][int(cid) - 1]['comment'] = form.comment.data
@@ -1439,7 +1442,7 @@ def edits(element):
                                                                                                                          output_format='html5'), tags_wl, attrs_wl)
                     question['answers'][int(aid) - 1]['comments'][int(cid) - 1]['edited'] = True
                 else:
-                    if question['comments'][int(cid) - 1] != g.user.id and g.user.id != 1:
+                    if question['comments'][int(cid) - 1] != g.user.id and g.user.id !='u1':
                         flash('You are not author of this comment!', 'error')
                         return redirect(request.referrer)
                     question['comments'][int(cid) - 1]['comment'] = form.comment.data
@@ -1448,17 +1451,17 @@ def edits(element):
                                                                                                 output_format='html5'), tags_wl, attrs_wl)
                     question['comments'][int(cid) - 1]['edited'] = True
 
-                editor = cb.get(str(g.user.id)).value
+                editor = mb.get(str(g.user.id)).value
                 editor['rep'] += 1
                 question['updated'] = int(time())
-                qb.replace(qid, question)
-
-                kb.add(edit_list[1] + '_v' + str(question['version']), question)
+                mb.replace(qid, question)
+                question['type'] = 'qb'  # question backup
+                mb.add(edit_list[1] + '_v' + str(question['version']), question)
 
             return redirect(url_for('questions', qid=int(qid), url=utility.generate_url(question['title'])))
         elif type == 'ae':
             if form.validate_on_submit():
-                if question['answers'][int(aid) - 1]['poster'] != g.user.id and g.user.id != 1:
+                if question['answers'][int(aid) - 1]['poster'] != g.user.id and g.user.id !='u1':
                     flash('You are not author of this answer!', 'error')
                     return redirect(request.referrer)
                 question['answers'][int(aid) - 1]['answer'] = form.answer.data
@@ -1467,17 +1470,18 @@ def edits(element):
                                                                                            output_format='html5'), tags_wl, attrs_wl)
                 question['answers'][int(aid) - 1]['edited'] = True
 
-                editor = cb.get(str(g.user.id)).value
+                editor = mb.get(str(g.user.id)).value
                 editor['rep'] += 1
                 question['updated'] = int(time())
-                qb.replace(qid, question)
+                mb.replace(qid, question)
+                question['type'] = 'qb'  # question backup
 
-                kb.add(edit_list[1] + '_v' + str(question['version']), question)
+                mb.add(edit_list[1] + '_v' + str(question['version']), question)
 
             return redirect(url_for('questions', qid=int(qid), url=utility.generate_url(question['title'])))
         else:
             if form.validate_on_submit():
-                if int(question['content']['op']) != g.user.id and g.user.id != 1:
+                if question['content']['op'] != g.user.id and g.user.id !='u1':
                     flash('You are not author of this question!', 'error')
                     return redirect(request.referrer)
                 question['content']['description'] = form.description.data
@@ -1504,9 +1508,9 @@ def edits(element):
                 for tag in tag_list:
                     try:
                         # tag = int(tag)
-                        tag = urllib2.urlopen(DB_URL + 'tags/_design/dev_qa/_view/get_tag_by_id?stale=false&key=' + str(tag)).read()
+                        tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id?stale=false&key=' + str(tag)).read()
                         tid = json.loads(tag)['rows'][0]['id']
-                        tag = tb.get(str(tid)).value
+                        tag = mb.get(str(tid)).value
                         new_tag_list.append(tag['tag'])
 
                     except:
@@ -1514,17 +1518,18 @@ def edits(element):
 
                 question['updated'] = int(time())
                 question['content']['tags'] = new_tag_list
-                editor = cb.get(str(g.user.id)).value
+                editor = mb.get(str(g.user.id)).value
                 editor['rep'] += 1
-                qb.replace(str(qid), question)
+                mb.replace(str(qid), question)
+                question['type'] = 'qb'  # question backup
 
-                kb.add(edit_list[1] + '_v' + str(question['version']), question)
-                es_conn.index({'title': question['title'], 'description': question['content']['description'], 'qid': question['qid'],
-                               'position': question['qid']}, 'questions', 'questions-type', question['qid'])
+                mb.add(edit_list[1] + '_v' + str(question['version']), question)
+                es_conn.index({'title': question['title'], 'description': question['content']['description'], 'qid': int(question['qid'][1:]),
+                               'position': int(question['qid'][1:])}, 'questions', 'questions-type', int(question['qid'][1:]))
                 es_conn.indices.refresh('questions')
 
                 replace_tags(question['content']['tags'], question['qid'], current_tags)
-            return redirect(url_for('questions', qid=int(qid), url=utility.generate_url(question['title'])))
+            return redirect(url_for('questions', qid=qid, url=utility.generate_url(question['title'])))
     else:
         return render_template('edit.html', title='Edit', form=form, question=question, type=type, qid=qid,
                                aid=int(aid), cid=int(cid), qcount=qcount, ucount=ucount, tcount=tcount,
@@ -1545,10 +1550,10 @@ def favorited():
 def flag():
     idntfr = request.args.get('id')
     url = request.args.get('url')
-    user = cb.get(str(g.user.id)).value
+    user = mb.get(str(g.user.id)).value
     idntfr_list = idntfr.split('-')
 
-    question = qb.get(str(idntfr_list[1])).value
+    question = mb.get(str(idntfr_list[1])).value
     op_id = 0
     if idntfr_list[0] == '#qqf':
         op_id = question['content']['op']
@@ -1566,7 +1571,7 @@ def flag():
                 for comment in answer['comments']:
                     if unicode(comment['cid']) == idntfr_list[3]:
                         op_id = comment['poster']
-    flagged_user = cb.get(str(op_id)).value
+    flagged_user = mb.get(str(op_id)).value
 
     msg = Message("Inappropriate content flag for element " + str(idntfr))
     msg.recipients = [admin]
@@ -1588,11 +1593,11 @@ def flag():
 @kunjika.route('/postcomment', methods=['GET', 'POST'])
 def postcomment():
     try:
-        kb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
         return json.dumps({"result": "false"})
     except:
-        if g.user.id != 1:
-            kb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+        if g.user.id !='u1':
+            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         if len(request.form['comment']) < 10 or len(request.form['comment']) > 5000:
             return "Comment must be between 10 and 5000 characters."
         elif g.user.id == -1:
@@ -1604,7 +1609,7 @@ def postcomment():
             if len(elements) == 2:  # check if comment has been made on answers
                 aid = elements[1]
 
-        question = qb.get(qid).value
+        question = mb.get(qid).value
         aid = int(aid)
         comment = {}
         comment['comment'] = request.form['comment']
@@ -1637,7 +1642,7 @@ def postcomment():
                 question['comments'].append(comment)
 
         question['updated'] = int(time())
-        qb.replace(str(qid), question)
+        mb.replace(str(qid), question)
         email_list = []
         email_list.append(str(question['content']['op']))
         if 'comments' in question:
@@ -1656,7 +1661,7 @@ def postcomment():
         email_list = list(email_list)
 
         if len(email_list) != 0:
-            email_users = cb.get_multi(email_list)
+            email_users = mb.get_multi(email_list)
             email_list = []
 
             for id in email_users:
@@ -1683,14 +1688,14 @@ def unanswered(page):
     q = Query(descending=True, limit=50)
     questions_list = []
     count = 0
-    for result in View(qb, "dev_qa", "get_unanswered", include_docs=True, query=q):
+    for result in View(mb, "dev_questions", "get_questions", include_docs=True, query=q):
         questions_list.append(result.doc.value)
         count += 1
 
     for i in questions_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(float(i['content']['ts'])))
 
-        user = cb.get(i['content']['op']).value
+        user = mb.get(i['content']['op']).value
         i['opname'] = user['name']
 
     if not questions_list and page != 1:
@@ -1712,7 +1717,7 @@ def unanswered(page):
 @kunjika.route('/users/page/<int:page>')
 def show_users(page):
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
-    count = cb.get('count').value
+    count = mb.get('count').value
     users = utility.get_users_per_page(page, USERS_PER_PAGE, count)
     if not users and page != 1:
         abort(404)
@@ -1733,10 +1738,10 @@ def show_users(page):
 @kunjika.route('/tags/page/<int:page>')
 def show_tags(page):
     tag_list = []
-    qcount = qb.get('qcount').value
-    ucount = cb.get('count').value
-    tcount = tb.get('tcount').value
-    acount = urllib2.urlopen(DB_URL + 'questions/_design/dev_qa/_view/get_acount?reduce=true&stale=false').read()
+    qcount = mb.get('qcount').value
+    ucount = mb.get('count').value
+    tcount = mb.get('tcount').value
+    acount = urllib2.urlopen(DB_URL + 'memoir/_design/dev_questions/_view/get_acount?reduce=true&stale=false').read()
     acount = json.loads(acount)
     if len(acount['rows']) is not 0:
         acount = acount['rows'][0]['value']
@@ -1744,7 +1749,7 @@ def show_tags(page):
         acount = 0
     if tcount > 0:
         tag_list = utility.get_popular_tags()
-    count = tb.get('tcount').value
+    count = mb.get('tcount').value
     tags = utility.get_tags_per_page(page, TAGS_PER_PAGE, count)
     if not tags and page != 1:
         abort(404)
@@ -1770,7 +1775,7 @@ def recent_feed():
 
     q = Query(descending=True, limit=50)
     question_list = []
-    for result in View(qb, "dev_qa", "get_questions", include_docs=True, query=q):
+    for result in View(mb, "dev_questions", "get_questions", include_docs=True, query=q):
         question_list.append(result.doc.value)
 
     for q in question_list:
@@ -1792,7 +1797,7 @@ def ban():
         else:
             user['banned'] = False
 
-        cb.replace(user_id, user)
+        mb.replace(user_id, user)
 
         return jsonify({"success": True})
     else:
@@ -1806,9 +1811,9 @@ def tag_info(tag=None):
         tag = request.args.get('tag')
     tag_list = []
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
-    tag = urllib2.urlopen(DB_URL + 'tags/_design/dev_qa/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(tag)) + '"&stale=false').read()
+    tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(tag)) + '"&stale=false').read()
     tid = json.loads(tag)['rows'][0]['id']
-    tag = tb.get(tid).value
+    tag = mb.get(tid).value
     if g.user is AnonymousUserMixin:
         return render_template('tag_info.html', title='Info', tag=tag, tpage=True)
     elif g.user is not None and g.user.is_authenticated():
@@ -1821,16 +1826,16 @@ def tag_info(tag=None):
 def edit_tag(tag):
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
 
-    tag = urllib2.urlopen(DB_URL + 'tags/_design/dev_qa/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(tag) + '"&stale=false').read()
+    tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(tag) + '"&stale=false').read()
     tid = json.loads(tag)['rows'][0]['id']
-    tag = tb.get(tid).value
+    tag = mb.get(tid).value
     tagForm = TagForm(request.form)
     if g.user is not None and g.user.is_authenticated():
         if tagForm.validate_on_submit() and request.method == 'POST':
             tag['info'] = tagForm.info.data
             tag['info-html'] = bleach.clean(markdown.markdown(tag['info'], extensions=['extra', 'codehilite'],
                                                               output_format='html5'), tags_wl, attrs_wl)
-            tb.replace(tag['tag'], tag)
+            mb.replace(tag['tag'], tag)
             return redirect(url_for('tag_info', tag=str(tag['tag'])))
 
         return render_template('edit_tag.html', title='Edit tag', form=tagForm, tpage=True, name=g.user.name, role=g.user.role, tag=tag,
@@ -1847,11 +1852,11 @@ def reset_password(token=None):
         if emailForm.validate_on_submit() and request.method == 'POST':
             email = emailForm.email.data
             document = urllib2.urlopen(
-                DB_URL + 'default/_design/dev_qa/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
+                DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
             document = json.loads(document)
             if len(document['rows']) != 0:
                 if 'id' in document['rows'][0]:
-                    document = cb.get(document['rows'][0]['id']).value
+                    document = mb.get(document['rows'][0]['id']).value
                 if document['email'] == email:
                     token = s.sign(email)
                     msg = Message("Password reset")
@@ -1877,16 +1882,16 @@ def reset_password(token=None):
                 email = s.unsign(token, max_age=86400)
 
                 document = urllib2.urlopen(
-                    DB_URL + 'default/_design/dev_qa/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
+                    DB_URL + 'users/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
                 document = json.loads(document)
                 if 'id' in document['rows'][0]:
                     try:
-                        document = cb.get(str(document['rows'][0]['id'])).value
+                        document = mb.get(str(document['rows'][0]['id'])).value
                     except:
                         return redirect(url_for('questions'))
                     passwd_hash = bcrypt.generate_password_hash(passwordResetForm.password.data)
                     document['password'] = passwd_hash
-                    cb.replace(str(document['id']), document)
+                    mb.replace(str(document['id']), document)
             except:
                 return redirect(url_for('questions'))
 
@@ -1916,7 +1921,7 @@ def search_help():
 def stikcy():
     if g.user.id == 1:
         qid = request.args.get('id')[2:]
-        question = qb.get(str(qid)).value
+        question = mb.get(str(qid)).value
         if 'sticky' not in question:
             question['sticky'] = True
         elif question['sticky'] is False:
@@ -1924,7 +1929,7 @@ def stikcy():
         else:
             question['sticky'] = False
 
-        qb.replace(str(qid), question)
+        mb.replace(str(qid), question)
 
         return jsonify({"success": True})
     else:
@@ -1935,13 +1940,13 @@ def stikcy():
 def close():
     if g.user.id == 1:
         qid = request.args.get('id')[2:]
-        question = qb.get(str(qid)).value
+        question = mb.get(str(qid)).value
         if question['close'] is False:
             question['close'] = True
         elif question['close'] is True:
             question['close'] = False
 
-        qb.replace(str(qid), question)
+        mb.replace(str(qid), question)
 
         return jsonify({"success": True})
     else:
@@ -1954,15 +1959,19 @@ def poll(page=1):
 
     pollForm = PollForm(request.form)
 
-    poll_count = urllib2.urlopen(DB_URL + "questions/_design/dev_qa/_view/get_polls?stale=false").read()
+    poll_count = urllib2.urlopen(DB_URL + "memoir/_design/dev_questions/_view/get_polls?stale=false").read()
     poll_count = json.loads(poll_count)
-    # print poll_count
-    poll_count = poll_count['rows'][0]['value']
+    print poll_count
+    try:
+        poll_count = poll_count['rows'][0]['value']
+    except:
+        poll_count = 0
     skip = (page - 1) * QUESTIONS_PER_PAGE
 
     pid_list = []
+    pagination = None
     if poll_count > 0:
-        polls = urllib2.urlopen(DB_URL + 'questions/_design/dev_qa/_view/get_polls?reduce=False&skip=' + str(skip) + '&limit=' +
+        polls = urllib2.urlopen(DB_URL + 'memoir/_design/dev_questions/_view/get_polls?reduce=False&skip=' + str(skip) + '&limit=' +
                                 str(QUESTIONS_PER_PAGE)).read()
         polls = json.loads(polls)
         # print polls
@@ -1971,7 +1980,9 @@ def poll(page=1):
             pid_list.append(row['id'])
     # print pid_list
     poll_list = []
-    polls = qb.get_multi(pid_list)
+    polls = []
+    if len(pid_list) != 0:
+        polls = mb.get_multi(pid_list)
     for pid in pid_list:
         poll_list.append(polls[str(pid)].value)
 
@@ -2058,17 +2069,19 @@ def poll(page=1):
             question['updated'] = question['content']['ts']
             question['content']['ip'] = request.remote_addr
 
-            question['qid'] = qb.incr('qcount', 1).value
+            question['qid'] = mb.incr('qcount', 1).value
+            question['qid'] = 'q' + str(question['qid'])
             question['votes'] = 0
             question['acount'] = 0
             question['views'] = 0
             question['votes_list'] = []
+            question['type'] = 'q'
             user = g.user.user_doc
             user['rep'] += 1
             user['qcount'] += 1
 
-            qb.add(str(question['qid']), question)
-            cb.replace(str(g.user.id), user)
+            mb.add(str(question['qid']), question)
+            mb.replace(str(g.user.id), user)
             add_tags(question['content']['tags'], question['qid'])
 
             return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
@@ -2152,11 +2165,11 @@ def administration():
 
     if g.user.id == 1:
         if request.method == 'POST' and form.validate_on_submit():
-            document = urllib2.urlopen(DB_URL + 'default/_design/dev_qa/_view/get_id_from_email').read()
+            document = urllib2.urlopen(DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email').read()
             document = json.loads(document)
             email_list = []
             for row in document['rows']:
-                each_doc = cb.get(row['id']).value
+                each_doc = mb.get(row['id']).value
                 #if each_doc['receive-email'] is True:
                 email_list.append(each_doc['email'])
             msg = Message(form.subject.data)
@@ -2204,7 +2217,7 @@ def edit_profile(uid=None):
                     else:
                         user['skills'].append(skill)
             user['skills'].sort()
-            cb.replace(str(g.user.id), user)
+            mb.replace(str(g.user.id), user)
 
             return redirect(url_for('users', uid=g.user.id, uname=g.user.name))
         return render_template('edit_profile.html', title='Edit Profile', form=form, user=user, name=g.user.name, role=g.user.role,
@@ -2229,7 +2242,7 @@ def settings(uid=None, uname=None):
                 passwd_hash = bcrypt.generate_password_hash(passwd)
                 user['password'] = passwd_hash
                 try:
-                    cb.replace(str(g.user.id), user)
+                    mb.replace(str(g.user.id), user)
                     flash('Your password was successfuly chnaged.', 'success')
                 except:
                     flash('Your password could not be changed. Contact admin', 'error')
@@ -2255,7 +2268,7 @@ def notify():
         response = {'success': 'false'}
 
     try:
-        cb.replace(str(g.user.id), user)
+        mb.replace(str(g.user.id), user)
 
         return jsonify(response)
     except:
@@ -2266,18 +2279,18 @@ def notify():
 def bookmark():
     qid = request.args.get('id')
     print qid.split('-')[1]
-    bookmark = qb.get(qid.split('-')[1]).value
+    bookmark = mb.get(qid.split('-')[1]).value
     bid = 'bq-' + qid.split('-')[1] + '-' + str(g.user.id)  # bq stands for bookmark question
 
     try:
-        bookmark_doc = kb.get(bid).value
+        bookmark_doc = mb.get(bid).value
         if bookmark_doc['status'] is False:
             bookmark_doc['status'] = True
-            kb.replace(bid, bookmark_doc)
+            mb.replace(bid, bookmark_doc)
             return jsonify({'bookmark': True})
         else:
             bookmark_doc['status'] = False
-            kb.replace(bid, bookmark_doc)
+            mb.replace(bid, bookmark_doc)
             return jsonify({'bookmark': False})
     except:
         bookmark_doc = {}
@@ -2289,7 +2302,7 @@ def bookmark():
         bookmark_doc['uid'] = g.user.id
         bookmark_doc['name'] = g.user.name
         bookmark_doc['status'] = True
-        kb.add(bid, bookmark_doc)
+        mb.add(bid, bookmark_doc)
         return jsonify({'bookmark': True})
 
 
@@ -2300,10 +2313,10 @@ def user_bookmarks(uid, name, page=1):
         flash('You are not allowed to view the bookmarks other than your own.', 'error')
         return redirect(request.referrer)
     skip = (page - 1) * QUESTIONS_PER_PAGE
-    questions = urllib2.urlopen(DB_URL + 'kunjika/_design/dev_qa/_view/get_bookmarks_by_uid?limit=' +
+    questions = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_bookmarks_by_uid?limit=' +
                                 str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key=' +
                                 str(uid) + '&reduce=false').read()
-    count = urllib2.urlopen(DB_URL + 'kunjika/_design/dev_qa/_view/get_bookmarks_by_uid?key=' +
+    count = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_bookmarks_by_uid?key=' +
                             str(uid)).read()
     count = json.loads(count)['rows']
     if len(count) != 0:
@@ -2318,7 +2331,7 @@ def user_bookmarks(uid, name, page=1):
 
     print qids
     if len(qids) != 0:
-        val_res = qb.get_multi(qids)
+        val_res = mb.get_multi(qids)
     questions_list = []
     for qid in qids:
         questions_list.append(val_res[str(qid)].value)
@@ -2333,7 +2346,7 @@ def user_bookmarks(uid, name, page=1):
                            force_default=False,
                            force_lower=False)
     try:
-        user = cb.get(str(g.user.id)).value
+        user = mb.get(str(g.user.id)).value
     except:
         pass
 
@@ -2353,7 +2366,7 @@ def user_bookmarks(uid, name, page=1):
 @kunjika.route('/get_skills/<uid>', methods=['GET', 'POST'])
 def get_skills(uid=None):
     if uid is not None:
-        user = cb.get(str(uid)).value
+        user = mb.get(str(uid)).value
         if 'skills' in user and len(user['skills']) > 0:
             skills = user['skills']
             sids = []
@@ -2376,7 +2389,7 @@ def user_skills(uid, name):
     if not g.user.is_authenticated():
         flash('You need to be logged in to view skills and endorsements.', 'error')
         return redirect(request.referrer)
-    user = cb.get(str(uid)).value
+    user = mb.get(str(uid)).value
     gravatar100 = Gravatar(kunjika,
                            size=100,
                            rating='g',
@@ -2396,26 +2409,26 @@ def user_skills(uid, name):
     sids = []
     if 'skills' in user:
         for skill in user['skills']:
-            sid_doc = urllib2.urlopen(DB_URL + 'kunjika/_design/dev_qa/_view/get_end_by_uid?key=[' + str(user['id']) +
+            sid_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + str(user['id']) +
                                       ',"' + urllib.quote(skill) + '"]&stale=false&reduce=false').read()
             sid_doc = json.loads(sid_doc)
             for row in sid_doc['rows']:
                 sids.append(row['id'])
 
             if len(sids) != 0:
-                val_res = kb.get_multi(sids)
+                val_res = mb.get_multi(sids)
 
             endorsements = []
             has_endorsement = False
             for id in sids:
                 endorsement = val_res[str(id)].value
-                endorsement['user'] = cb.get(str(endorsement['fuid'])).value
+                endorsement['user'] = mb.get(str(endorsement['fuid'])).value
                 endorsements.append(endorsement)
                 if g.user.id == endorsement['fuid']:
                     has_endorsement = True
 
             sids = []
-            count_doc = urllib2.urlopen(DB_URL + 'kunjika/_design/dev_qa/_view/get_end_by_uid?key=[' + str(user['id']) +
+            count_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + str(user['id']) +
                                         ',"' + urllib.quote(skill) + '"]&stale=false&reduce=true').read()
             count_doc = json.loads(count_doc)
             if len(count_doc['rows']) != 0:
@@ -2442,12 +2455,12 @@ def endorse():
 @kunjika.route('/write', methods=['GET', 'POST'])
 def write_article():
     try:
-        kb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
         flash('You are allowed only one post per 30 seconds.', 'error')
         return redirect(request.referrer)
     except:
-        if g.user.id != 1:
-            kb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+        if g.user.id !='u1':
+            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.write_article()
 
 
@@ -2464,23 +2477,23 @@ def browse_articles(page=None, aid=None, tag=None, url=None):
 @kunjika.route('/article_comment', methods=['GET', 'POST'])
 def article_comment():
     try:
-        kb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
         return json.dumps({"result":"false"})
     except:
-        if g.user.id != 1:
-            kb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+        if g.user.id !='u1':
+            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.article_comment()
 
 
 @kunjika.route('/edit_article/<element>', methods=['GET', 'POST'])
 def edit_article(element):
     try:
-        kb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
         flash('You are allowed only one post per 30 seconds.', 'error')
         return redirect(request.referrer)
     except:
-        if g.user.id != 1:
-            kb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+        if g.user.id !='u1':
+            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.edit_article(element)
 
 
@@ -2494,12 +2507,12 @@ def article_tags(page=1):
 @kunjika.route('/save_draft', methods=['POST'])
 def save_draft(element=None):
     try:
-        kb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
         flash('You are allowed only one post per 30 seconds.', 'error')
         return redirect(request.referrer)
     except:
-        if g.user.id != 1:
-            kb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+        if g.user.id !='u1':
+            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.save_draft(element)
 
 
@@ -2513,12 +2526,12 @@ def discard_draft(did):
     draft_id = did.split('-')[2]
     if(op == str(g.user.id)):
         try:
-            kb.delete(did)
+            mb.delete(did)
         except:
             pass
-        doc = kb.get('dl-' + op).value
+        doc = mb.get('dl-' + op).value
         doc['drafts_list'].remove(int(draft_id))
-        kb.set('dl-' + op, doc)
+        mb.set('dl-' + op, doc)
         return redirect(url_for('drafts'))
     else:
         # This will never happen unless a modified url comes to app
@@ -2535,12 +2548,12 @@ def drafts(page=None, did=None, url=None):
 @kunjika.route('/publish/<string:element>', methods=['GET', 'POST'])
 def publish(element):
     try:
-        kb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
         flash('You are allowed only one post per 30 seconds.', 'error')
         return redirect(request.referrer)
     except:
-        if g.user.id != 1:
-            kb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+        if g.user.id !='u1':
+            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.publish(element)
 
 
@@ -2576,7 +2589,7 @@ def check_group_name():
 
     try:
         document = urllib2.urlopen(
-            DB_URL + 'sundries/_design/dev_qa/_view/get_doc_by_group_name?key=' + '"' + group_name +
+            DB_URL + 'memoir/_design/dev_sundries/_view/get_doc_by_group_name?key=' + '"' + group_name +
             '"&stale=false&type=group&owner=' + str(g.user.id)).read()
         document = json.loads(document)
         if len(document['rows']) != 0:
@@ -2602,7 +2615,7 @@ def create_group():
 def show_groups(page, uid, uname):
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
     document = urllib2.urlopen(DB_URL +
-                               'sundries/_design/dev_qa/_view/get_doc_by_type?key="group-member"&reduce=false&member-id=' +
+                               'memoir/_design/dev_sundries/_view/get_doc_by_type?key="group-member"&reduce=false&member-id=' +
                                str(g.user.id)).read()
     document = json.loads(document)['rows']
 
@@ -2621,14 +2634,14 @@ def show_groups(page, uid, uname):
 
 @kunjika.route('/get_qcount')
 def get_qcount():
-    qcount = qb.get('qcount').value
+    qcount = mb.get('qcount').value
     return jsonify({'qcount': qcount})
 
 
 @kunjika.route('/get_account')
 def get_account():
     qid = request.args.get('qid')
-    questions_dict = qb.get(str(qid)).value
+    questions_dict = mb.get(str(qid)).value
     ccount = 0
     acount = questions_dict['acount']
     if 'comments' in questions_dict:
@@ -2643,7 +2656,7 @@ def get_account():
 @kunjika.route('/hide/<id>')
 def hide(id):
     id_list = id.split('-')
-    question = qb.get(id_list[1]).value
+    question = mb.get(id_list[1]).value
     print g.user.id
     if id_list[0] == 'h':
         if g.user.id == 1 or g.user.id == int(question['content']['op']):
@@ -2689,7 +2702,7 @@ def hide(id):
         else:
             flash('Either admin or OP is allowed to hide!', 'error')
             return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
-    qb.replace(id_list[1], question)
+    mb.replace(id_list[1], question)
     return redirect(url_for('questions', qid=id_list[1], url=question['content']['url']))
 
 
@@ -2739,7 +2752,6 @@ def page_503(e):
 
 kunjika.register_blueprint(test_series)
 kunjika.register_blueprint(OA)
-
 
 if __name__ == '__main__':
     kunjika.run(host='0.0.0.0')

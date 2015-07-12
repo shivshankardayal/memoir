@@ -44,6 +44,7 @@
 {% endmacro %}
 
 {% macro render_pagination(pagination) %}
+  {% if pagination != None %}
   {% if pagination.pages > 1  %}
     <div>
       <ul class="pagination">
@@ -76,6 +77,7 @@
         {% endif %}
       </ul>
     </div>
+  {% endif %}
   {% endif %}
 {% endmacro %}
 

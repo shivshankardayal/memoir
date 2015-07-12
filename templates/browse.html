@@ -7,17 +7,17 @@
 {% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link href="/static/css/prettify.css" rel="stylesheet">
-    <link href="/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/prettify.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
     <script type="text/javascript"
-            src="/static/js/run_prettify.js?lang=clj&amp;lbg=erlang&amp;lang=matlab&amp;lang=sql&amp;lang=vb&amp;lang=css&amp;lang=go&amp;lang=pascal&amp;lan=tcl&amp;lang=yaml&amp;lan=basic&amp;lang=dart&amp;lan=lua&amp;lang=scala&amp;lang=wiki&amp;lang=tex"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
+            src="{{ APP_ROOT }}/static/js/run_prettify.js?lang=clj&amp;lbg=erlang&amp;lang=matlab&amp;lang=sql&amp;lang=vb&amp;lang=css&amp;lang=go&amp;lang=pascal&amp;lan=tcl&amp;lang=yaml&amp;lan=basic&amp;lang=dart&amp;lan=lua&amp;lang=scala&amp;lang=wiki&amp;lang=tex"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
 {% endblock %}
 {% block container %}
     <div class="row">
@@ -36,7 +36,7 @@
                                 {% endif %}
                             </h4>
                         </div>
-                        <a href="/edit_test/{{ question['qid'] }}" class="edit-test" title=""><i
+                        <a href="{{ APP_ROOT }}/edit_test/{{ question['qid'] }}" class="edit-test" title=""><i
                                         class="fa fa-edit"></i> Edit</a>
                     </div>
                 {% endfor %}

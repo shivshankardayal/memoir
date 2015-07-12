@@ -2,18 +2,18 @@
 {% block title %}{{ title }} - Kunjika{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link href="/static/css/solarized_light.css" rel="stylesheet">
-    <link href="/static/css/token-input.css" rel="stylesheet">
-    <link href="/static/css/solarized_light.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/solarized_light.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/solarized_light.css" rel="stylesheet">
     {{ super() }}
     <!-- adding necessary js files -->
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
-    <script type="text/javascript" src="/static/js/highlight.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
+    <script type="text/javascript" src="{{APP_ROOT }}/static/js/highlight.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $("#question").parent().addClass("ui-widget");
@@ -26,7 +26,7 @@
         <div class="page-header">
             <h3>Please ask your question</h3>
         </div>
-        <form class="ask-form" method="post" aciton="/ask" role="form">
+        <form class="ask-form" method="post" aciton="{{ APP_ROOT }}/ask" role="form">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
             <div class="form-group">
@@ -44,7 +44,7 @@
                     </p>
                     <h6>From your computer (Max. 2MB)</h6>
                     <span class="loading-small"></span>
-                    <input type="file" name="file" id="file" data-action="/image_upload"/>
+                    <input type="file" name="file" id="file" data-action="{{ APP_ROOT }}/image_upload"/>
                 </div>
                 <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
                 <div style="clear:both;"></div>
@@ -89,7 +89,7 @@
                 </div>
                 
                 {% for tag in tag_list %}
-                    <a href="/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
+                    <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
                         {{ tag['tag'] }} 
                         <span class="tag-count">{{ tag['count'] }}</span> 
                     </a>
@@ -193,7 +193,7 @@
             hljs.initHighlighting();
         }
         $(document).ready(function () {
-            $("#kunjika-tags").tokenInput("{{ config['HOST_URL'] }}get_tags", {
+            $("#kunjika-tags").tokenInput("{{APP_ROOT }}/get_tags/", {
                 theme: "kunjika",
                 allowFreeTagging: true,
                 tokenLimit: 5,
@@ -206,7 +206,7 @@
         $(".ui-autocomplete").addClass("dropdown-menu");
         $( ".selector" ).autocomplete({
             _resizeMenu: function() {
-                this.menu.element.outerWidth( 500 );
+            this.menu.element.outerWidth( 500 );
             }
         });
     </script>

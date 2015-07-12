@@ -35,10 +35,10 @@ import bleach
 
 def common_data():
     tag_list = []
-    qcount = memoir.qb.get('qcount').value
-    ucount = memoir.cb.get('count').value
-    tcount = memoir.tb.get('tcount').value
-    acount = urllib2.urlopen(memoir.DB_URL + 'questions/_design/dev_qa/_view/get_acount?reduce=true').read()
+    qcount = memoir.mb.get('qcount').value
+    ucount = memoir.mb.get('count').value
+    tcount = memoir.mb.get('tcount').value
+    acount = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_acount?reduce=true').read()
     acount = json.loads(acount)
     if len(acount['rows']) is not 0:
         acount = acount['rows'][0]['value']
@@ -57,12 +57,12 @@ def common_rendering(results, query, page):
     questions_list = []
 
     for qid in results_set:
-        questions_list.append(memoir.qb.get(str(qid)).value)
+        questions_list.append(memoir.mb.get(str(qid)).value)
 
     for i in questions_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
 
-        user = memoir.cb.get(i['content']['op']).value
+        user = memoir.mb.get(i['content']['op']).value
         i['opname'] = user['name']
 
     pagination = Pagination(page, memoir.QUESTIONS_PER_PAGE, len(questions_list))
@@ -151,13 +151,13 @@ def search_user(query, page):
 
     for uid in results:
         question_view = urllib2.urlopen(
-            memoir.DB_URL + 'questions/_design/dev_qa/_view/get_questions_by_userid?key=' + '"' + str(uid) + '"').read()
+            memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions_by_userid?key=' + '"' + str(uid) + '"').read()
         rows = json.loads(question_view)['rows']
         qids_list = []
         for row in rows:
             qids_list.append(str(row['id']))
         if len(qids_list) != 0:
-            val_res = memoir.qb.get_multi(qids_list)
+            val_res = memoir.mb.get_multi(qids_list)
 
         for id in qids_list:
             questions_list.append(val_res[str(id)].value)
@@ -165,7 +165,7 @@ def search_user(query, page):
     for i in questions_list:
         i['ts'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
 
-        user = memoir.cb.get(i['content']['op']).value
+        user = memoir.mb.get(i['content']['op']).value
         i['opname'] = user['name']
 
     pagination = Pagination(page, memoir.QUESTIONS_PER_PAGE, len(questions_list))
@@ -196,15 +196,15 @@ def search_tag(query, page):
 
     questions_list = []
     for tag in results:
-        #    kunjika.DB_URL + 'questions/_design/dev_qa/_view/get_questions_by_tag?key=' + '"' + tag + '"').read()
+        #    kunjika.DB_URL + 'questions/_design/dev_questions/_view/get_questions_by_tag?key=' + '"' + tag + '"').read()
         q = Query(key=tag)
-        for result in View(memoir.qb, "dev_qa", "get_questions_by_tag", include_docs=True, query=q):
+        for result in View(memoir.mb, "dev_questions", "get_questions_by_tag", include_docs=True, query=q):
             questions_list.append(result.doc.value)
 
     for i in questions_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
 
-        user = memoir.cb.get(i['content']['op']).value
+        user = memoir.mb.get(i['content']['op']).value
         i['opname'] = user['name']
 
     pagination = Pagination(page, memoir.QUESTIONS_PER_PAGE, len(questions_list))
@@ -257,40 +257,40 @@ def accept_answer(idntfr):
     qid = idntfr_list[0]
     aid = idntfr_list[1]
 
-    question = memoir.qb.get(qid).value
+    question = memoir.mb.get(qid).value
 
-    voter = memoir.cb.get(str(g.user.id)).value
+    voter = memoir.mb.get(str(g.user.id)).value
 
     if int(question['content']['op']) != g.user.id:
         return jsonify({"success": False})
     for answer in question['answers']:
         if answer['aid'] != int(aid):
             if answer['best'] == True:
-                receiver = memoir.cb.get(str(answer['poster'])).value
+                receiver = memoir.mb.get(str(answer['poster'])).value
                 receiver['rep'] -= 10
                 voter['rep'] -= 2
-                memoir.cb.replace(str(answer['poster']), receiver)
-                memoir.cb.replace(str(voter['id']), voter)
+                memoir.mb.replace(str(answer['poster']), receiver)
+                memoir.mb.replace(str(voter['id']), voter)
                 answer['best'] = False
 
         else:
             if answer['best'] != True:
                 answer['best'] = True
-                receiver = memoir.cb.get(str(answer['poster'])).value
+                receiver = memoir.mb.get(str(answer['poster'])).value
                 receiver['rep'] += 10
                 voter['rep'] += 2
-                memoir.cb.replace(str(answer['poster']), receiver)
-                memoir.cb.replace(str(voter['id']), voter)
+                memoir.mb.replace(str(answer['poster']), receiver)
+                memoir.mb.replace(str(voter['id']), voter)
             else:
-                receiver = memoir.cb.get(str(answer['poster'])).value
+                receiver = memoir.mb.get(str(answer['poster'])).value
                 receiver['rep'] -= 10
                 voter['rep'] -= 2
-                memoir.cb.replace(str(answer['poster']), receiver)
-                memoir.cb.replace(str(voter['id']), voter)
+                memoir.mb.replace(str(answer['poster']), receiver)
+                memoir.mb.replace(str(voter['id']), voter)
                 answer['best'] = False
 
 
-    memoir.qb.replace(qid, question)
+    memoir.mb.replace(qid, question)
 
     return jsonify({"success": True})
 
@@ -301,7 +301,7 @@ def handle_favorite(idntfr):
     qid = idntfr[3:]
 
     ##print qid
-    question = memoir.qb.get(qid).value
+    question = memoir.mb.get(qid).value
     #user = kunjika.cb.get(str(g.user.id)).value
 
     ##print question
@@ -326,7 +326,7 @@ def handle_favorite(idntfr):
     #    user['fav_q'].append(qid)
 
     #kunjika.cb.replace(str(g.user.id), user)
-    memoir.qb.replace(qid, question)
+    memoir.mb.replace(qid, question)
 
     return jsonify({"success": True})
 
@@ -367,7 +367,7 @@ def get_questions_for_page(page, QUESTIONS_PER_PAGE, count):
 
     skip = (page - 1) * QUESTIONS_PER_PAGE
     questions = urllib2.urlopen(
-                memoir.DB_URL + 'questions/_design/dev_qa/_view/get_questions?limit=' +
+                memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions?limit=' +
                 str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&descending=true').read()
 
     rows = json.loads(questions)['rows']
@@ -377,7 +377,7 @@ def get_questions_for_page(page, QUESTIONS_PER_PAGE, count):
         ##print row['id']
         qids_list.append(str(row['id']))
     if len(qids_list) != 0:
-        val_res = memoir.qb.get_multi(qids_list)
+        val_res = memoir.mb.get_multi(qids_list)
 
     for id in qids_list:
         questions_list.append(val_res[str(id)].value)
@@ -386,7 +386,7 @@ def get_questions_for_page(page, QUESTIONS_PER_PAGE, count):
     for i in questions_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
 
-        user = memoir.cb.get(i['content']['op']).value
+        user = memoir.mb.get(i['content']['op']).value
         i['opname'] = user['name']
         if i['views'] > 1000000:
             i['views'] /= 1000000
@@ -402,7 +402,7 @@ def get_tags_per_page(page, TAGS_PER_PAGE, count):
 
     skip = (page - 1) * TAGS_PER_PAGE
     tags = urllib2.urlopen(
-                memoir.DB_URL + 'tags/_design/dev_qa/_view/get_by_count?limit=' +
+                memoir.DB_URL + 'memoir/_design/dev_tags/_view/get_by_count?limit=' +
                 str(TAGS_PER_PAGE) + '&skip=' + str(skip) + '&descending=true').read()
     rows = json.loads(tags)['rows']
     tids_list = []
@@ -412,7 +412,7 @@ def get_tags_per_page(page, TAGS_PER_PAGE, count):
         tids_list.append(str(row['id']))
 
     if len(tids_list) != 0:
-        val_res = memoir.tb.get_multi(tids_list)
+        val_res = memoir.mb.get_multi(tids_list)
     for id in tids_list:
         tags_list.append(val_res[str(id)].value)
 
@@ -426,7 +426,7 @@ def get_groups_per_page(page, GROUPS_PER_PAGE, document):
     ##print document
     for row in document:
         ##print row['id']
-        group_list.append(memoir.kb.get(row['id'].split(':')[1]).value)
+        group_list.append(memoir.mb.get(row['id'].split(':')[1]).value)
 
     #print group_list
     groups = sorted(group_list, key=lambda k: k['member_count'], reverse=True)
@@ -437,14 +437,14 @@ def get_users_per_page(page, USERS_PER_PAGE, count):
 
     skip = (page - 1) * USERS_PER_PAGE
     ids = urllib2.urlopen(
-                memoir.DB_URL + 'default/_design/dev_qa/_view/get_by_reputation?limit=' +
+                memoir.DB_URL + 'memoir/_design/dev_users/_view/get_by_reputation?limit=' +
                 str(USERS_PER_PAGE) + '&skip=' + str(skip) + '&descending=true').read()
     rows = json.loads(ids)['rows']
 
     users_list = []
 
     for row in rows:
-        user = memoir.cb.get(str(row['id'])).value
+        user = memoir.mb.get(str(row['id'])).value
         users_list.append(user)
 
     return users_list
@@ -454,9 +454,9 @@ def get_questions_for_tag(page, QUESTIONS_PER_PAGE, tag):
     skip = (page - 1) * QUESTIONS_PER_PAGE
     tag = urllib2.quote(tag, '')
     print tag
-    rows = urllib2.urlopen(memoir.DB_URL + 'questions/_design/dev_qa/_view/get_qid_from_tag?limit=' +
+    rows = urllib2.urlopen(memoir.DB_URL + 'questions/_design/dev_questions/_view/get_qid_from_tag?limit=' +
                 str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key="' + tag + '"&reduce=false').read()
-    count = urllib2.urlopen(memoir.DB_URL + 'questions/_design/dev_qa/_view/get_qid_from_tag?key="' + tag + '"&reduce=true').read()
+    count = urllib2.urlopen(memoir.DB_URL + 'questions/_design/dev_questions/_view/get_qid_from_tag?key="' + tag + '"&reduce=true').read()
     count = json.loads(count)['rows']
     if len(count) == 0:
         count = 0
@@ -471,7 +471,7 @@ def get_questions_for_tag(page, QUESTIONS_PER_PAGE, tag):
         qids_list.append(str(row['id']))
 
     if len(qids_list) != 0:
-        val_res = memoir.qb.get_multi(qids_list)
+        val_res = memoir.mb.get_multi(qids_list)
 
     for qid in qids_list:
         question_list.append(val_res[qid].value)
@@ -479,7 +479,7 @@ def get_questions_for_tag(page, QUESTIONS_PER_PAGE, tag):
     for i in question_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
 
-        user = memoir.cb.get(i['content']['op']).value
+        user = memoir.mb.get(i['content']['op']).value
         i['opname'] = user['name']
 
     return [question_list, count]
@@ -511,7 +511,7 @@ def url_for_browse_page(page):
 
 def get_popular_tags():
 
-    tag_list = urllib2.urlopen(memoir.DB_URL + 'tags/_design/dev_qa/_view/get_by_count?descending=true').read()
+    tag_list = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_tags/_view/get_by_count?descending=true').read()
     rows = json.loads(tag_list)['rows']
     tids_list = []
     tags_list = []
@@ -520,7 +520,7 @@ def get_popular_tags():
         tids_list.append(str(row['id']))
 
     if len(tids_list) != 0:
-        val_res = memoir.tb.get_multi(tids_list)
+        val_res = memoir.mb.get_multi(tids_list)
     for id in tids_list:
         tags_list.append(val_res[str(id)].value)
 
@@ -529,13 +529,13 @@ def get_popular_tags():
 def filter_by(email):
 
     user = urllib2.urlopen(
-                memoir.DB_URL + 'default/_design/dev_qa/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"').read()
+                memoir.DB_URL + 'users/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"').read()
     try:
       id = json.loads(user)['rows'][0]['id']
     except:
       return None
     try:
-        user = memoir.cb.get(str(id)).value
+        user = memoir.mb.get(str(id)).value
         return user
     except:
         return None
@@ -552,7 +552,7 @@ def get_user_questions_per_page(user, qpage, USER_QUESTIONS_PER_PAGE, qcount):
     skip = (qpage - 1) * USER_QUESTIONS_PER_PAGE
     question_list = []
     question_view = urllib2.urlopen(
-        memoir.DB_URL + 'questions/_design/dev_qa/_view/get_questions_by_userid?key=' + '"' +str(user['id'])
+        memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions_by_userid?key=' + '"' +str(user['id'])
         + '"' + '&desending=true&skip=' + str(skip) + '&limit=' + str(USER_QUESTIONS_PER_PAGE)
     ).read()
     rows = json.loads(question_view)['rows']
@@ -564,7 +564,7 @@ def get_user_questions_per_page(user, qpage, USER_QUESTIONS_PER_PAGE, qcount):
         ##print row['id']
         qids_list.append(str(row['id']))
     if len(qids_list) != 0:
-        val_res = memoir.qb.get_multi(qids_list)
+        val_res = memoir.mb.get_multi(qids_list)
 
     for id in qids_list:
         questions.append(val_res[str(id)].value)
@@ -602,7 +602,7 @@ def get_user_answers_per_page(user, apage, USER_ANSWERS_PER_PAGE, acount):
     question_list = []
     aids = []
     question_view = urllib2.urlopen(
-        memoir.DB_URL + 'questions/_design/dev_qa/_view/get_ans_by_userid?key=' +str(user['id'])
+        memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_ans_by_userid?key=' +str(user['id'])
         + '&desending=true&skip=' + str(skip) + '&limit=' + str(USER_ANSWERS_PER_PAGE)
     ).read()
     question_view = json.loads(question_view)['rows']
@@ -636,13 +636,12 @@ def get_similar_questions(title, qid):
     title_results=memoir.es_conn.search(query=title_q)
 
     results=[]
-
     for r in title_results:
         # print r
         if 'qid' in r:
             if r['qid'] != qid:
                 question_dict = {}
-                question_dict = question.get_question_by_id(str(r['qid']), question_dict)
+                question_dict = question.get_question_by_id('q' + str(r['qid']), question_dict)
                 #print question_dict
                 results.append([r['qid'], r['title'], question_dict['content']['url']])
 
@@ -650,7 +649,7 @@ def get_similar_questions(title, qid):
 
 def get_autocomplete(request):
     ##print request.args.get('val')
-    q=pyes.MatchQuery('title', request.args.get('val'))
+    q=pyes.PrefixQuery('title', request.args.get('val'))
     title_results=memoir.es_conn.search(query=q)
     results=[]
 
@@ -661,15 +660,16 @@ def get_autocomplete(request):
 
     if len(results) > 10:
         for i in range(0, len(results)):
-            question = memoir.qb.get(str(results[i])).value
+            print i
+            question = memoir.mb.get('q' + str(results[i])).value
             questions_list.append({'title':question['title'], 'qid': question['qid'], 'url':question['content']['url']})
             ##print question['title'] + ' ' + question['content']['url'] + str(question['qid'])
     else:
         for i in range(0, len(results)):
-            question = memoir.qb.get(str(results[i])).value
+            question = memoir.mb.get('q' + str(results[i])).value
             questions_list.append({'title':question['title'], 'qid': question['qid'], 'url':question['content']['url']})
             ##print question['title'] + ' ' + question['content']['url'] + str(question['qid'])
-
+    print results
     if len(results) > 10:
         return jsonify({'data': questions_list[0:10]})
     else:
@@ -677,7 +677,7 @@ def get_autocomplete(request):
 
 
 def send_invites(request):
-    user = memoir.cb.get(str(g.user.id)).value
+    user = memoir.mb.get(str(g.user.id)).value
     ##print user
     try:
         email_list = request.form['email_list']
@@ -709,9 +709,9 @@ def create_group(request):
         member['member-id'] = g.user.id
         member['type'] = 'group-member'
 
-        memoir.kb.add(group['id'], group)
+        memoir.mb.add(group['id'], group)
 
-        memoir.kb.add(str(member['member-id']) + ':' + str(group['id']), member)
+        memoir.mb.add(str(member['member-id']) + ':' + str(group['id']), member)
 
         return True
     except:
@@ -720,10 +720,10 @@ def create_group(request):
 
 def endorse():
     tuid = request.referrer.split('/')[4]
-    to_user = memoir.cb.get(str(tuid)).value
+    to_user = memoir.mb.get(str(tuid)).value
     skill = request.args['id'][1:]
 
-    sid_doc = urllib2.urlopen(memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_end_by_uid?key=[' + str(to_user['id']) +
+    sid_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + str(to_user['id']) +
                               ',"' + urllib.quote(skill) + '"]&stale=false&reduce=false').read()
 
     sid_doc = json.loads(sid_doc)
@@ -731,10 +731,10 @@ def endorse():
     endorsed = False
     if len(sid_doc['rows']) != 0:
         for row in sid_doc['rows']:
-            endorsement = memoir.kb.get(row['id']).value
+            endorsement = memoir.mb.get(row['id']).value
             if endorsement['fuid'] == g.user.id:
                 endorsed = True
-                memoir.kb.delete(row['id'])
+                memoir.mb.delete(row['id'])
                 break
     if endorsed is False:
         doc = {}
@@ -744,7 +744,7 @@ def endorse():
         doc['femail'] = g.user.user_doc['email']
         doc['_type'] = 'e'
         doc['skill'] = skill
-        memoir.kb.add(doc['id'], doc)
+        memoir.mb.add(doc['id'], doc)
 
     return jsonify({'success': True})
 
@@ -783,14 +783,14 @@ def write_article():
             article['aid'] = 'a-' + str(uuid1())
             article['opname'] = g.user.name
             article['cids'] = []
-            user = memoir.cb.get(str(g.user.id)).value
+            user = memoir.mb.get(str(g.user.id)).value
             user['rep'] += 25
-            memoir.cb.replace(str(g.user.id), user)
+            memoir.mb.replace(str(g.user.id), user)
 
             memoir.es_conn.index({'title': title, 'content': article['content'], 'aid': article['aid'],
                                    'position': article['content']}, 'articles', 'articles-type', article['aid'])
             memoir.es_conn.indices.refresh('articles')
-            memoir.kb.add(str(article['aid']), article)
+            memoir.mb.add(str(article['aid']), article)
 
             return redirect(url_for('browse_articles', aid=article['aid'], url=article['url']))
 
@@ -816,7 +816,7 @@ def browse_articles(page, aid, tag):
                                    pagination=pagination)
 
     if aid is None:
-        count_doc = urllib2.urlopen(memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_articles').read()
+        count_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_articles').read()
         count_doc = json.loads(count_doc)
         count = 0
         if len(count_doc['rows']) != 0:
@@ -835,9 +835,9 @@ def browse_articles(page, aid, tag):
             return render_template('browse_articles.html', title='Articles', artpage=True, articles=articles_list,
                                    pagination=pagination)
     else:
-        article = memoir.kb.get(aid).value
+        article = memoir.mb.get(aid).value
         article['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(article['ts']))
-        user = memoir.cb.get(article['op']).value
+        user = memoir.mb.get(article['op']).value
         article['email'] = user['email']
         article['opname'] = user['name']
 
@@ -845,7 +845,7 @@ def browse_articles(page, aid, tag):
         article['comments'] = []
 
         if(len(article['cids'])) != 0:
-            val_res = memoir.kb.get_multi(article['cids'])
+            val_res = memoir.mb.get_multi(article['cids'])
         for cid in article['cids']:
             article['comments'].append(val_res[str(cid)].value)
         article['comments'] = sorted(article['comments'], key=lambda k: k['ts'], reverse=True)
@@ -864,7 +864,7 @@ def browse_articles(page, aid, tag):
 def get_articles_for_page(page, ARTICLES_PER_PAGE, count):
     skip = (page - 1) * ARTICLES_PER_PAGE
     articles = urllib2.urlopen(
-        memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_articles?limit=' +
+        memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_articles?limit=' +
         str(ARTICLES_PER_PAGE) + '&skip=' + str(skip) + '&descending=true&reduce=false&stale=false').read()
 
     rows = json.loads(articles)['rows']
@@ -873,7 +873,7 @@ def get_articles_for_page(page, ARTICLES_PER_PAGE, count):
     for row in rows:
         aids_list.append(str(row['id']))
     if len(aids_list) != 0:
-        val_res = memoir.kb.get_multi(aids_list)
+        val_res = memoir.mb.get_multi(aids_list)
 
     for id in aids_list:
         articles_list.append(val_res[str(id)].value)
@@ -881,7 +881,7 @@ def get_articles_for_page(page, ARTICLES_PER_PAGE, count):
     for i in articles_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['ts']))
 
-        user = memoir.cb.get(i['op']).value
+        user = memoir.mb.get(i['op']).value
         i['opname'] = user['name']
 
     return articles_list
@@ -891,9 +891,9 @@ def get_articles_for_tag(page, ARTICLES_PER_PAGE, tag):
 
     skip = (page - 1) * ARTICLES_PER_PAGE
     tag = urllib2.quote(tag, '')
-    rows = urllib2.urlopen(memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_aid_from_tag?limit=' +
+    rows = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_aid_from_tag?limit=' +
                            str(ARTICLES_PER_PAGE) + '&skip=' + str(skip) + '&key="' + tag + '"&reduce=false&stale=false').read()
-    count_doc = urllib2.urlopen(memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_aid_from_tag?key="' + tag + '"&reduce=true').read()
+    count_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_aid_from_tag?key="' + tag + '"&reduce=true').read()
     count_doc = json.loads(count_doc)
     count = 0
     if len(count_doc['rows']) != 0:
@@ -905,7 +905,7 @@ def get_articles_for_tag(page, ARTICLES_PER_PAGE, tag):
         aids_list.append(str(row['id']))
 
     if len(aids_list) != 0:
-        val_res = memoir.kb.get_multi(aids_list)
+        val_res = memoir.mb.get_multi(aids_list)
 
     articles_list = []
     for aid in aids_list:
@@ -914,7 +914,7 @@ def get_articles_for_tag(page, ARTICLES_PER_PAGE, tag):
     for i in articles_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['ts']))
 
-        user = memoir.cb.get(i['op']).value
+        user = memoir.mb.get(i['op']).value
         i['opname'] = user['name']
 
     return [articles_list, count]
@@ -938,15 +938,15 @@ def article_comment():
     comment['_type'] = 'ac'
     cid = 'ac-' + str(uuid1())
     comment['cid'] = cid
-    article = memoir.kb.get(aid).value
+    article = memoir.mb.get(aid).value
     article['cids'].append(cid)
-    memoir.kb.replace(aid, article)
-    memoir.kb.add(cid, comment)
+    memoir.mb.replace(aid, article)
+    memoir.mb.add(cid, comment)
 
     email_list = []
     email_list.append(str(article['op']))
     if(len(article['cids'])) != 0:
-        val_res = memoir.kb.get_multi(article['cids'])
+        val_res = memoir.mb.get_multi(article['cids'])
     for cid in article['cids']:
         email_list.append(str(val_res[str(cid)].value['poster']))
 
@@ -957,7 +957,7 @@ def article_comment():
     email_list = list(email_list)
 
     if len(email_list) != 0:
-        email_users = memoir.cb.get_multi(email_list)
+        email_users = memoir.mb.get_multi(email_list)
         email_list = []
 
         for id in email_users:
@@ -984,16 +984,16 @@ def edit_article(element):
     cid = None
     comment = {}
     tags = str
-    article = memoir.kb.get(aid).value
+    article = memoir.mb.get(aid).value
     if type == 'ce':
         cid = id.split('_')[1]
-        comment = memoir.kb.get(cid).value
+        comment = memoir.mb.get(cid).value
         if comment['poster'] != g.user.id:
             flash('You did not write this comment!', 'error')
             return redirect(request.referrer)
         form = CommentForm(request.form)
     elif type == 'ae':
-        if g.user.id != 1:
+        if g.user.id !='u1':
             if int(article['op']) != int(g.user.id):
                 flash('You did not write this article!', 'error')
                 return redirect(request.referrer)
@@ -1010,7 +1010,7 @@ def edit_article(element):
                 comment['html'] = bleach.clean(markdown.markdown(comment['comment'], extensions=['extra', 'codehilite'],
                                                                  output_format='html5'), memoir.tags_wl, memoir.attrs_wl)
                 comment['ts'] = int(time())
-                memoir.kb.replace(comment['cid'], comment)
+                memoir.mb.replace(comment['cid'], comment)
 
             return redirect(url_for('browse_articles', aid=aid, url=article['url']))
         elif type == 'ae':
@@ -1037,7 +1037,7 @@ def edit_article(element):
                 url = generate_url(title)
 
                 article['url'] = url
-                memoir.kb.replace(str(article['aid']), article)
+                memoir.mb.replace(str(article['aid']), article)
                 memoir.es_conn.index({'title':article['title'], 'content':article['content'], 'aid':article['aid'],
                                      'position':article['content']}, 'articles', 'articles-type', article['aid'])
                 memoir.es_conn.indices.refresh('articles')
@@ -1049,13 +1049,13 @@ def edit_article(element):
 
 
 def article_tags(page):
-    tags_count = urllib2.urlopen(memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_unique_article_tag_count?reduce=true').read()
+    tags_count = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_unique_article_tag_count?reduce=true').read()
     tags_count = json.loads(tags_count)['rows'][0]['value']
     tags = {}
 
     skip = (page - 1) * memoir.TAGS_PER_PAGE
     tags = urllib2.urlopen(
-        memoir.DB_URL + 'kunjika/_design/dev_qa/_view/get_tags_from_article?limit=' +
+        memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_tags_from_article?limit=' +
         str(memoir.TAGS_PER_PAGE) + '&skip=' + str(skip) + '&group=true').read()
     tags = json.loads(tags)['rows']
 
@@ -1079,21 +1079,21 @@ def save_draft(element):
         if articleForm.validate_on_submit() and request.method == 'POST':
             user = g.user.user_doc
             try:
-                memoir.kb.get(element).value
+                memoir.mb.get(element).value
             except:
                 if 'draft_count' not in user:
                     user['draft_count'] = 1
                     doc = {}
                     doc['drafts_list'] = []
                     doc['drafts_list'].append(1)
-                    memoir.kb.add('dl-' + str(g.user.id), doc)
+                    memoir.mb.add('dl-' + str(g.user.id), doc)
                 else:
                     user['draft_count'] += 1
-                    drafts_list = memoir.kb.get('dl-' + str(g.user.id)).value
+                    drafts_list = memoir.mb.get('dl-' + str(g.user.id)).value
                     drafts_list['drafts_list'].append(user['draft_count'])
-                    memoir.kb.replace('dl-' + str(g.user.id), drafts_list)
+                    memoir.mb.replace('dl-' + str(g.user.id), drafts_list)
 
-            memoir.cb.replace(str(g.user.id), user)
+            memoir.mb.replace(str(g.user.id), user)
             article = {}
             article['content'] = {}
             title = articleForm.title.data
@@ -1125,7 +1125,7 @@ def save_draft(element):
             article['opname'] = g.user.name
             article['cids'] = []
 
-            memoir.kb.set(str(article['aid']), article)
+            memoir.mb.set(str(article['aid']), article)
             return redirect(url_for('drafts', did=article['aid'], url=article['url']))
 
         return render_template('write_article.html', title='Write Artcile', form=articleForm, artpage=True, name=g.user.name, role=g.user.role,
@@ -1139,7 +1139,7 @@ def drafts(page, did, request):
 
     if did is None:
         try:
-            count = len(memoir.kb.get('dl-' + str(g.user.id)).value)
+            count = len(memoir.mb.get('dl-' + str(g.user.id)).value)
         except:
             flash('You have no drafts!', 'error')
             return redirect(request.referrer)
@@ -1157,9 +1157,9 @@ def drafts(page, did, request):
             return render_template('drafts.html', title='Drafts', artpage=True, articles=drafts_list,
                                    pagination=pagination)
     else:
-        article = memoir.kb.get(did).value
+        article = memoir.mb.get(did).value
         article['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(article['ts']))
-        user = memoir.cb.get(article['op']).value
+        user = memoir.mb.get(article['op']).value
         article['email'] = user['email']
         article['opname'] = user['name']
 
@@ -1175,7 +1175,7 @@ def drafts(page, did, request):
 
 def get_drafts_for_page(page, ARTICLES_PER_PAGE, count):
     skip = (page - 1) * ARTICLES_PER_PAGE
-    drafts_list = memoir.kb.get('dl-' + str(g.user.id)).value
+    drafts_list = memoir.mb.get('dl-' + str(g.user.id)).value
     dl = drafts_list['drafts_list']
     dids_list = dl[skip:skip+ARTICLES_PER_PAGE]
     articles_list = []
@@ -1183,7 +1183,7 @@ def get_drafts_for_page(page, ARTICLES_PER_PAGE, count):
     for did in dids_list:
         dl.append('ad-' + str(g.user.id) + '-' + str(did))
     if len(dl) != 0:
-        val_res = memoir.kb.get_multi(dl)
+        val_res = memoir.mb.get_multi(dl)
 
     for id in dl:
         articles_list.append(val_res[str(id)].value)
@@ -1191,7 +1191,7 @@ def get_drafts_for_page(page, ARTICLES_PER_PAGE, count):
     for i in articles_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['ts']))
 
-        user = memoir.cb.get(i['op']).value
+        user = memoir.mb.get(i['op']).value
         i['opname'] = user['name']
 
     return articles_list
@@ -1200,8 +1200,8 @@ def get_drafts_for_page(page, ARTICLES_PER_PAGE, count):
 def edit_draft(element):
     did = element
     tags = str
-    article = memoir.kb.get(did).value
-    if g.user.id != 1:
+    article = memoir.mb.get(did).value
+    if g.user.id !='u1':
         if int(article['op']) != int(g.user.id):
             flash('You did not write this article!', 'error')
             return redirect(request.referrer)
@@ -1223,7 +1223,7 @@ def edit_draft(element):
             new_tag_list.append(''.join(tag))
         article['tags'] = new_tag_list
         article['ts'] = int(time())
-        memoir.kb.replace(str(article['aid']), article)
+        memoir.mb.replace(str(article['aid']), article)
 
         return redirect(url_for('drafts', did=did, url=article['url']))
     else:
@@ -1235,8 +1235,8 @@ def publish(element):
     print "In publish"
     articleForm = ArticleForm(request.form)
     did = element.split('-')[2:]
-    article = memoir.kb.get(element).value
-    if g.user.id != 1:
+    article = memoir.mb.get(element).value
+    if g.user.id !='u1':
         if int(article['op']) != int(g.user.id):
             flash('You did not write this article!', 'error')
             return redirect(request.referrer)
@@ -1274,18 +1274,18 @@ def publish(element):
             article['aid'] = 'a-' + str(uuid1())
             article['opname'] = g.user.name
             article['cids'] = []
-            user = memoir.cb.get(str(g.user.id)).value
+            user = memoir.mb.get(str(g.user.id)).value
             user['rep'] += 25
-            memoir.cb.replace(str(g.user.id), user)
+            memoir.mb.replace(str(g.user.id), user)
 
             memoir.es_conn.index({'title': title, 'content': article['content'], 'aid': article['aid'],
                                    'position': article['content']}, 'articles', 'articles-type', article['aid'])
             memoir.es_conn.indices.refresh('articles')
-            memoir.kb.add(str(article['aid']), article)
-            memoir.kb.delete(element)
-            dl = memoir.kb.get('dl-' + str(g.user.id)).value
+            memoir.mb.add(str(article['aid']), article)
+            memoir.mb.delete(element)
+            dl = memoir.mb.get('dl-' + str(g.user.id)).value
             dl['drafts_list'].remove(int(did[0]))
-            memoir.kb.replace('dl-' + str(g.user.id), dl)
+            memoir.mb.replace('dl-' + str(g.user.id), dl)
             return redirect(url_for('browse_articles', aid=article['aid'], url=article['url']))
 
         return render_template('edit_draft.html', title='Edit', form=articleForm, article=article, type=type, aid=element,

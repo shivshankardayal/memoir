@@ -103,3 +103,5 @@ POST_INTERVAL = 90
 
 ARTICLES_PER_PAGE = 20
 MAINTENANCE_MODE = False
+
+APPLICATION_ROOT = '' # make it '' if you want to serve from root as templates modify the urls based on this variable. Do not make it None. If you want to mount application to a subdirectory in you web server then set it '/path/to/directory'

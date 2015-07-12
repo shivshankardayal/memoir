@@ -4,7 +4,7 @@ import urllib2
 import json
 tb = Couchbase.connect("tags")
 
-doc = urllib2.urlopen('http://localhost:8092/tags/_design/dev_qa/_view/get_tag_by_id').read()
+doc = urllib2.urlopen('http://localhost:8092/memoir/_design/dev_tags/_view/get_tag_by_id').read()
 
 doc = json.loads(doc)
 
@@ -51,7 +51,7 @@ except:
     pass
 
 es_conn.indices.put_mapping("tags-type", {'properties':tags_mapping}, ["tags"])
-rows = urllib2.urlopen('http://localhost:8092/tags/_design/dev_qa/_view/get_tag_by_id').read()
+rows = urllib2.urlopen('http://localhost:8092/memoir/_design/dev_tags/_view/get_tag_by_id').read()
 rows = json.loads(rows)['rows']
 tids_list = []
 for row in rows:

@@ -23,6 +23,7 @@ from couchbase import Couchbase
 from couchbase.exceptions import *
 import urllib2
 import json
+from memoir import DB_URL
 
 cb = Couchbase.connect("default")
 qb = Couchbase.connect("questions")
@@ -111,7 +112,7 @@ es_conn.indices.put_mapping("questions-type", {'properties':questions_mapping}, 
 es_conn.indices.put_mapping("users-type", {'properties':users_mapping}, ["users"])
 es_conn.indices.put_mapping("tags-type", {'properties':tags_mapping}, ["tags"])
 
-questions = urllib2.urlopen("http://localhost:8092/questions/_design/dev_qa/_view/get_questions?descending=true&stale=false").read()
+questions = urllib2.urlopen(DB_URL + "memoir/_design/dev_questions/_view/get_questions?descending=true&stale=false").read()
 questions = json.loads(questions)
 ##print questions
 question_list = []
@@ -129,7 +130,7 @@ for question in questions:
 
 es_conn.indices.refresh('questions')
 
-rows = urllib2.urlopen('http://localhost:8092/tags/_design/dev_qa/_view/get_tag_by_id').read()
+rows = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id').read()
 rows = json.loads(rows)['rows']
 tids_list = []
 for row in rows:
@@ -148,7 +149,7 @@ for tag in tags:
 
 es_conn.indices.refresh('tags')
 
-rows = urllib2.urlopen('http://localhost:8092/default/_design/dev_qa/_view/get_by_reputation').read()
+rows = urllib2.urlopen(DB_URL + 'users/_design/dev_users/_view/get_by_reputation').read()
 rows = json.loads(rows)['rows']
 uids_list = []
 for row in rows:

@@ -35,6 +35,6 @@ def handle_edit(element):
         aid = arg_list[1]
         cid = arg_list[2]
         
-    question = memoir.qb.get(qid).value
+    question = memoir.mb.get(qid).value
 
     return [question, qid, aid, cid]

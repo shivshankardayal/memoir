@@ -41,7 +41,7 @@
         {% endblock %}
 
         {% block css_bootstrap %}
-            <link href="/static/css/bootstrap{{ debugmin() }}.css" rel="stylesheet">
+            <link href="{{ APP_ROOT }}/static/css/bootstrap{{ debugmin() }}.css" rel="stylesheet">
         {% endblock %}
         {% block css_bootstrap_responsive %}
 			<!--link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"-->
@@ -54,9 +54,9 @@
             <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
             <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
             <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.22/jquery-ui.min.js"></script>
-            <script>window.jQuery || document.write('<script src="/static/js/jquery-ui.min.js"><\/script>')</script>
-            <script type="text/javascript" src="/static/js/jquery.ajaxfileupload.js"></script>
-            <script>window.jQuery || document.write('<script src="/static/js/jquery-migrate-1.2.1.js"><\/script>')</script>
+            <script>window.jQuery || document.write('<script src="{{ APP_ROOT }}/static/js/jquery-ui.min.js"><\/script>')</script>
+            <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.ajaxfileupload.js"></script>
+            <script>window.jQuery || document.write('<script src="{{ APP_ROOT }}/static/js/jquery-migrate-1.2.1.js"><\/script>')</script>
 
             <script type="text/javascript"
                     src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -74,7 +74,7 @@
             <script src="https://apis.google.com/js/plusone.js"></script>
         {% endblock %}
         {% block css_site %}
-            <link href="/static/css/kunjika.css" rel="stylesheet">
+            <link href="{{ APP_ROOT }}/static/css/kunjika.css" rel="stylesheet">
         {% endblock %}
         {% block css_extra %}
         {% endblock %}
@@ -128,9 +128,9 @@
                                         <span class="caret"></span>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="/questions">Browse</a></li>
-                                        <li><a href="/ask">Ask</a></li>
-                                        <li><a href="/unanswered">Unanswered</a></li>
+                                        <li><a href="{{ APP_ROOT }}/questions">Browse</a></li>
+                                        <li><a href="{{ APP_ROOT }}/ask">Ask</a></li>
+                                        <li><a href="{{ APP_ROOT }}/unanswered">Unanswered</a></li>
                                     </ul>
                                 </li>
                                 <li class="dropdown">
@@ -143,43 +143,43 @@
                                         <span class="caret"></span>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="/articles">Browse</a></li>
-                                        <li><a href="/write">Write</a></li>
-                                        <li><a href="/article_tags">Article Tags</a></li>
-                                        <li><a href="/drafts">My Drafts</a></li>
+                                        <li><a href="{{ APP_ROOT }}/articles">Browse</a></li>
+                                        <li><a href="{{ APP_ROOT }}/write">Write</a></li>
+                                        <li><a href="{{ APP_ROOT }}/article_tags">Article Tags</a></li>
+                                        <li><a href="{{ APP_ROOT }}/drafts">My Drafts</a></li>
                                     </ul>
                                 </li>
                                 {% if tpage is defined %}
                                     <li class="active">
-                                        <a href="/tags"> Tags</a>
+                                        <a href="{{ APP_ROOT }}/tags"> Tags</a>
                                     </li>
                                 {% else %}
                                     <li>
-                                        <a href="/tags">Tags</a>
+                                        <a href="{{ APP_ROOT }}/tags">Tags</a>
                                     </li>
                                 {% endif %}
                                 {% if upage is defined %}
                                     <li class="active">
-                                        <a href="/users">Users</a>
+                                        <a href="{{ APP_ROOT }}/users">Users</a>
                                     </li>
                                 {% else %}
                                     <li>
-                                        <a href="/users">Users</a>
+                                        <a href="{{ APP_ROOT }}/users">Users</a>
                                     </li>
                                 {% endif %}
                                 {% if ppage is defined %}
                                     <li class="active">
-                                         <a href="/poll" class="poll"> Poll</a>
+                                         <a href="{{ APP_ROOT }}/poll" class="poll"> Poll</a>
                                     </li>
                                 {% else %}
                                     <li>
-                                        <a href="/poll" class="poll">Poll</a>
+                                        <a href="{{ APP_ROOT }}/poll" class="poll">Poll</a>
                                     </li>
                                 {% endif %}
                             <!--/ul>
                             <ul class="nav navbar-nav navbar-right"-->
                                 {% if user_id is defined and g.user.is_authenticated() %}
-                                    <!-- li class="active"><a href="/users/{{ g.user.id }}/{{ g.user.fname }}%20{{ g.user.lname }}" class="login"><i
+                                    <!-- li class="active"><a href="{{ APP_ROOT }}/users/{{ g.user.id }}/{{ g.user.fname }}%20{{ g.user.lname }}" class="login"><i
                                             class="fa fa-sigin"></i> <b>{{ g.user.name }}</b></a></li-->
                                     <li class="dropdown">
                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown">
@@ -191,33 +191,33 @@
                                         </a>
                                         <ul class="dropdown-menu">
                                             <li>
-                                                <a href='/users/{{ g.user.id }}/{{g.user.name|urlencode}}'> <i class="fa fa-user"></i> Profile</a>
+                                                <a href='{{ APP_ROOT }}/users/{{ g.user.id }}/{{g.user.name|urlencode}}'> <i class="fa fa-user"></i> Profile</a>
                                             </li>
                                             <li>
-                                                <a href="/users/{{ g.user.id }}/{{ g.user.name|urlencode }}/settings"><i class="fa fa-cog"></i> Settings</a>
+                                                <a href="{{ APP_ROOT }}/users/{{ g.user.id }}/{{ g.user.name|urlencode }}/settings"><i class="fa fa-cog"></i> Settings</a>
                                             </li>
                                             <li>
-                                              <form id="f" action="/logout" method="post">
+                                              <form id="f" action="{{ APP_ROOT }}/logout" method="post">
                                               <button style="margin-left:20px" class="btn btn-default" name="Log Me Out">Log Out</button>
                                               </form>
                                             </li>
                                         </ul>
                                     {% if role == "admin" and adpage == True %}
                                         <li  class="active">
-                                        <a href="/administration" class="administration" title="Administration"> 
+                                        <a href="{{ APP_ROOT }}/administration" class="administration" title="Administration"> 
                                             <span class="fa fa-cog"></span>    
                                         </a>
                                         </li>
                                     {% elif role == "admin" and adpage != True %}
                                         <li>
-                                        <a href="/administration" class="administration" title="Administration"> 
+                                        <a href="{{ APP_ROOT }}/administration" class="administration" title="Administration"> 
                                             <span class="fa fa-cog"></span> 
                                         </a>
                                         </li>
                                     {% endif %}
                                     
                                 {% else %}
-                                    <li><a href="/login" class="login"><i class="fa fa-sign-in"></i> Login</a></li>
+                                    <li><a href="{{ APP_ROOT }}/login" class="login"><i class="fa fa-sign-in"></i> Login</a></li>
                                 {% endif %}
 
                                 <li class="dropdown">
@@ -254,7 +254,7 @@
                                     </ul>
                                 </li>
                                 <li>
-                                    <a href="/recent-questions.atom" class="feed" title="Feed">
+                                    <a href="{{ APP_ROOT }}/recent-questions.atom" class="feed" title="Feed">
                                         <i class="fa fa-rss"></i> 
                                     </a>
                                 </li>
@@ -331,7 +331,7 @@
 
 
         {% block js_bootstrap %}
-            <script src="/static/js/bootstrap{{ debugmin() }}.js"></script>
+            <script src="{{ APP_ROOT }}/static/js/bootstrap{{ debugmin() }}.js"></script>
         {% endblock %}
         {% block js_analytics %}
             {# Via HTML5BP. Asynchronous Google Analytics snippet. mathiasbynens.be/notes/async-analytics-snippet #}

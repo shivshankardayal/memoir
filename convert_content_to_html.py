@@ -25,7 +25,7 @@ for i in xrange(1, ucount+1):
                                                                output_format='html5'), memoir.tags_wl, memoir.attrs_wl)
         cb.set(str(i), user)
 
-doc = urllib2.urlopen(DB_URL + 'tags/_design/dev_qa/_view/get_tag_by_id').read()
+doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id').read()
 doc = json.loads(doc)
 
 for row in doc['rows']:
@@ -55,7 +55,7 @@ for i in xrange(1, qcount+1):
 
     qb.set(str(i), q)
 
-doc = urllib2.urlopen(DB_URL + 'kunjika/_design/dev_qa/_view/get_articles?reduce=false').read()
+doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_articles?reduce=false').read()
 doc = json.loads(doc)
 
 for row in doc['rows']:
