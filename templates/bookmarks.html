@@ -2,18 +2,18 @@
 {% block title %}{{ title }} - Kunjika{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link href="/static/css/prettify.css" rel="stylesheet">
-    <link href="/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/prettify.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
     <!-- adding required js files  -->
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
     <script type="text/javascript"
-            src="/static/js/run_prettify.js?lang=clj&amp;lbg=erlang&amp;lang=matlab&amp;lang=sql&amp;lang=vb&amp;lang=css&amp;lang=go&amp;lang=pascal&amp;lan=tcl&amp;lang=yaml&amp;lan=basic&amp;lang=dart&amp;lan=lua&amp;lang=scala&amp;lang=wiki&amp;lang=tex"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
+            src="{{ APP_ROOT }}/static/js/run_prettify.js?lang=clj&amp;lbg=erlang&amp;lang=matlab&amp;lang=sql&amp;lang=vb&amp;lang=css&amp;lang=go&amp;lang=pascal&amp;lan=tcl&amp;lang=yaml&amp;lan=basic&amp;lang=dart&amp;lan=lua&amp;lang=scala&amp;lang=wiki&amp;lang=tex"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
 
 {% endblock %}
 {% block container %}
@@ -46,7 +46,7 @@
         </div>
         <div class="edit-button">
             {% if g.user.id == user_id %}
-                <a href="/users/{{ user_id }}/edit_profile" class="btn"><i class="fa fa-edit"></i>Edit</a>
+                <a href="{{ APP_ROOT }}/users/{{ user_id }}/edit_profile" class="btn"><i class="fa fa-edit"></i>Edit</a>
             {% endif %}
         </div>
         <div class="data">
@@ -117,7 +117,7 @@
                         <th></th>
                         <td class="invite">
                             <form id="invite-form" class="invite" method="post"
-                                  action="/send_invites">
+                                  action="{{ APP_ROOT }}/send_invites">
                                 <input id="email_list"
                                        name="email_list"
                                        placeholder="Semicolon separated emails." type="text" value="">
@@ -143,9 +143,9 @@
         </div>
         <div class="user-nav">
             <ul class="nav nav-pills nav-stacked">
-                <li><a class="btn btn-default" href="/users/{{ user_id }}/{{ name|urlencode }}/bookmarks"><i class="fa fa-bookmark"></i> Bookmarks</a></li>
-                <li><a class="btn btn-default" href="/users/{{ user_id }}/{{ name|urlencode }}/messages"><i class="fa fa-envelope"></i> Messages</a></li>
-                <li><a class="btn btn-default" href="/users/{{ user_id }}/{{ name|urlencode }}/skills"><i class="fa fa-thumbs-up"></i> Skills</a></li>
+                <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/bookmarks"><i class="fa fa-bookmark"></i> Bookmarks</a></li>
+                <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/messages"><i class="fa fa-envelope"></i> Messages</a></li>
+                <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/skills"><i class="fa fa-thumbs-up"></i> Skills</a></li>
             </ul>
         </div>
         <div style="clear:both">
@@ -182,7 +182,7 @@
                                         </div>
                                         <div class="summary-user">
                                             <h4><a class="quesiton-hyperlink"
-                                                   href="/questions/{{ question['qid'] }}/{{ question['url'] }}">{{ question['title'] }}</a>
+                                                   href="{{ APP_ROOT }}/questions/{{ question['qid'] }}/{{ question['url'] }}">{{ question['title'] }}</a>
                                             </h4>
                                         </div>
                                     </div>
@@ -211,12 +211,12 @@
                                 <td>
                                     <div class="user-info user-hover">
                                         <div class="user-gravatar32">
-                                            <a href="/users/{{ users[j + i]['id'] }}/{{ users[j + i]['name']|urlencode }}">
+                                            <a href="{{ APP_ROOT }}/users/{{ users[j + i]['id'] }}/{{ users[j + i]['name']|urlencode }}">
                                                 <img src="{{ users[j + i]['email'] | gravatar(size=48) }}"/>
                                             </a>
                                         </div>
                                         <div class="user-details">
-                                            <a href="/users/{{ users[j + i]['id'] }}/{{ users[j + i]['name']|urlencode }}">{{ users[j + i]['name'] }}</a><br>
+                                            <a href="{{ APP_ROOT }}/users/{{ users[j + i]['id'] }}/{{ users[j + i]['name']|urlencode }}">{{ users[j + i]['name'] }}</a><br>
                                             <span class="user-location">{{ users[j + i]['location'] }}</span><br>
                                                     <span class="reputation-score"
                                                           dir="ltr">{{ users[j + i]['rep'] }}</span>

@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block title %}{{ title }} - Kunjika{% endblock %}
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
     {{ super() }}
 {% endblock %}
 {% block container %}
     <div class="row">
     <h3>Please Set Your Options</h3>
     <div class="col-md-9">
-        <form class="ask-form" method="post" aciton="/browse_objective_question">
+        <form class="ask-form" method="post" aciton="{{ APP_ROOT }}/browse_objective_question">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
             {{ render_field(form.tech, style="margin-left:15px") }}
@@ -23,7 +23,7 @@
     </div>
     <script type="text/javascript">
     $('#tech').change(function() {
-        $.getJSON('/getcat', {
+        $.getJSON('{{ APP_ROOT }}/getcat', {
             lang : $( "#tech option:selected" ).text()
         }, function (data) {
             $.each(data, function(k, v) {

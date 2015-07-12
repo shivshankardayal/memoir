@@ -2309,15 +2309,15 @@ def bookmark():
 @kunjika.route('/users/<uid>/<name>/bookmarks', defaults={'page': 1})
 @kunjika.route('/users/<uid>/<name>/bookmarks/<int:page>')
 def user_bookmarks(uid, name, page=1):
-    if int(uid) != g.user.id:
+    if uid != g.user.id:
         flash('You are not allowed to view the bookmarks other than your own.', 'error')
         return redirect(request.referrer)
     skip = (page - 1) * QUESTIONS_PER_PAGE
     questions = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_bookmarks_by_uid?limit=' +
-                                str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key=' +
-                                str(uid) + '&reduce=false').read()
-    count = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_bookmarks_by_uid?key=' +
-                            str(uid)).read()
+                                str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key="' +
+                                str(uid) + '"&reduce=false').read()
+    count = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_bookmarks_by_uid?key="' +
+                            str(uid) + '"').read()
     count = json.loads(count)['rows']
     if len(count) != 0:
         count = count[0]['value']

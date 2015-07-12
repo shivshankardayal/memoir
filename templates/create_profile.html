@@ -16,7 +16,7 @@
                     </ul>
                     <div id="myTabContent" class="tab-content">
                     <div class="tab-pane active in" id="create">
-                        <form class="form-horizontal" id="tab" method="post" action="/create_profile">
+                        <form class="form-horizontal" id="tab" method="post" action="{{ APP_ROOT }}/create_profile">
                             <fieldset>
                                 <div id="legend">
                                     <legend class="">
@@ -52,8 +52,8 @@
                                 </div>
                                 <p>
                                     <br/>
-                                    By registering, you agree to the <a href="/legal/privacy-policy">privacy
-                                    policy</a> and <a href="/legal/terms-of-service">terms of service</a>.
+                                    By registering, you agree to the <a href="{{ APP_ROOT }}/legal/privacy-policy">privacy
+                                    policy</a> and <a href="{{ APP_ROOT }}/legal/terms-of-service">terms of service</a>.
                                 </p>
                             </fieldset>
                         </form>
@@ -131,7 +131,7 @@
             var email = $('#email1').val();
 
             //use ajax to run the check
-            $.post("/check_email", {
+            $.post("{{ APP_ROOT }}/check_email", {
                 email: email
             }, function (result) {
                 //if the result is 1

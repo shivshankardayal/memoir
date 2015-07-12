@@ -602,11 +602,11 @@ def get_user_answers_per_page(user, apage, USER_ANSWERS_PER_PAGE, acount):
     question_list = []
     aids = []
     question_view = urllib2.urlopen(
-        memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_ans_by_userid?key=' +str(user['id'])
-        + '&desending=true&skip=' + str(skip) + '&limit=' + str(USER_ANSWERS_PER_PAGE)
+        memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_ans_by_userid?key="' +user['id']
+        + '"&desending=true&skip=' + str(skip) + '&limit=' + str(USER_ANSWERS_PER_PAGE)
     ).read()
     question_view = json.loads(question_view)['rows']
-    ##print question_view
+    print question_view
     for row in question_view:
         #print row['value']
         question = {}
