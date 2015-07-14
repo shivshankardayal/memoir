@@ -2,18 +2,18 @@
 {% block title %}{{ title }} - Kunjika{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link href="/static/css/solarized_light.css" rel="stylesheet">
-    <link href="/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/solarized_light.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
     <script type="text/javascript"
-            src="/static/js/highlight.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+            src="{{ APP_ROOT }}/static/js/highlight.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.cookie.js"></script>
 
 {% endblock %}
 {% block container %}
@@ -115,14 +115,14 @@
                     </li>
                     {% if g.user.id == user_id %}
                     <li>
-                        <a href="/users/{{ user_id }}/{{ name|urlencode }}/bookmarks"><i class="fa fa-bookmark"></i> Bookmarks</a>
+                        <a href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/bookmarks"><i class="fa fa-bookmark"></i> Bookmarks</a>
                     </li>
                      {% endif %}
                     <li>
-                        <a href="/users/{{ user_id }}/{{ name|urlencode }}/messages"><i class="fa fa-envelope"></i> Messages</a>
+                        <a href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/messages"><i class="fa fa-envelope"></i> Messages</a>
                     </li>
                     <li>
-                        <a href="/users/{{ user_id }}/{{ name|urlencode }}/skills"><i class="fa fa-thumbs-up"></i> Skills</a>
+                        <a href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/skills"><i class="fa fa-thumbs-up"></i> Skills</a>
                     </li>
                     <li>
                         <a href="#questions" data-toggle="tab"><i class="fa fa-question"></i> Questions</a>
@@ -137,7 +137,7 @@
                         {% if g.user.id == user_id %}
                         <br>
                         <div class="col-xs-12">
-                                <a href="/users/{{ user_id }}/edit_profile" class="pull-right btn btn-primary"><i class="fa fa-cog"></i> Edit Profile</a>
+                                <a href="{{ APP_ROOT }}/users/{{ user_id }}/edit_profile" class="pull-right btn btn-primary"><i class="fa fa-cog"></i> Edit Profile</a>
                         </div>
                         {% endif %}
                         <div class="col-xs-12">
@@ -274,13 +274,13 @@
                 <div class="col-md-3 col-sm-4 col-xs-6 user-wrapper">
                     <div class="user-details">
                         <div class="user-image">
-                            <a href="/users/{{ user['id'] }}/{{ user['name']|urlencode }}">
+                            <a href="{{ APP_ROOT }}/users/{{ user['id'] }}/{{ user['name']|urlencode }}">
                                 <img src="{{ user['email'] | gravatar(size=100) }}"  class="img-circle"/>
                             </a>
                         </div>
                         <div class="user-info-block">
                             <div class="user-heading">
-                              <a href="/users/{{ user['id'] }}/{{ user['name']|urlencode }}" class="user-name">{{ user['name'] }}</a><br>
+                              <a href="{{ APP_ROOT }}/users/{{ user['id'] }}/{{ user['name']|urlencode }}" class="user-name">{{ user['name'] }}</a><br>
                                <span class="help-block location">{{ user['location'] }}</span>
                                <span class="reputation-score" dir="ltr"><span class="fa fa-graduation-cap"></span> {{ user['rep'] }} points </span>
                            </div>
@@ -297,7 +297,7 @@
     <script>
         $('body').on("click", ".btn-success", function () {
             id = $(this).attr('id');
-            $.getJSON('/ban', {
+            $.getJSON('{{ APP_ROOT }}/ban', {
                 id: $(this).attr('id')
             }, function (data) {
                 //$(id).removeClass('btn-success');
@@ -307,7 +307,7 @@
         });
         $('body').on("click", ".btn-danger", function () {
             id = $(this).attr('id');
-            $.getJSON('/ban', {
+            $.getJSON('{{ APP_ROOT }}/ban', {
                 id: $(this).attr('id')
             }, function (data) {
                 //$(id).removeClass('btn-danger');
@@ -347,7 +347,7 @@
                 success: showResponse,  // post-submit callback
 
                 // other available options:
-                url: '/send_invites',         // override for form's 'action' attribute
+                url: '{{ APP_ROOT }}/send_invites',         // override for form's 'action' attribute
                 //type:      'post',        // 'get' or 'post', override for form's 'method' attribute
                 //dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
                 clearForm: true,        // clear all form fields after successful submit

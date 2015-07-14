@@ -309,7 +309,7 @@
             var lastPart = urlsplit[4];
             {% endif %}
             var qid = lastPart.replace(/qe-/, '');
-            $.getJSON('/get_tags/' + String(qid), {
+            $.getJSON('{{ APP_ROOT }}/get_tags/' + String(qid), {
             }, function (data) {
                 $("#token-input-kunjika-tags").tokenInput("{{ APP_ROOT }}/get_tags/", {
                     theme: "kunjika",

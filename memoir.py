@@ -770,7 +770,7 @@ def questions(tag=None, page=None, qid=None, url=None):
 @kunjika.route('/users/<uid>/<path:uname>/messages', defaults={'qpage': 1, 'apage': 1})
 @kunjika.route('/users/<uid>/<path:uname>/messsages/<int:qpage>/<int:apage>')
 def messages(qpage=None, apage=None, uid=None, uname=None):
-    return render_template('404.html')
+    return render_template('404.html', APP_ROOT=APP_ROOT)
 
 @kunjika.route('/users/<uid>', defaults={'qpage': 1, 'apage': 1})
 @kunjika.route('/users/<uid>/<path:uname>', defaults={'qpage': 1, 'apage': 1})
@@ -806,12 +806,12 @@ def users(qpage=None, apage=None, uid=None, uname=None):
                                    lname=user['lname'], email=user['email'], gravatar=gravatar100, logged_in=logged_in,
                                    upage=True, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, user=user,
                                    questions=questions, answers=answers, aids=aids, question_pagination=question_pagination,
-                                   answer_pagination=answer_pagination, role=g.user.role)
+                                   answer_pagination=answer_pagination, role=g.user.role, APP_ROOT=APP_ROOT)
     return render_template('users.html', title=user['name'], user_id=user['id'], lname=user['lname'], name=user['name'],
                            fname=user['fname'], email=user['email'], gravatar=gravatar100, upage=True,
                            qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, user=user,
                            questions=questions, answers=answers, aids=aids, question_pagination=question_pagination,
-                           answer_pagination=answer_pagination)
+                           answer_pagination=answer_pagination, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/ask', methods=['GET', 'POST'])
@@ -990,7 +990,7 @@ def create_profile():
             except:
                 return make_response("cant login")
     return render_template('create_profile.html', form=profileForm,
-                           title="Create Profile", lpage=True)
+                           title="Create Profile", lpage=True, APP_ROOT=APP_ROOT)
 
 @kunjika.route('/create_or_login')
 def create_or_login():
@@ -1178,7 +1178,7 @@ def register():
                 return make_response("cant login")
 
     return render_template('register.html', form=registrationForm, loginForm=loginForm,
-                           title='Register', lpage=True,)
+                           title='Register', lpage=True, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/check_email', methods=['POST'])
@@ -1533,7 +1533,7 @@ def edits(element):
     else:
         return render_template('edit.html', title='Edit', form=form, question=question, type=type, qid=qid,
                                aid=int(aid), cid=int(cid), qcount=qcount, ucount=ucount, tcount=tcount,
-                               acount=acount, tag_list=tag_list, name=g.user.name, role=g.user.role, user_id=g.user.id)
+                               acount=acount, tag_list=tag_list, name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/answer_accepted')
@@ -1703,14 +1703,14 @@ def unanswered(page):
     pagination = utility.Pagination(page, QUESTIONS_PER_PAGE, count)
     if g.user is None:
         return render_template('unanswered.html', title='Unanswered questions', unpage=True, questions=questions_list,
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     elif g.user is not None and g.user.is_authenticated():
         return render_template('unanswered.html', title='Unanswered questions', unpage=True, questions=questions_list,
                                name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination,
-                               qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     else:
         return render_template('unanswered.html', title='Unanswered questions', unpage=True, questions=questions_list,
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/users/', defaults={'page': 1})
@@ -1728,10 +1728,10 @@ def show_users(page):
         return render_template('users.html', title='Users', gravatar32=gravatar32, logged_in=logged_in, upage=True,
                                pagination=pagination, users=users, no_of_users=no_of_users,
                                qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
-                               name=g.user.name, role=g.user.role, user_id=g.user.id)
+                               name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=APP_ROOT)
     return render_template('users.html', title='Users', gravatar32=gravatar32, upage=True,
                            pagination=pagination, users=users, no_of_users=no_of_users, name=g.user.name,
-                           qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                           qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/tags/', defaults={'page': 1})
@@ -1759,9 +1759,9 @@ def show_tags(page):
         logged_in = True
         return render_template('tags.html', title='Tags', logged_in=logged_in, tpage=True, pagination=pagination,
                                tags=tags, no_of_tags=no_of_tags, qcount=qcount, ucount=ucount, tcount=tcount,
-                               name=g.user.name, role=g.user.role, user_id=g.user.id, acount=acount, tag_list=tag_list)
+                               name=g.user.name, role=g.user.role, user_id=g.user.id, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     return render_template('tags.html', title='Tags', tpage=True, pagination=pagination, tags=tags,
-                           no_of_tags=no_of_tags, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                           no_of_tags=no_of_tags, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
 
 
 def make_external(url):
@@ -1815,11 +1815,11 @@ def tag_info(tag=None):
     tid = json.loads(tag)['rows'][0]['id']
     tag = mb.get(tid).value
     if g.user is AnonymousUserMixin:
-        return render_template('tag_info.html', title='Info', tag=tag, tpage=True)
+        return render_template('tag_info.html', title='Info', tag=tag, tpage=True, APP_ROOT=APP_ROOT)
     elif g.user is not None and g.user.is_authenticated():
-        return render_template('tag_info.html', title='Info', tag=tag, tpage=True)
+        return render_template('tag_info.html', title='Info', tag=tag, tpage=True, APP_ROOT=APP_ROOT)
     else:
-        return render_template('tag_info.html', title='Info', tag=tag, tpage=True)
+        return render_template('tag_info.html', title='Info', tag=tag, tpage=True, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/edit_tag/<string:tag>', methods=['POST'])
@@ -1839,7 +1839,7 @@ def edit_tag(tag):
             return redirect(url_for('tag_info', tag=str(tag['tag'])))
 
         return render_template('edit_tag.html', title='Edit tag', form=tagForm, tpage=True, name=g.user.name, role=g.user.role, tag=tag,
-                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     return redirect(url_for('login'))
 
 
@@ -1874,7 +1874,7 @@ def reset_password(token=None):
             else:
                 flash('The email was not found in database.', 'error')
                 return redirect(url_for('reset_password'))
-        return render_template('reset_password.html', emailForm=emailForm, title="Reset Password")
+        return render_template('reset_password.html', emailForm=emailForm, title="Reset Password", APP_ROOT=APP_ROOT)
     elif token is not None:
         passwordResetForm = PasswordResetForm(request.form)
         if passwordResetForm.validate_on_submit() and request.method == 'POST':
@@ -1896,7 +1896,7 @@ def reset_password(token=None):
                 return redirect(url_for('questions'))
 
             return redirect(url_for('questions'))
-        return render_template('reset_password.html', passwordResetForm=passwordResetForm, token=token, title="Reset Password")
+        return render_template('reset_password.html', passwordResetForm=passwordResetForm, token=token, title="Reset Password", APP_ROOT=APP_ROOT)
     else:
         return redirect(url_for('questions'))
 
@@ -1904,7 +1904,7 @@ def reset_password(token=None):
 @kunjika.route('/editing-help')
 def editing_help():
     return render_template('editing-help.html', title='Markdown Editor Help', name=g.user.name,
-                           user_id=g.user.id)
+                           user_id=g.user.id, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/search-help')
@@ -1912,9 +1912,9 @@ def search_help():
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
     if g.user is not None and g.user.is_authenticated():
         return render_template('search-help.html', title='Search help', tpage=True, name=g.user.name,
-                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     return render_template('search-help.html', title='Search help', tpage=True, name=g.user.name,
-                           user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                           user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/sticky')
@@ -2017,7 +2017,7 @@ def poll(page=1):
                 data.append("")
             cd_list = zip(choices, data)
             return render_template('create_poll.html', title='Create Poll', form=questionForm, ppage=True, name=g.user.name, role=g.user.role,
-                                   user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, cd_list=cd_list)
+                                   user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, cd_list=cd_list, APP_ROOT=APP_ROOT)
 
         if questionForm.validate_on_submit() and request.method == 'POST':
 
@@ -2116,10 +2116,10 @@ def poll(page=1):
                                             data.append(questionForm.option_10.data)
             cd_list = zip(choices, data)
             return render_template('create_poll.html', title='Create Poll', form=questionForm, ppage=True, name=g.user.name, role=g.user.role,
-                                   user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, cd_list=cd_list)
+                                   user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, cd_list=cd_list, APP_ROOT=APP_ROOT)
         return render_template('poll.html', title='Poll', form=pollForm, ppage=True, name=g.user.name, role=g.user.role,
                                user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
-                               poll_list=poll_list, pagination=pagination)
+                               poll_list=poll_list, pagination=pagination, APP_ROOT=APP_ROOT)
     return redirect(url_for('login'))
 
 
@@ -2183,7 +2183,7 @@ def administration():
                 flash('Email could not be sent.', 'error')
             return redirect(url_for('users', uid=g.user.id))
         return render_template('admin.html', form=form, user=user, name=g.user.name, role=g.user.role, adpage=True,
-                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     else:
         flash('You need to be admin to view this page', 'Error')
         return redirect(url_for('questions'))
@@ -2221,7 +2221,7 @@ def edit_profile(uid=None):
 
             return redirect(url_for('users', uid=g.user.id, uname=g.user.name))
         return render_template('edit_profile.html', title='Edit Profile', form=form, user=user, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
 
     return redirect(url_for('users', uid=g.user.id, name=g.user.name))
 
@@ -2248,10 +2248,10 @@ def settings(uid=None, uname=None):
                     flash('Your password could not be changed. Contact admin', 'error')
             else:
                 return render_template('settings.html', form=form, user=user, name=g.user.name, role=g.user.role,
-                                       user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                                       user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
             return redirect(url_for('users', uid=g.user.id, uname=user['name']))
         return render_template('settings.html', form=form, user=user, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list)
+                               user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
 
     return redirect(url_for('users', uid=g.user.id))
 
@@ -2356,11 +2356,11 @@ def user_bookmarks(uid, name, page=1):
         if g.user.is_authenticated():
             return render_template('bookmarks.html', title=user['name'], user_id=user['id'], name=user['name'], fname=user['fname'],
                                    lname=user['lname'], email=user['email'], gravatar=gravatar100, logged_in=logged_in,
-                                   role=g.user.role, bookmarks_pagination=pagination, user=user, questions=questions_list)
+                                   role=g.user.role, bookmarks_pagination=pagination, user=user, questions=questions_list, APP_ROOT=APP_ROOT)
 
     return render_template('bookmarks.html', title=user['name'], user_id=user['id'], name=user['name'], fname=user['fname'],
                            lname=user['lname'], email=user['email'], gravatar=gravatar100, logged_in=logged_in,
-                           role=g.user.role, bookmarks_pagination=pagination, user=user, questions=questions_list)
+                           role=g.user.role, bookmarks_pagination=pagination, user=user, questions=questions_list, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/get_skills/<uid>', methods=['GET', 'POST'])
@@ -2444,7 +2444,7 @@ def user_skills(uid, name):
     if g.user.is_authenticated():
         return render_template('skills.html', title=user['name'], user_id=user['id'], name=user['name'], fname=user['fname'],
                                lname=user['lname'], email=user['email'], gravatar=gravatar100, logged_in=logged_in,
-                               role=g.user.role, user=user, skills=skills, gravatar32=gravatar32)
+                               role=g.user.role, user=user, skills=skills, gravatar32=gravatar32, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/endorse')
