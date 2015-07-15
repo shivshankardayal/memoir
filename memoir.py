@@ -2708,47 +2708,47 @@ def hide(id):
 
 @kunjika.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template('404.html', APP_ROOT=APP_ROOT), 404
 
 
 @kunjika.errorhandler(410)
 def page_410(e):
-    return render_template('410.html'), 410
+    return render_template('410.html', APP_ROOT=APP_ROOT), 410
 
 
 @kunjika.errorhandler(403)
 def page_403(e):
-    return render_template('403.html'), 410
+    return render_template('403.html', APP_ROOT=APP_ROOT), 410
 
 
 @kunjika.errorhandler(400)
 def page_400(e):
-    return render_template('400.html'), 400
+    return render_template('400.html', APP_ROOT=APP_ROOT), 400
 
 
 @kunjika.errorhandler(401)
 def page_401(e):
-    return render_template('401.html'), 401
+    return render_template('401.html', APP_ROOT=APP_ROOT), 401
 
 
 @kunjika.errorhandler(405)
 def page_405(e):
-    return render_template('405.html'), 405
+    return render_template('405.html', APP_ROOT=APP_ROOT), 405
 
 
 @kunjika.errorhandler(500)
 def page_500(e):
-    return render_template('500.html'), 500
+    return render_template('500.html', APP_ROOT=APP_ROOT), 500
 
 
 @kunjika.errorhandler(502)
 def page_502(e):
-    return render_template('502.html'), 502
+    return render_template('502.html', APP_ROOT=APP_ROOT), 502
 
 
 @kunjika.errorhandler(503)
 def page_503(e):
-    return render_template('503.html'), 503
+    return render_template('503.html', APP_ROOT=APP_ROOT), 503
 
 kunjika.register_blueprint(test_series)
 kunjika.register_blueprint(OA)

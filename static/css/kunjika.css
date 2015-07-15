@@ -1265,3 +1265,6 @@ pre {
       width: 100%;
 }
 
+input.gsc-input {
+    font-size: 14px;
+}

@@ -17,7 +17,7 @@ def tests():
     except:
         flash('You need to be logged in to take tests.', 'error')
         return redirect(url_for('questions'))
-    return render_template('tests.html', title='Tests', user=user, name=g.user.name, role=g.user.role, user_id=g.user.id)
+    return render_template('tests.html', title='Tests', user=user, name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
 
 
 @test_series.route('/getcat')
@@ -162,7 +162,7 @@ def add_objective_question():
                 choices.append(str(i+1))
 
             return render_template('create_oq.html', title='Create Objective Question', form=questionForm, options=choices,
-                                   ppage=True, name=g.user.name, role=g.user.role,  user_id=g.user.id)
+                                   ppage=True, name=g.user.name, role=g.user.role,  user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
 
         if questionForm.validate_on_submit() and request.method == 'POST':
             tech = questionForm.tech.data
@@ -209,7 +209,7 @@ def add_objective_question():
             return redirect(url_for('administration'))
 
         return render_template('oq.html', title='Create Objective Question', form=oqForm, ppage=True, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id)
+                               user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
     else:
         return redirect(url_for('login'))
 
@@ -254,10 +254,10 @@ def browse_objective_questions(page=None):
 
             return render_template('browse.html', title='Questions', qpage=True, questions=questions_list,
                                    pagination=pagination, name=g.user.name, role=g.user.role,
-                                   user_id=g.user.id, tech=tech, cat=cat)
+                                   user_id=g.user.id, tech=tech, cat=cat, APP_ROOT=memoir.APP_ROOT)
 
         return render_template('browse_form.html', title='Browse Question Form', form=boqForm, ppage=True, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id)
+                               user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
     return redirect(url_for('login'))
 
 
@@ -324,6 +324,6 @@ def edit_test(element):
             return redirect(url_for('test_series.browse_objective_questions'))
 
         return render_template('edit_test.html', title='Edit Objective Question', form=form, ppage=True, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id, question=question, options=zip(choices, question['content']['options']))
+                               user_id=g.user.id, question=question, options=zip(choices, question['content']['options']), APP_ROOT=memoir.APP_ROOT)
     else:
         return render_template('login')
