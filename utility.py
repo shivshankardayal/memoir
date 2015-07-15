@@ -32,7 +32,6 @@ import urllib
 import markdown
 import bleach
 
-
 def common_data():
     tag_list = []
     qcount = memoir.mb.get('qcount').value
@@ -70,25 +69,25 @@ def common_rendering(results, query, page):
     if g.user is None:
         return render_template('search.html', title='Search results for ' + query, qpage=True,
                                questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:(page-1)*memoir.QUESTIONS_PER_PAGE + memoir.QUESTIONS_PER_PAGE],
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
     elif g.user is not None and g.user.is_authenticated():
         if (len(questions_list) - (page-1)*memoir.QUESTIONS_PER_PAGE) < memoir.QUESTIONS_PER_PAGE:
             return render_template('search.html', title='Search results for ' + query, qpage=True,
                                    questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:],
-                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
         else:
             return render_template('search.html', title='Search results for ' + query, qpage=True,
                                    questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:(page-1)*memoir.QUESTIONS_PER_PAGE +
                                                             memoir.QUESTIONS_PER_PAGE],
-                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                                   pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
     if ((page-1)*memoir.QUESTIONS_PER_PAGE + memoir.QUESTIONS_PER_PAGE - page-1*memoir.QUESTIONS_PER_PAGE) < memoir.QUESTIONS_PER_PAGE:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:],
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
     else:
         return render_template('search.html', title='Search results for ' + query, qpage=True,
                                questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:(page-1)*memoir.QUESTIONS_PER_PAGE +
                                                         memoir.QUESTIONS_PER_PAGE],
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
 
 
 def search(query, page):
@@ -172,15 +171,15 @@ def search_user(query, page):
 
     if g.user is None:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:page*memoir.QUESTIONS_PER_PAGE],
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
     elif g.user is not None and g.user.is_authenticated():
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:page*memoir.QUESTIONS_PER_PAGE],
                                pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query,
-                               name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=APP_ROOT)
+                               name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
     else:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:page*memoir.QUESTIONS_PER_PAGE],
                                pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id, APP_ROOT=APP_ROOT)
+                               user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
 
 
 def search_tag(query, page):
@@ -211,13 +210,13 @@ def search_tag(query, page):
 
     if g.user is None:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:],
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
     elif g.user is not None and g.user.is_authenticated():
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:],
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
     else:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:],
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=APP_ROOT)
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
 
 
 def generate_url(title):
@@ -780,7 +779,8 @@ def write_article():
             article['ts'] = int(time())
             article['updated'] = article['ts']
             article['ip'] = request.remote_addr
-            article['aid'] = 'a-' + str(uuid1())
+            aid = mb.incr('acount').value
+            article['aid'] = 'a-' + str(aid)
             article['opname'] = g.user.name
             article['cids'] = []
             user = memoir.mb.get(str(g.user.id)).value
@@ -795,7 +795,7 @@ def write_article():
             return redirect(url_for('browse_articles', aid=article['aid'], url=article['url']))
 
         return render_template('write_article.html', title='Write Artcile', form=articleForm, artpage=True, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id, APP_ROOT=APP_ROOT)
+                               user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
     return redirect(url_for('login'))
 
 
@@ -807,13 +807,13 @@ def browse_articles(page, aid, tag):
         pagination = Pagination(page, memoir.ARTICLES_PER_PAGE, count)
         if g.user is None:
             return render_template('browse_articles.html', title='Articles for tag ' + tag, qpage=True, articles=articles_list,
-                                   pagination=pagination, APP_ROOT=APP_ROOT)
+                                   pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         elif g.user is not None and g.user.is_authenticated():
             return render_template('browse_articles.html', title='Articles for tag ' + tag, qpage=True, articles=articles_list,
-                                   name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=APP_ROOT)
+                                   name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         else:
             return render_template('browse_articles.html', title='Articles for tag ' + tag, qpage=True, articles=articles_list,
-                                   pagination=pagination, APP_ROOT=APP_ROOT)
+                                   pagination=pagination, APP_ROOT=memoir.APP_ROOT)
 
     if aid is None:
         count_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_articles').read()
@@ -827,13 +827,13 @@ def browse_articles(page, aid, tag):
         pagination = Pagination(page, memoir.ARTICLES_PER_PAGE, count)
         if g.user is None:
             return render_template('browse_articles.html', title='Articles', artpage=True, articles=articles_list,
-                                   pagination=pagination, APP_ROOT=APP_ROOT)
+                                   pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         elif g.user is not None and g.user.is_authenticated():
             return render_template('browse_articles.html', title='Articles', artpage=True, articles=articles_list,
-                                   name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=APP_ROOT)
+                                   name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         else:
             return render_template('browse_articles.html', title='Articles', artpage=True, articles=articles_list,
-                                   pagination=pagination, APP_ROOT=APP_ROOT)
+                                   pagination=pagination, APP_ROOT=memoir.APP_ROOT)
     else:
         article = memoir.mb.get(aid).value
         article['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(article['ts']))
@@ -852,13 +852,13 @@ def browse_articles(page, aid, tag):
         for comment in article['comments']:
             comment['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(comment['ts']))
         if g.user is None:
-            return render_template('single_article.html', title='Articles', artpage=True, article=article, APP_ROOT=APP_ROOT)
+            return render_template('single_article.html', title='Articles', artpage=True, article=article, APP_ROOT=memoir.APP_ROOT)
 
         elif g.user is not None and g.user.is_authenticated():
             return render_template('single_article.html', title='Articles', artpage=True, article=article, form=form,
-                                   name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=APP_ROOT)
+                                   name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
         else:
-            return render_template('single_article.html', title='Articles', artpage=True, article=article, APP_ROOT=APP_ROOT)
+            return render_template('single_article.html', title='Articles', artpage=True, article=article, APP_ROOT=memoir.APP_ROOT)
 
 
 def get_articles_for_page(page, ARTICLES_PER_PAGE, count):
@@ -1045,7 +1045,7 @@ def edit_article(element):
             return redirect(url_for('browse_articles', aid=aid, url=article['url']))
     else:
         return render_template('edit_article.html', title='Edit Article', form=form, article=article, comment=comment, type=type, aid=aid,
-                               cid=cid, name=g.user.name, role=g.user.role, user_id=g.user.id, tags=tags, APP_ROOT=APP_ROOT)
+                               cid=cid, name=g.user.name, role=g.user.role, user_id=g.user.id, tags=tags, APP_ROOT=memoir.APP_ROOT)
 
 
 def article_tags(page):
@@ -1066,9 +1066,9 @@ def article_tags(page):
     if g.user is not None and g.user.is_authenticated():
         logged_in = True
         return render_template('article_tags.html', title='Article Tags', logged_in=logged_in, pagination=pagination,
-                               tags=tags, no_of_tags=no_of_tags, name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=APP_ROOT)
+                               tags=tags, no_of_tags=no_of_tags, name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
     return render_template('article_tags.html', title='Articles Tags', pagination=pagination, tags=tags,
-                           no_of_tags=no_of_tags, APP_ROOT=APP_ROOT)
+                           no_of_tags=no_of_tags, APP_ROOT=memoir.APP_ROOT)
 
 
 def save_draft(element):
@@ -1129,7 +1129,7 @@ def save_draft(element):
             return redirect(url_for('drafts', did=article['aid'], url=article['url']))
 
         return render_template('write_article.html', title='Write Artcile', form=articleForm, artpage=True, name=g.user.name, role=g.user.role,
-                               user_id=g.user.id, APP_ROOT=APP_ROOT)
+                               user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
     return redirect(url_for('login'))
 
 
@@ -1149,13 +1149,13 @@ def drafts(page, did, request):
         pagination = Pagination(page, memoir.ARTICLES_PER_PAGE, count)
         if g.user is None:
             return render_template('drafts.html', title='Drafts', artpage=True, articles=drafts_list,
-                                   pagination=pagination, APP_ROOT=APP_ROOT)
+                                   pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         elif g.user is not None and g.user.is_authenticated():
             return render_template('drafts.html', title='Drafts', artpage=True, articles=drafts_list,
-                                   name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=APP_ROOT)
+                                   name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         else:
             return render_template('drafts.html', title='Drafts', artpage=True, articles=drafts_list,
-                                   pagination=pagination, APP_ROOT=APP_ROOT)
+                                   pagination=pagination, APP_ROOT=memoir.APP_ROOT)
     else:
         article = memoir.mb.get(did).value
         article['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(article['ts']))
@@ -1164,13 +1164,13 @@ def drafts(page, did, request):
         article['opname'] = user['name']
 
         if g.user is None:
-            return render_template('single_draft.html', title='Articles', artpage=True, article=article, APP_ROOT=APP_ROOT)
+            return render_template('single_draft.html', title='Articles', artpage=True, article=article, APP_ROOT=memoir.APP_ROOT)
 
         elif g.user is not None and g.user.is_authenticated():
             return render_template('single_draft.html', title='Articles', artpage=True, article=article,
-                                   name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=APP_ROOT)
+                                   name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
         else:
-            return render_template('single_draft.html', title='Articles', artpage=True, article=article, APP_ROOT=APP_ROOT)
+            return render_template('single_draft.html', title='Articles', artpage=True, article=article, APP_ROOT=memoir.APP_ROOT)
 
 
 def get_drafts_for_page(page, ARTICLES_PER_PAGE, count):
@@ -1228,7 +1228,7 @@ def edit_draft(element):
         return redirect(url_for('drafts', did=did, url=article['url']))
     else:
         return render_template('edit_draft.html', title='Edit', form=form, article=article, type=type, aid=did,
-                               name=g.user.name, role=g.user.role, user_id=g.user.id, tags=tags, APP_ROOT=APP_ROOT)
+                               name=g.user.name, role=g.user.role, user_id=g.user.id, tags=tags, APP_ROOT=memoir.APP_ROOT)
 
  
 def publish(element):
@@ -1271,7 +1271,8 @@ def publish(element):
             article['ts'] = int(time())
             article['updated'] = article['ts']
             article['ip'] = request.remote_addr
-            article['aid'] = 'a-' + str(uuid1())
+            aid = memoir.mb.incr('acount').value
+            article['aid'] = 'a-' + str(aid)
             article['opname'] = g.user.name
             article['cids'] = []
             user = memoir.mb.get(str(g.user.id)).value
@@ -1289,7 +1290,7 @@ def publish(element):
             return redirect(url_for('browse_articles', aid=article['aid'], url=article['url']))
 
         return render_template('edit_draft.html', title='Edit', form=articleForm, article=article, type=type, aid=element,
-                               name=g.user.name, role=g.user.role, user_id=g.user.id, tags=tags, APP_ROOT=APP_ROOT)
+                               name=g.user.name, role=g.user.role, user_id=g.user.id, tags=tags, APP_ROOT=memoir.APP_ROOT)
     return redirect(url_for('login'))
 
 

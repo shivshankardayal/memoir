@@ -2,19 +2,19 @@
 {% block title %}Administration - Kunjika{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <script src="/static/js/jquery.cookie.js"></script>
-    <script src="/static/js/jquery.form.js"></script>
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <script src="{{ APP_ROOT }}/static/js/jquery.cookie.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/jquery.form.js"></script>
 {% endblock %}
 {% block container %}
     <div class="row">
        <div class="col-md-9">
-            <a href="/add_objective_question"><h4>Add Objective Question</h4></a>
-            <a href="/browse_objective_questions"><h4>Browse Objective Questions</h4></a>
+            <a href="{{ APP_ROOT }}/add_objective_question"><h4>Add Objective Question</h4></a>
+            <a href="{{ APP_ROOT }}/browse_objective_questions"><h4>Browse Objective Questions</h4></a>
             <hr/>
             <div class="userheader">
                 <h4>Send Bulk Email</h4>
-                <form class="ask-form" method="post" aciton="/administration">
+                <form class="ask-form" method="post" aciton="{{ APP_ROOT }}/administration">
                     {% from "macros.html" import render_field %}
                     {{ form.csrf_token }}
                     {{ render_field(form.subject, class="question input-x-large span8", style="margin-left:25px;") }}
@@ -55,7 +55,7 @@
                 </div>
                 
                 {% for tag in tag_list %}
-                    <a href="/questions/tagged/{{ tag['tag'] }}" class="post-tag" title="show questions tagged '{{ tag['tag']|urlencode }}'" rel="tag">
+                    <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag'] }}" class="post-tag" title="show questions tagged '{{ tag['tag']|urlencode }}'" rel="tag">
                         {{ tag['tag'] }} 
                         <span class="tag-count">{{ tag['count'] }}</span> 
                     </a>

@@ -2,18 +2,18 @@
 {% block title %}Edit your profile {{ user['name'] }} - Kunjika{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link href="/static/css/solarized_light.css" rel="stylesheet">
-    <link href="/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/solarized_light.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
-    <script src="/static/js/jquery.cookie.js"></script>
-    <script src="/static/js/jquery.form.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
-    <script type="text/javascript" src="/static/js/highlight.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/jquery.cookie.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/jquery.form.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/highlight.js"></script>
 
 {% endblock %}
 {% block container %}
@@ -22,7 +22,7 @@
             <div class="userheader">
                 <h3>Edit your profile {{ name }}</h3>
             </div>
-            <form class="form-horizontal col-md-12" id="tab" method="post" action="/users/{{ user['id'] }}/edit_profile">
+            <form class="form-horizontal col-md-12" id="tab" method="post" action="{{ APP_ROOT }}/users/{{ user['id'] }}/edit_profile">
                 <fieldset>
                     <div id="legend">
                         <legend class="">
@@ -81,7 +81,7 @@
                             </p>
                             <h6>From your computer (Max. 2MB)</h6>
                             <span class="loading-small"></span>
-                            <input type="file" name="file" id="file" data-action="/image_upload"/>
+                            <input type="file" name="file" id="file" data-action="{{ APP_ROOT }}/image_upload"/>
                         </div>
                         <div class="control-group" style="margin-top:15px">
                             <label class="control-label" for="about-me-preview"></label>
@@ -145,7 +145,7 @@
                 </div>
                 
                 {% for tag in tag_list %}
-                    <a href="/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
+                    <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
                         {{ tag['tag'] }} 
                         <span class="tag-count">{{ tag['count'] }}</span> 
                     </a>
@@ -158,7 +158,7 @@
             <div id="popular-tags" class="module">
                 <h4 id="h-popular-tags">Similar questions</h4>
                 {% for question in similar_questions %}
-                    <a href="/questions/{{ question[0] }}/{{ question[2] }}" class="post-tag"
+                    <a href="{{ APP_ROOT }}/questions/{{ question[0] }}/{{ question[2] }}" class="post-tag"
                        rel="tag">{{ question[1] }}</a>
                     <!-- br/ -->
                 {% endfor %}
@@ -168,7 +168,7 @@
     <script>
         $('body').on("click", ".btn-success", function () {
             id = $(this).attr('id');
-            $.getJSON('/ban', {
+            $.getJSON('{{ APP_ROOT }}/ban', {
                 id: $(this).attr('id')
             }, function (data) {
                 //$(id).removeClass('btn-success');
@@ -178,7 +178,7 @@
         });
         $('body').on("click", ".btn-danger", function () {
             id = $(this).attr('id');
-            $.getJSON('/ban', {
+            $.getJSON('{{ APP_ROOT }}/ban', {
                 id: $(this).attr('id')
             }, function (data) {
                 //$(id).removeClass('btn-danger');
@@ -204,7 +204,7 @@
         $("#invite").on("click", function () {
             if (!$('#invite-form').length) {
                 $(".table-user").append('<tr><th></th><td><form id="invite-form" class="invite"  method="post"' +
-                        'action="/send_invites"><input id="email_list"' +
+                        'action="{{ APP_ROOT }}/send_invites"><input id="email_list"' +
                         'name="email_list" placeholder="Semicolon separated emails." type="text">' +
                         '</input><br/><button class="btn btn-primary" type="submit">Send Invites</button></form></td></td></th>');
             }
@@ -221,7 +221,7 @@
                 success: showResponse,  // post-submit callback
 
                 // other available options:
-                url: '/send_invites',         // override for form's 'action' attribute
+                url: '{{ APP_ROOT }}/send_invites',         // override for form's 'action' attribute
                 //type:      'post',        // 'get' or 'post', override for form's 'method' attribute
                 //dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
                 clearForm: true,        // clear all form fields after successful submit
@@ -250,7 +250,7 @@
             if ($('#wmd-input').length > 0) {
                 var converter = new Markdown.getSanitizingConverter();
                 var help = function () {
-                    window.open('{{ config['HOST_URL'] }}editing-help');
+                    window.open('{{ APP_ROOT }}/editing-help');
                 }
                 Markdown.Extra.init(converter, {
                     extensions: "all",
@@ -342,7 +342,7 @@
         var uid = urlsplit[4];
         $.getJSON('/get_skills/' + String(uid), {
         }, function (data) {
-            $("#token-input-kunjika-tags").tokenInput("{{ config['HOST_URL'] }}get_skills/", {
+            $("#token-input-kunjika-tags").tokenInput("{{ APP_ROOT }}/get_skills/", {
                 theme: "kunjika",
                 allowFreeTagging: true,
                 tokenLimit: 50,
