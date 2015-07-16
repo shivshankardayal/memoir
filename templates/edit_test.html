@@ -2,23 +2,23 @@
 {% block title %}{{ title }} - Kunjika{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/solarized_light.css" rel="stylesheet">
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link href="/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/solarized_light.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
-    <script type="text/javascript" src="/static/js/highlight.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/highlight.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
 {% endblock %}
 {% block container %}
     <div class="row">
         <div class="col-md-9">
             <h3>Please edit your question.</h3>
-            <form class="ask-form" method="post" aciton="/edit_test/{{ question['qid'] }}">
+            <form class="ask-form" method="post" aciton="{{ APP_ROOT }}/edit_test/{{ question['qid'] }}">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
             <p>What type of poll or multiple choice question do you want?</p>
@@ -49,7 +49,7 @@
                 </p>
                 <h6>From your computer (Max. 2MB)</h6>
                 <span class="loading-small"></span>
-                    <input type="file" name="file" id="file" data-action="/image_upload"/>
+                    <input type="file" name="file" id="file" data-action="{{ APP_ROOT }}/image_upload"/>
             </div>
             <div id="wmd-preview" class="wmd-panel wmd-preview">
             </div>
@@ -88,7 +88,7 @@
             if ($('#wmd-input').length > 0) {
                 var converter = new Markdown.getSanitizingConverter();
                 var help = function () {
-                    window.open('{{ config['HOST_URL'] }}editing-help');
+                    window.open('{{ APP_ROOT }}/editing-help');
                 }
                 Markdown.Extra.init(converter, {
                     extensions: "all",

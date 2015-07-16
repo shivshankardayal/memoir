@@ -5,26 +5,25 @@
 {% block meta_author %}{{ questions['opname'] }}{% endblock %}
 {% block meta_description %}{{ questions['content']['html'][:400]|striptags }}{% endblock %}
 {% block css_site %}
-<link href="/static/css/wmd.css" rel="stylesheet">
-<link href="/static/css/solarized_light.css" rel="stylesheet">
-<link href="/static/css/token-input.css" rel="stylesheet">
+<link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+<link href="{{ APP_ROOT }}/static/css/solarized_light.css" rel="stylesheet">
+<link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
-<link href="/static/css/kunjika.css" rel="stylesheet">
-<link href="/static/css/kunjika.css" rel="stylesheet">
-<link href="/static/css/pygments.css" rel="stylesheet">
-<script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
-<script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-<script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
-<script src="/static/js/jquery.form.js"></script>
-<script type="text/javascript" src="/static/js/highlight.js"></script>
+<link href="{{ APP_ROOT }}/static/css/kunjika.css" rel="stylesheet">
+<link href="{{ APP_ROOT }}/static/css/pygments.css" rel="stylesheet">
+<script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+<script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+<script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
+<script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+<script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
+<script src="{{ APP_ROOT }}/static/js/jquery.form.js"></script>
+<script type="text/javascript" src="{{ APP_ROOT }}/static/js/highlight.js"></script>
 <script type="text/javascript">
  var ajax_call = function() {
    var qid = {{ questions['qid'] }};
    var acount = {{ questions['acount'] }};
    var ccount = {{ ccount }};
-   $.getJSON('/get_account', {
+   $.getJSON('{{ APP_ROOT }}/get_account', {
      qid: qid,
    }, function (data) {
        var adiff = data.acount - acount;
@@ -52,7 +51,7 @@
 
                 var converter = new Markdown.Converter();
                 var help = function () {
-                    window.open('{{ config['HOST_URL'] }}editing-help');
+                    window.open('{{ APP_ROOT }}/editing-help');
                 }
                 Markdown.Extra.init(converter, {
                     extensions: "all",
@@ -146,7 +145,7 @@
                 success: showResponse,  // post-submit callback
 
                 // other available options:
-                url: '/postcomment',         // override for form's 'action' attribute
+                url: '{{ APP_ROOT }}/postcomment',         // override for form's 'action' attribute
                 //type:      'post',        // 'get' or 'post', override for form's 'method' attribute
                 //dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
                 clearForm: true,        // clear all form fields after successful submit
@@ -187,7 +186,7 @@
                     str = '<div class="comment" id="c-' + responseJSON.id + '"><div class="content">';
                     comment = converter.makeHtml(responseJSON.comment);
                     str += comment;
-                    str += "</div> &mdash; <a href='/users/" + responseJSON.user_id + "/" + responseJSON.uname + "'>" + responseJSON.uname + "</a>"
+                    str += "</div> &mdash; <a href='{{ APP_ROOT }}/users/" + responseJSON.user_id + "/" + responseJSON.uname + "'>" + responseJSON.uname + "</a>"
                     str += " " + responseJSON.ts + "</div>"
                     $(str).insertBefore('#f-' + id);
                     flash('Your comment has been successfully posted.', 'info')
@@ -286,7 +285,7 @@
           {% endif %}
           <div class="post-tags"><i class="fa fa-tags" style="color:#a4c639;"></i>
             {% for tag in questions['content']['tags'] %}
-            <a class="post-tag" href="/questions/tagged/{{ tag|urlencode }}">{{ tag }}</a>
+            <a class="post-tag" href="{{ APP_ROOT }}/questions/tagged/{{ tag|urlencode }}">{{ tag }}</a>
             {% endfor %}
             {% if 'edited' in questions %}
             <p class="edited">Edited</p>
@@ -297,27 +296,27 @@
               <tr>
                 {% if user_id is defined %}
                 <td class="vt">
-                  <a href="/edit/qe-{{ questions['qid'] }}" class="suggest-edit-post" title=""><i
+                  <a href="{{ APP_ROOT }}/edit/qe-{{ questions['qid'] }}" class="suggest-edit-post" title=""><i
                     class="icon-edit"></i> Edit</a>
                 </td>
                 <td class="vt">
-                  <a href="/flag/{{ questions['qid'] }}" title="Flag for inappropriate comment"
+                  <a href="{{ APP_ROOT }}/flag/{{ questions['qid'] }}" title="Flag for inappropriate comment"
                      id="qqf-{{ questions['qid'] }}" class="flag" title=""><i class="fa fa-flag"
                                                                               style="color:#d00"></i> Flag</a>
                 </td>
                 <td class="vt">
-                  <a href="/bookmark/{{ questions['qid'] }}" title="Bookmark this question"
+                  <a href="{{ APP_ROOT }}/bookmark/{{ questions['qid'] }}" title="Bookmark this question"
                      id="b-{{ questions['qid'] }}" class="bookmark" title=""><i class="fa fa-bookmark"
                                                                                 style="color:#d00"></i> Bookmark</a>
                 </td>
-                {% if g.user.id == 1 %}
+                {% if g.user.id == 'u1' %}
                 <td class="vt">
-                  <a href="/sticky/{{ questions['qid'] }}" id="s-{{ questions['qid'] }}"
+                  <a href="{{ APP_ROOT }}/sticky/{{ questions['qid'] }}" id="s-{{ questions['qid'] }}"
                      class="sticky suggest-edit-post"><i class="fa fa-thumb-tack"
                                                          ></i> Sticky/Unsticky</a>
                 </td>
 				<td class="vt">
-                  <a href="/close/{{ questions['qid'] }}" id="c-{{ questions['qid'] }}"
+                  <a href="{{ APP_ROOT }}/close/{{ questions['qid'] }}" id="c-{{ questions['qid'] }}"
                      class="close1">Close</a>
                 </td>
                 {% endif %}
@@ -326,9 +325,9 @@
                      onclick="toggleDiv('{{ questions['qid'] }}');"><i class="fa fa-comment"
                                                                        style="color:#a4c639"></i> Comment</a>
                 </td>
-                {% if g.user.id == questions['content']['op']|int or g.user.id == 1 %}
+                {% if g.user.id == questions['content']['op']|int or g.user.id == 'u1' %}
                 <td class="vt">
-                  <a class="tohide" href="/hide/h-{{ questions['qid'] }}" id="h-{{ questions['qid'] }}">
+                  <a class="tohide" href="{{ APP_ROOT }}/hide/h-{{ questions['qid'] }}" id="h-{{ questions['qid'] }}">
                     Hide/Unhide</a>
                 </td>
                 {% endif %}
@@ -343,14 +342,14 @@
                                      class="relativetime">{{ questions['tstamp'] }} </span>
                     </div>
                     <div class="user-gravatar32">
-                      <a href="/users/{{ questions['content']['op'] }}/{{ questions['opname']|urlencode }}">
+                      <a href="{{ APP_ROOT }}/users/{{ questions['content']['op'] }}/{{ questions['opname']|urlencode }}">
                         <div class=""><img
                           src="{{ questions['email']|gravatar }}"
                           alt="" height="32" width="32"></div>
                       </a>
                     </div>
                     <div class="user-details">
-                      <a href="/users/{{ questions['content']['op'] }}/{{ questions['opname']|urlencode }}">{{ questions['opname'] }}</a><br>
+                      <a href="{{ APP_ROOT }}/users/{{ questions['content']['op'] }}/{{ questions['opname']|urlencode }}">{{ questions['opname'] }}</a><br>
                     </div>
                   </div>
                 </td>
@@ -373,16 +372,16 @@
       <div class="content" style="color:#c00"> This comment has been hidden by admin or poster.</div>
       {% endif %}
       -
-      <a href="/users/{{ comment['poster'] }}/{{ comment['opname']|urlencode }}">{{ comment['opname'] }}</a>
+      <a href="{{ APP_ROOT }}/users/{{ comment['poster'] }}/{{ comment['opname']|urlencode }}">{{ comment['opname'] }}</a>
       {{ comment['tstamp'] }}&nbsp;
       {% if user_id != -1 %}
       <a title="Flag for inappropriate comment" id="qcf-{{ questions['qid'] }}-{{ comment['cid'] }}" class="flag"
-         style="color:#d00" href="/flag/{{ questions['qid'] }}-{{ comment['cid'] }}"><i class="fa fa-flag"></i></a>
+         style="color:#d00" href="{{ APP_ROOT }}/flag/{{ questions['qid'] }}-{{ comment['cid'] }}"><i class="fa fa-flag"></i></a>
       {% endif %}
-      {% if g.user.id == comment['poster'] or g.user.id == 1 %}
-      <a title="edit" href="/edit/ce-{{ questions['qid'] }}-{{ comment['cid'] }}"><i
+      {% if g.user.id == comment['poster'] or g.user.id == 'u1' %}
+      <a title="edit" href="{{ APP_ROOT }}/edit/ce-{{ questions['qid'] }}-{{ comment['cid'] }}"><i
         class="fa fa-edit"></i></a>
-      <a class="tohide" href="/hide/ch-{{ questions['qid'] }}-{{ comment['cid'] }}" id="ch-{{ questions['qid'] }}-{{ comment['cid'] }}"> Hide/Unhide</a>
+      <a class="tohide" href="{{ APP_ROOT }}/hide/ch-{{ questions['qid'] }}-{{ comment['cid'] }}" id="ch-{{ questions['qid'] }}-{{ comment['cid'] }}"> Hide/Unhide</a>
       {% endif %}
       {% if 'edited' in comment %}
       <p class="edited">Edited</p>
@@ -391,7 +390,7 @@
     {% endfor %}
     {% if user_id is defined and questions['close'] != True %}
         <form class="comment-form" id="f-{{ questions['qid'] }}" method="post"
-              aciton="/postcomment">
+              aciton="{{ APP_ROOT }}/postcomment">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
             <div class="wmd-panel hidden-comment-form" id="{{ questions['qid'] }}">
@@ -409,7 +408,7 @@
                     </p>
                     <h6>From your computer (Max. 2MB)</h6>
                     <span class="loading-small"></span>
-                    <input type="file" name="file" id="file" data-action="/image_upload"/>
+                    <input type="file" name="file" id="file" data-action="{{ APP_ROOT }}/image_upload"/>
                 </div>
                 <div id="wmd-preview-{{ questions['qid'] }}" class="wmd-panel wmd-preview"></div>
                 <input type="hidden" name="element" value="{{ questions['qid'] }}">
@@ -518,14 +517,14 @@
                             <tr>
                                 {% if user_id is defined %}
                                     <td class="vt">
-                                        <a href="/edit/ae-{{ questions['qid'] }}-{{ answer['aid'] }}"
+                                        <a href="{{ APP_ROOT }}/edit/ae-{{ questions['qid'] }}-{{ answer['aid'] }}"
                                            class="suggest-edit-post"
                                            title=""><i class="fa fa-edit"></i> Edit</a>
                                     </td>
                                     <td class="vt">
                                         <a title="Flag for inappropriate comment"
                                            id="qaf-{{ questions['qid'] }}-{{ answer['aid'] }}"
-                                           href="/flag/{{ questions['qid'] }}-{{ answer['aid'] }}" class="flag"
+                                           href="{{ APP_ROOT }}/flag/{{ questions['qid'] }}-{{ answer['aid'] }}" class="flag"
                                                 ><i class="fa fa-flag" style="color:#d00"></i> Flag</a>
                                     </td>
                                     <td class="vt">
@@ -534,9 +533,9 @@
                                            onclick="toggleDiv('{{ questions['qid'] }}-{{ answer['aid'] }}');"><i
                                                 class="fa fa-comment" style="color:#a4c639"></i> Comment</a>
                                     </td>
-                                    {% if g.user.id == questions['content']['op']|int or g.user.id == 1 %}
+                                    {% if g.user.id == questions['content']['op']|int or g.user.id == 'u1' %}
                                       <td class="vt">
-                                      <a class="tohide" href="/hide/ah-{{ questions['qid'] }}-{{ answer['aid'] }}" id="ah-{{ questions['qid'] }}-{{ answer['aid'] }}">
+                                      <a class="tohide" href="{{ APP_ROOT }}/hide/ah-{{ questions['qid'] }}-{{ answer['aid'] }}" id="ah-{{ questions['qid'] }}-{{ answer['aid'] }}">
                                         Hide/Unhide</a>
                                       </td>
                                     {% endif %}
@@ -556,14 +555,14 @@
                                                               class="relativetime">{{ answer['tstamp'] }} </span>
                                         </div>
                                         <div class="user-gravatar32">
-                                            <a href="/users/{{ answer['poster'] }}/{{ answer['opname'] }}">
+                                            <a href="{{ APP_ROOT }}/users/{{ answer['poster'] }}/{{ answer['opname'] }}">
                                                 <div class=""><img
                                                         src="{{ answer['email']|gravatar }}"
                                                         alt="" height="32" width="32"></div>
                                             </a>
                                         </div>
                                         <div class="user-details">
-                                            <a href="/users/{{ answer['poster'] }}/{{ answer['opname']|urlencode }}">{{ answer['opname'] }}</a><br>
+                                            <a href="{{ APP_ROOT }}/users/{{ answer['poster'] }}/{{ answer['opname']|urlencode }}">{{ answer['opname'] }}</a><br>
                                         </div>
                                     </div>
                                 </td>
@@ -586,16 +585,16 @@
         <div class="content" style="color:#c00">This comment has been hidden by admin or comment poster.</div>
         {% endif %}
         -
-        <a href="/users/{{ comment['poster'] }}/{{ comment['opname']|urlencode }}">{{ comment['opname'] }} </a>
+        <a href="{{ APP_ROOT }}/users/{{ comment['poster'] }}/{{ comment['opname']|urlencode }}">{{ comment['opname'] }} </a>
         {{ comment['tstamp'] }}&nbsp;
         {% if user_id != -1 %}
         <a title="Flag for inappropriate comment" class="flag" style="color:#d00"
            id="qac-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}"
-           href="/flag/{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}"><i
+           href="{{ APP_ROOT }}/flag/{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}"><i
           class="fa fa-flag"></i></a>
-        {% if g.user.id == comment['poster'] or g.user.id == 1 %}
+        {% if g.user.id == comment['poster'] or g.user.id == 'u1' %}
         <a title="Edit"
-           href="/edit/ce-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}"><i
+           href="{{ APP_ROOT }}/edit/ce-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}"><i
           class="fa fa-edit"></i></a>
         <a class="tohide" href="/hide/ach-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}" id="ach-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}">Hide/Unhide</a>
         {% endif %}
@@ -607,7 +606,7 @@
       {% endfor %}
       {% if user_id is defined and questions['close'] != True %}
       <form class="comment-form" id="f-{{ questions['qid'] }}-{{ answer['aid'] }}" method="post"
-            aciton="/postcomment">
+            aciton="{{ APP_ROOT }}/postcomment">
         {% from "macros.html" import render_field %}
         {{ form.csrf_token }}
         <div class="wmd-panel hidden-comment-form" id="{{ questions['qid'] }}-{{ answer['aid'] }}">
@@ -627,7 +626,7 @@
                             </p>
                             <h6>From your computer (Max. 2MB)</h6>
                             <span class="loading-small"></span>
-                            <input type="file" name="file" id="file" data-action="/image_upload"/>
+                            <input type="file" name="file" id="file" data-action="{{ APP_ROOT }}/image_upload"/>
                         </div>
                         <div id="wmd-preview-{{ questions['qid'] }}-{{ answer['aid'] }}"
                              class="wmd-panel wmd-preview"></div>
@@ -646,7 +645,7 @@
     {% if user_id is defined and 'sc' not in questions['content'] and 'mc' not in questions['content'] and questions['close'] != True %}
         <h3>Your answer</h3>
         <form class="answer-form" method="post"
-              aciton="/questions/{{ questions['qid'] }}/{{ questions['content']['url'] }}">
+              aciton="{{ APP_ROOT }}/questions/{{ questions['qid'] }}/{{ questions['content']['url'] }}">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
             <div class="wmd-panel">
@@ -661,7 +660,7 @@
                     </p>
                     <h6>From your computer (Max. 2MB)</h6>
                     <span class="loading-small"></span>
-                    <input type="file" name="file" id="file" data-action="/image_upload"/>
+                    <input type="file" name="file" id="file" data-action="{{ APP_ROOT }}/image_upload"/>
                 </div>
                 <div id="wmd-preview" class="wmd-panel wmd-preview"></div>
                 <div style="clear:both;"></div>
@@ -675,7 +674,7 @@
     {% elif user_id is defined and 'sc' in questions['content'] %}
         <h3>Your vote</h3>
         <form class="answer-form" method="post"
-              aciton="/questions/{{ questions['qid'] }}/{{ questions['content']['url'] }}">
+              aciton="{{ APP_ROOT }}/questions/{{ questions['qid'] }}/{{ questions['content']['url'] }}">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
             <table class="poll">
@@ -698,7 +697,7 @@
     {% elif user_id is defined and 'mc' in questions['content'] %}
         <h3>Your vote</h3>
         <form class="answer-form" method="post"
-              aciton="/questions/{{ questions['qid'] }}/{{ questions['content']['url'] }}">
+              aciton="{{ APP_ROOT }}/questions/{{ questions['qid'] }}/{{ questions['content']['url'] }}">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
             <table class="poll">
@@ -758,7 +757,7 @@
             </div>
             
             {% for tag in tag_list %}
-                <a href="/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
+                <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
                     {{ tag['tag'] }} 
                     <span class="tag-count">{{ tag['count'] }}</span> 
                 </a>
@@ -769,7 +768,7 @@
         <div id="popular-tags" class="module">
             <h4 id="h-popular-tags">Similar questions</h4>
             {% for question in similar_questions %}
-                <a href="/questions/{{ question[0] }}/{{ question[2] }}" class="post-tag"
+                <a href="{{ APP_ROOT }}/questions/{{ question[0] }}/{{ question[2] }}" class="post-tag"
                     rel="tag">{{ question[1] }}</a>
                 <br />
             {% endfor %}
@@ -781,7 +780,7 @@
    if ($('#wmd-input').length > 0) {
      var converter = new Markdown.getSanitizingConverter();
      var help = function () {
-       window.open('{{ config['HOST_URL'] }}editing-help');
+       window.open('{{ APP_ROOT }}/editing-help');
      }
      Markdown.Extra.init(converter, {
        extensions: "all",
@@ -869,7 +868,7 @@ function f() {
 <script>
  $('.voteup-on').click(function () {
    id = '#' + $(this).attr('id');
-   $.getJSON('/vote_clicked', {
+   $.getJSON('{{ APP_ROOT }}/vote_clicked', {
      id: '#' + $(this).attr('id'),
      direction: 'up'
    }, function (data) {
@@ -879,7 +878,7 @@ function f() {
  });
  $('.votedown-on').click(function () {
    id = '#' + $(this).attr('id');
-   $.getJSON('/vote_clicked', {
+   $.getJSON('{{ APP_ROOT }}/vote_clicked', {
      id: '#' + $(this).attr('id'),
      direction: 'down'
    }, function (data) {
@@ -890,7 +889,7 @@ function f() {
  $('.ok').click(function () {
    id = '#' + $(this).attr('id');
    //$(this).css("color", "#070");
-   $.getJSON('/answer_accepted', {
+   $.getJSON('{{ APP_ROOT }}/answer_accepted', {
      id: '#' + $(this).attr('id')
    }, function (data) {
        //alert(data.success);
@@ -904,7 +903,7 @@ function f() {
  });
  $('body').on("click", ".starred", function () {
    id = '#' + $(this).attr('id');
-   $.getJSON('/favorited', {
+   $.getJSON('{{ APP_ROOT }}/favorited', {
      id: '#' + $(this).attr('id')
    }, function (data) {
        $(id).removeClass('starred');
@@ -926,7 +925,7 @@ function f() {
  });
  $('.flag').click(function () {
    id = '#' + $(this).attr('id');
-   $.getJSON('/flag', {
+   $.getJSON('{{ APP_ROOT }}/flag', {
      id: '#' + $(this).attr('id'),
      url: $(location).attr('href')
    }, function (data) {
@@ -935,7 +934,7 @@ function f() {
    return false;
  });
  $('.sticky').click(function () {
-   $.getJSON('/sticky', {
+   $.getJSON('{{ APP_ROOT }}/sticky', {
      id: $(this).attr('id'),
      url: $(location).attr('href')
    }, function (data) {
@@ -944,7 +943,7 @@ function f() {
    return false;
  });
  $('.close1').click(function () {
-   $.getJSON('/close', {
+   $.getJSON('{{ APP_ROOT }}/close', {
      id: $(this).attr('id'),
      url: $(location).attr('href')
    }, function (data) {
@@ -954,7 +953,7 @@ function f() {
  });
  $('.bookmark').click(function () {
    id = '#' + $(this).attr('id');
-   $.getJSON('/bookmark', {
+   $.getJSON('{{ APP_ROOT }}/bookmark', {
      id: '#' + $(this).attr('id'),
      url: $(location).attr('href')
    }, function (data) {

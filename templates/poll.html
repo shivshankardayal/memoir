@@ -53,11 +53,11 @@
 	    <h4>
 	      {% if 'sticky' in question and question['sticky'] == True %}
 	      <a class="question-hyperlink"
-		 href="/questions/{{ question['qid'] }}/{{ question['content']['url'] }}"
+		 href="{{ APP_ROOT }}/questions/{{ question['qid'] }}/{{ question['content']['url'] }}"
 		 title="{{ question['content']['description'][:200] }}" ><i class="fa fa-thumb-tack"></i> {{ question['title'] }}</a>
 	      {% else %}
 	      <a class="question-hyperlink"
-		 href="/questions/{{ question['qid'] }}/{{ question['content']['url'] }}"
+		 href="{{ APP_ROOT }}/questions/{{ question['qid'] }}/{{ question['content']['url'] }}"
 		 title="{{ question['content']['description'][:200] }}" > {{ question['title'] }}</a>
 	      {% endif %}
 	  </div>
@@ -65,12 +65,12 @@
 	  <div class="tags">
 	    <i class="fa fa-tags" style="color:#a4c639;"></i>
 	    {% for tag in question['content']['tags'] %}
-	    <a class="post-tag" href="/questions/tagged/{{ tag|urlencode }}">{{ tag }}</a>
+	    <a class="post-tag" href="{{ APP_ROOT }}/questions/tagged/{{ tag|urlencode }}">{{ tag }}</a>
 	    {% endfor %}
 	  </div>
 	  <div class="started">
 	    <p>Asked on {{ question['tstamp'] }} by <a
-						       href="/users/{{ question['content']['op'] }}/{{ question['opname']|urlencode }}">{{ question['opname'] }}</a>
+						       href="{{ APP_ROOT }}/users/{{ question['content']['op'] }}/{{ question['opname']|urlencode }}">{{ question['opname'] }}</a>
 	    </p>
 	  </div>
 	</div>
@@ -112,7 +112,7 @@
     </div>
 
     {% for tag in tag_list %}
-    <a href="/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
+    <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
       {{ tag['tag'] }} 
       <span class="tag-count">{{ tag['count'] }}</span> 
     </a>

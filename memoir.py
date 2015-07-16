@@ -1789,7 +1789,7 @@ def recent_feed():
 
 @kunjika.route('/ban')
 def ban():
-    if g.user.id == 1:
+    if g.user.id == 'u1':
         user_id = request.args.get('id')
         user = g.user.user_doc
         if user['banned'] is False:
@@ -1919,7 +1919,7 @@ def search_help():
 
 @kunjika.route('/sticky')
 def stikcy():
-    if g.user.id == 1:
+    if g.user.id == 'u1':
         qid = request.args.get('id')[2:]
         question = mb.get(str(qid)).value
         if 'sticky' not in question:
@@ -1938,7 +1938,7 @@ def stikcy():
 
 @kunjika.route('/close')
 def close():
-    if g.user.id == 1:
+    if g.user.id == 'u1':
         qid = request.args.get('id')[2:]
         question = mb.get(str(qid)).value
         if question['close'] is False:
@@ -2163,7 +2163,7 @@ def administration():
     except:
         return redirect(url_for('login'))
 
-    if g.user.id == 1:
+    if g.user.id == 'u1':
         if request.method == 'POST' and form.validate_on_submit():
             document = urllib2.urlopen(DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email').read()
             document = json.loads(document)
@@ -2659,7 +2659,7 @@ def hide(id):
     question = mb.get(id_list[1]).value
     print g.user.id
     if id_list[0] == 'h':
-        if g.user.id == 1 or g.user.id == int(question['content']['op']):
+        if g.user.id == 'u1' or g.user.id == int(question['content']['op']):
             if 'hidden' not in question:
                 question['hidden'] = True
             elif question['hidden']:
@@ -2670,7 +2670,7 @@ def hide(id):
             flash('Either admin or OP is allowed to hide!', 'error')
             return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
     elif id_list[0] == 'ch':
-        if g.user.id == 1 or g.user.id == ['comments'][int(id_list[2]) - 1]['op']:
+        if g.user.id == 'u1' or g.user.id == ['comments'][int(id_list[2]) - 1]['op']:
             if 'hidden' not in question['comments'][int(id_list[2]) - 1]:
                 question['comments'][int(id_list[2]) - 1]['hidden'] = True
             elif question['comments'][int(id_list[2]) - 1]['hidden']:
@@ -2681,7 +2681,7 @@ def hide(id):
             flash('Either admin or OP is allowed to hide!', 'error')
             return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
     elif id_list[0] == 'ah':
-        if g.user.id == 1 or g.user.id == question['answers'][int(id_list[2]) - 1]['poster']:
+        if g.user.id == 'u1' or g.user.id == question['answers'][int(id_list[2]) - 1]['poster']:
             if 'hidden' not in question['answers'][int(id_list[2]) - 1]:
                 question['answers'][int(id_list[2]) - 1]['hidden'] = True
             elif question['answers'][int(id_list[2]) - 1]['hidden']:
@@ -2692,7 +2692,7 @@ def hide(id):
             flash('Either admin or OP is allowed to hide!', 'error')
             return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
     elif id_list[0] == 'ach':
-        if g.user.id == 1 or g.user.id == question['answers'][int(id_list[2]) - 1]['comments'][int(id_list[3]) - 1]['poster']:
+        if g.user.id == 'u1' or g.user.id == question['answers'][int(id_list[2]) - 1]['comments'][int(id_list[3]) - 1]['poster']:
             if 'hidden' not in question['answers'][int(id_list[2]) - 1]['comments'][int(id_list[3]) - 1]:
                 question['answers'][int(id_list[2]) - 1]['comments'][int(id_list[3]) - 1]['hidden'] = True
             elif question['answers'][int(id_list[2]) - 1]['comments'][int(id_list[3]) - 1]['hidden']:

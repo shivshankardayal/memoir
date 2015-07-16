@@ -5,17 +5,17 @@
 {% block meta_title %}{{ article['title'] }}{% endblock %}
 {% block meta_description %}{{ article['html'][:600]|striptags }}{% endblock %}
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/solarized_light.css">
-    <link href="/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ APP_ROOT }}/static/css/solarized_light.css">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
-    <script src="/static/js/jquery.form.js"></script>
-    <script src="/static/js/highlight.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/jquery.form.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/highlight.js"></script>
     <script>
         function toggleDiv(divid) {
             var objDiv = document.getElementById(divid);
@@ -30,7 +30,7 @@
 
                 var converter = new Markdown.Converter();
                 var help = function () {
-                    window.open('{{ config['HOST_URL'] }}editing-help');
+                    window.open('{{ APP_ROOT }}/editing-help');
                 }
                 Markdown.Extra.init(converter, {
                     extensions: "all",
@@ -123,7 +123,7 @@
                 success: showResponse,  // post-submit callback
 
                 // other available options:
-                url: '/article_comment',         // override for form's 'action' attribute
+                url: '{{ APP_ROOT }}/article_comment',         // override for form's 'action' attribute
                 //type:      'post',        // 'get' or 'post', override for form's 'method' attribute
                 //dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
                 clearForm: true,        // clear all form fields after successful submit
@@ -163,8 +163,8 @@
                     responseJSON = jQuery.parseJSON(responseText);
                     str = '<div class="comment acomment" id="c-' + responseJSON.id + '">';
                     str += responseJSON.comment;
-                    str += " - <a href='/users/" + responseJSON.user_id + "/" + responseJSON.uname + "'>" + responseJSON.uname + "</a>"
-                    str += " " + responseJSON.ts + ' <a title="edit" href="/edit_article/ce-' + responseJSON.aid + '_' + responseJSON.cid + '"> <i class="fa fa-edit"></i></a></div>'
+                    str += " - <a href='{{ APP_ROOT }}/users/" + responseJSON.user_id + "/" + responseJSON.uname + "'>" + responseJSON.uname + "</a>"
+                    str += " " + responseJSON.ts + ' <a title="edit" href="{{ APP_ROOT }}/edit_article/ce-' + responseJSON.aid + '_' + responseJSON.cid + '"> <i class="fa fa-edit"></i></a></div>'
                     $(str).insertAfter('#h3-comment');
                     flash('Your comment has been successfully posted.', 'info')
                 }
@@ -183,7 +183,7 @@
             <td class="post">
                 <div class="post-tags"><i class="fa fa-tags" title="Tags" style="color:#a4c639;"></i>
                     {% for tag in article['tags'] %}
-                        <a class="post-tag" href="/articles/tagged/{{ tag|urlencode }}">{{ tag }}</a>
+                        <a class="post-tag" href="{{ APP_ROOT }}/articles/tagged/{{ tag|urlencode }}">{{ tag }}</a>
                     {% endfor %}
                 </div>
                 <div class="q-desc" id="q-desc">{{ article['html']|safe }}</div>
@@ -192,7 +192,7 @@
                     <tr>
                         {% if user_id is defined and user_id|string == article['op'] or user_id == 1%}
                             <td class="vt">
-                                <a href="/edit_article/ae-{{ article['aid'] }}" class="suggest-edit-post" title=""><i
+                                <a href="{{ APP_ROOT }}/edit_article/ae-{{ article['aid'] }}" class="suggest-edit-post" title=""><i
                                         class="fa fa-edit"></i> Edit</a>
                             </td>
                             <td class="vt">
@@ -217,14 +217,14 @@
                                                    class="relativetime">{{ article['tstamp'] }} </span>
                                 </div>
                                 <div class="user-gravatar32">
-                                    <a href="/users/{{ article['op'] }}/{{ article['opname'] }}">
+                                    <a href="{{ APP_ROOT }}/users/{{ article['op'] }}/{{ article['opname'] }}">
                                         <div class=""><img
                                                 src="{{ article['email']|gravatar }}"
                                                 alt="" height="32" width="32"></div>
                                     </a>
                                 </div>
                                 <div class="user-details">
-                                    <a href="/users/{{ article['op'] }}/{{ article['opname']|urlencode }}">{{ article['opname'] }}</a><br>
+                                    <a href="{{ APP_ROOT }}/users/{{ article['op'] }}/{{ article['opname']|urlencode }}">{{ article['opname'] }}</a><br>
                                 </div>
                             </div>
                         </td>
@@ -236,7 +236,7 @@
     </table>
     {% if user_id is defined %}
     <form class="comment-form" id="f-{{ article['aid'] }}" method="post"
-          aciton="/article_comment">
+          aciton="{{ APP_ROOT }}/article_comment">
         {% from "macros.html" import render_field %}
         {{ form.csrf_token }}
         <div class="wmd-panel hidden-comment-form" id="{{ article['aid'] }}">
@@ -258,7 +258,7 @@
                 </p>
                 <h6>From your computer (Max. 2MB)</h6>
                 <span class="loading-small"></span>
-                <input type="file" name="file" id="file" data-action="/image_upload"/>
+                <input type="file" name="file" id="file" data-action="{{ APP_ROOT }}/image_upload"/>
             </div>
             <div id="wmd-preview-{{ article['aid'] }}" class="wmd-panel wmd-preview"></div>
             <input type="hidden" name="element" value="{{ article['aid'] }}">
@@ -278,14 +278,14 @@
         <div class="comment acomment" id="c-{{ comment['cid'] }}">
             <div class="content"> {{ comment['html']|safe }}</div>
             -
-            <a href="/users/{{ comment['poster'] }}/{{ comment['opname'] }}">{{ comment['opname'] }}</a>
+            <a href="{{ APP_ROOT }}/users/{{ comment['poster'] }}/{{ comment['opname'] }}">{{ comment['opname'] }}</a>
             {{ comment['tstamp'] }}&nbsp;
             {% if user_id is defined and user_id == comment['poster'] %}
-            <a title="edit" href="/edit_article/ce-{{ article['aid'] }}_{{ comment['cid'] }}"><i
+            <a title="edit" href="{{ APP_ROOT }}/edit_article/ce-{{ article['aid'] }}_{{ comment['cid'] }}"><i
                 class="fa fa-edit"></i></a>
             {% else %}
             <a title="Flag for inappropriate comment" id="qcf-{{ comment['cid'] }}" class="flag"
-               style="color:#d00" href="/flag/-{{ comment['cid'] }}"><i class="fa fa-flag"></i></a>
+               style="color:#d00" href="{{ APP_ROOT }}/flag/-{{ comment['cid'] }}"><i class="fa fa-flag"></i></a>
             {% endif %}
         </div>
     {% endfor %}
@@ -296,7 +296,7 @@
             if ($('#wmd-input').length > 0) {
                 var converter = new Markdown.getSanitizingConverter();
                 var help = function () {
-                    window.open('{{ config['HOST_URL'] }}editing-help');
+                    window.open('{{ APP_ROOT }}/editing-help');
                 }
                 Markdown.Extra.init(converter, {
                     extensions: "all",

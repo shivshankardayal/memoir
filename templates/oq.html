@@ -2,7 +2,7 @@
 {% block title %}{{ title }} - Kunjika{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
     {{ super() }}    
 {% endblock %}
 {% block container %}
@@ -11,7 +11,7 @@
         <div class="page-header">
             <h3>Please Set Your Options</h3>
         </div>
-        <form class="ask-form" method="post" aciton="/add_objective_question">
+        <form class="ask-form" method="post" aciton="{{ APP_ROOT }}/add_objective_question">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
 

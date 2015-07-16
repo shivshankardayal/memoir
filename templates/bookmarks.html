@@ -25,13 +25,13 @@
             <!-- div class="fr"-->
             <div class="gravatar">
                 <img src="{{ email | gravatar(size=100) }}"/>
-                {% if g.user.id == 1 and user['role'] != 'admin' and user['banned'] == False %}
+                {% if g.user.id == 'u1' and user['role'] != 'admin' and user['banned'] == False %}
                     <div id="ban">
                         <button class="btn btn-danger" id={{ user_id }}>
                             Ban User
                         </button>
                     </div>
-                {% elif g.user.id == 1 and user['role'] != 'admin' and user['banned'] == True %}
+                {% elif g.user.id == 'u1' and user['role'] != 'admin' and user['banned'] == True %}
                     <div id="unban">
                         <button class="btn btn-success" id="{{ user_id }}">
                             Unban User
@@ -62,7 +62,7 @@
                     <td>Last Name:</td>
                     <td>{{ lname }}</td>
                 </tr>
-                {% if g.user.id == user_id or g.user.id == 1 %}
+                {% if g.user.id == user_id or g.user.id == 'u1' %}
                     <tr>
                         <th></th>
                         <td>Email:</td>

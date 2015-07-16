@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/tests.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/tests.css" rel="stylesheet">
     {{ super() }}
 {% endblock %}
 {% block container %}
@@ -16,31 +16,31 @@
         <tr>
             <td>
                 <ul>
-                    <h4><li><a href="/ctest">C Programming</a></li></h4>
-                    <h4><li><a href="/cpptest">C++ Programming</a></li></h4>
-                    <h4><li><a href="/phptest">PHP Programming</a></li></h4>
-                    <h4><li><a href="/pgsqltest">PostgreSQL</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/ctest">C Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/cpptest">C++ Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/phptest">PHP Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/pgsqltest">PostgreSQL</a></li></h4>
                 </ul>
             </td>
             <td>
                 <ul>
-                    <h4><li><a href="/javatest">Java Programming</a></li></h4>
-                    <h4><li><a href="/perltest">Perl Programming</a></li></h4>
-                    <h4><li><a href="/jstest">Javascript Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/javatest">Java Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/perltest">Perl Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/jstest">Javascript Programming</a></li></h4>
                 </ul>
             </td>
             <td>
                 <ul>
-                    <h4><li><a href="/perltest">Python 2 Programming</a></li></h4>
-                    <h4><li><a href="/perltest">Python 3 Programming</a></li></h4>
-                    <h4><li><a href="/jqtest">jQuery Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/perltest">Python 2 Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/perltest">Python 3 Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/jqtest">jQuery Programming</a></li></h4>
                 </ul>
             </td>
             <td>
                 <ul>
-                    <h4><li><a href="/perltest">Ruby Programming</a></li></h4>
-                    <h4><li><a href="/cstest">C# Programming</a></li></h4>
-                    <h4><li><a href="/mysqltest">MySQL</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/rubytest">Ruby Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/cstest">C# Programming</a></li></h4>
+                    <h4><li><a href="{{ APP_ROOT }}/mysqltest">MySQL</a></li></h4>
                 </ul>
             </td>
         </tr>

@@ -21,7 +21,7 @@
     <div class="col-md-12" >
     {% if pagination is not defined %}
         <div class="row">
-            {% if g.user.id == 1 and user['role'] != 'admin' %}
+            {% if g.user.id == 'u1' and user['role'] != 'admin' %}
             <div class="col-xs-12">
                 <div class="alert alert-warning alert-dismissible">
                     <strong>Admin Options </strong>
@@ -30,7 +30,7 @@
                             <button class="btn btn-sm btn-danger" id={{ user_id }}>
                                 Ban User
                             </button>
-                    {% elif g.user.id == 1 and user['role'] != 'admin' and user['banned'] == True %}
+                    {% elif g.user.id == 'u1' and user['role'] != 'admin' and user['banned'] == True %}
                             <button class="btn btn-sm btn-success" id="{{ user_id }}">
                                 Unban User
                             </button>
@@ -54,7 +54,7 @@
                                 <i class="fa-li fa fa-map-marker"></i> {{user['location']}}
                             </li>
                         {% endif %}
-                        {% if g.user.id == user_id or g.user.id == 1 %}
+                        {% if g.user.id == user_id or g.user.id == 'u1' %}
                             <li class="email">
                                 <i class="fa-li fa fa-envelope-o"></i> <a class="email" href="mailto:{{ email }}">{{ email }}</a>
                             </li>
@@ -66,7 +66,7 @@
                             </li>
                         {% endif %}
                     </ul>
-                    {% if user['location'] or g.user.id == user_id or g.user.id == 1 or user['website'] %}
+                    {% if user['location'] or g.user.id == user_id or g.user.id == 'u1' or user['website'] %}
                         <hr>
                    {% endif %}
                    <div class="row user-stats">
@@ -159,7 +159,7 @@
                                         <th></th>
                                         <td class="invite">
                                             <form id="invite-form" class="invite" method="post"
-                                                  action="/send_invites" role="form">
+                                                  action="{{ APP_ROOT }}/send_invites" role="form">
                                                 <div class="form-group">
                                                     <textarea id="email_list" name="email_list" placeholder="Semicolon separated emails." type="text" class="form-control" cols="50" rows="5"></textarea>  
                                                 </div>
@@ -203,7 +203,7 @@
                                         </div>
                                         <div class="summary-user">
                                             <h4><a class="quesiton-hyperlink"
-                                                   href="/questions/{{ question['qid'] }}/{{ question['url'] }}">{{ question['title'] }}</a>
+                                                   href="{{ APP_ROOT }}/questions/{{ question['qid'] }}/{{ question['url'] }}">{{ question['title'] }}</a>
                                             </h4>
                                         </div>
                                     </div>
@@ -241,7 +241,7 @@
                                     </div>
                                     <div class="summary-user">
                                         <h4><a class="quesiton-hyperlink"
-                                               href="/questions/{{ question['qid'] }}/{{ question['url'] }}#answer-{{ aids[loop.index0] }}">{{ question['title'] }}</a>
+                                               href="{{ APP_ROOT }}/questions/{{ question['qid'] }}/{{ question['url'] }}#answer-{{ aids[loop.index0] }}">{{ question['title'] }}</a>
                                         </h4>
                                     </div>
                                 </div>

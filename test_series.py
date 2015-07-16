@@ -22,7 +22,7 @@ def tests():
 
 @test_series.route('/getcat')
 def getcat():
-    if g.user.id == 1:
+    if g.user.id == 'u1':
         tech = request.args.get('lang')
         if tech == 'C':
             return jsonify({
@@ -156,7 +156,7 @@ def add_objective_question():
 
     choices = []
 
-    if g.user.id == 1:
+    if g.user.id == 'u1':
         if oqForm.validate_on_submit() and request.method == 'POST':
             for i in range(0, int(oqForm.oq_answers.data)):
                 choices.append(str(i+1))
@@ -219,7 +219,7 @@ def add_objective_question():
 def browse_objective_questions(page=None):
     boqForm = BOQForm(request.form)
 
-    if g.user.id == 1:
+    if g.user.id == 'u1':
         if boqForm.validate_on_submit() and request.method == 'POST':
             skip = (page - 1) * memoir.QUESTIONS_PER_PAGE
             tech = boqForm.tech.data
@@ -283,7 +283,7 @@ def edit_test(element):
     for i in range(0, options):
         choices.append(str(i+1))
 
-    if g.user.id == 1:
+    if g.user.id == 'u1':
         if form.validate_on_submit() and request.method == 'POST':
             # print "editing test question"
             option = form.option.data

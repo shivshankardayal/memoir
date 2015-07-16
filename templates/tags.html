@@ -13,10 +13,10 @@
             {% set i = 0 %}
             {% for tag in tags %}
                     <div class="col-sm-4 col-xs-6">
-                        <a href="/questions/tagged/{{ tag['tag']|urlencode }}" class="tag" title="" rel="tag">{{ tag['tag'] }}</a>
+                        <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag']|urlencode }}" class="tag" title="" rel="tag">{{ tag['tag'] }}</a>
                         <span class="tag-multiplier-x">×</span>&nbsp;
                         <span class="tag-multiplier-count">{{ tag['count'] }}</span>
-                        <a href="/info/{{ tag['tag'] }}" title="more information about '{{ tag['tag'] }}'" class="tag-more-info"><span class="fa fa-info-circle"></span></a>
+                        <a href="{{ APP_ROOT }}/info/{{ tag['tag'] }}" title="more information about '{{ tag['tag'] }}'" class="tag-more-info"><span class="fa fa-info-circle"></span></a>
 
                         {% if 'excerpt' in tag %}
                             <div class="excerpt">{{ tag['excerpt'] }}
@@ -63,7 +63,7 @@
                 </div>
                 
                 {% for tag in tag_list %}
-                    <a href="/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
+                    <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
                         {{ tag['tag'] }} 
                         <span class="tag-count">{{ tag['count'] }}</span> 
                     </a>

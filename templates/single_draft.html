@@ -3,17 +3,17 @@
 {% block meta_keywords %}{% for tag in article['tags'] %}{{ tag }},{% endfor %}{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/solarized_light.css">
-    <link href="/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ APP_ROOT }}/static/css/solarized_light.css">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
-    <script src="/static/js/jquery.form.js"></script>
-    <script src="/static/js/highlight.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/jquery.form.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/highlight.js"></script>
 
     <script>
         function toggleDiv(divid) {
@@ -29,7 +29,7 @@
 
                 var converter = new Markdown.Converter();
                 var help = function () {
-                    window.open('{{ config['HOST_URL'] }}editing-help');
+                    window.open('{{ APP_ROOT }}/editing-help');
                 }
                 Markdown.Extra.init(converter, {
                     extensions: "all",
@@ -122,7 +122,7 @@
                 success: showResponse,  // post-submit callback
 
                 // other available options:
-                url: '/article_comment',         // override for form's 'action' attribute
+                url: '{{ APP_ROOT }}/article_comment',         // override for form's 'action' attribute
                 //type:      'post',        // 'get' or 'post', override for form's 'method' attribute
                 //dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
                 clearForm: true,        // clear all form fields after successful submit
@@ -160,8 +160,8 @@
                 str = '<div class="comment acomment" id="c-' + responseJSON.id + '">';
                 comment = converter.makeHtml(responseJSON.comment);
                 str += comment;
-                str += " - <a href='/users/" + responseJSON.user_id + "/" + responseJSON.uname + "'>" + responseJSON.uname + "</a>"
-                str += " " + responseJSON.ts + ' <a title="edit" href="/edit_article/ce-' + responseJSON.aid + '_' + responseJSON.cid + '"> <i class="fa fa-edit"></i></a></div>'
+                str += " - <a href='{{ APP_ROOT }}/users/" + responseJSON.user_id + "/" + responseJSON.uname + "'>" + responseJSON.uname + "</a>"
+                str += " " + responseJSON.ts + ' <a title="edit" href="{{ APP_ROOT }}/edit_article/ce-' + responseJSON.aid + '_' + responseJSON.cid + '"> <i class="fa fa-edit"></i></a></div>'
                 $(str).insertAfter('#h3-comment');
                 flash('Your comment has been successfully posted.', 'info')
             }
@@ -188,7 +188,7 @@
                     <tr>
                         {% if user_id is defined and user_id|string == article['op'] or user_id == 1%}
                             <td class="vt">
-                                <a href="/edit_draft/{{ article['aid'] }}" class="suggest-edit-post" title=""><i
+                                <a href="{{ APP_ROOT }}/edit_draft/{{ article['aid'] }}" class="suggest-edit-post" title=""><i
                                         class="fa fa-edit"></i> Edit</a>
                             </td>
                         {% elif user_id is defined %}
@@ -203,14 +203,14 @@
                                                    class="relativetime">{{ article['tstamp'] }} </span>
                                 </div>
                                 <div class="user-gravatar32">
-                                    <a href="/users/{{ article['op'] }}/{{ article['opname'] }}">
+                                    <a href="{{ APP_ROOT }}/users/{{ article['op'] }}/{{ article['opname'] }}">
                                         <div class=""><img
                                                 src="{{ article['email']|gravatar }}"
                                                 alt="" height="32" width="32"></div>
                                     </a>
                                 </div>
                                 <div class="user-details">
-                                    <a href="/users/{{ article['op'] }}/{{ article['opname']|urlencode }}">{{ article['opname'] }}</a><br>
+                                    <a href="{{ APP_ROOT }}/users/{{ article['op'] }}/{{ article['opname']|urlencode }}">{{ article['opname'] }}</a><br>
                                 </div>
                             </div>
                         </td>
@@ -226,7 +226,7 @@
             if ($('#wmd-input').length > 0) {
                 var converter = new Markdown.getSanitizingConverter();
                 var help = function () {
-                    window.open('{{ config['HOST_URL'] }}editing-help');
+                    window.open('{{ APP_ROOT }}/editing-help');
                 }
                 Markdown.Extra.init(converter, {
                     extensions: "all",

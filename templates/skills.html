@@ -2,17 +2,17 @@
 {% block title %}{{ title }} - Kunjika{% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link href="/static/css/prettify.css" rel="stylesheet">
-    <link href="/static/css/skills.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/prettify.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/skills.css" rel="stylesheet">
     {{ super() }}
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
     <script type="text/javascript"
-            src="/static/js/run_prettify.js?lang=clj&amp;lbg=erlang&amp;lang=matlab&amp;lang=sql&amp;lang=vb&amp;lang=css&amp;lang=go&amp;lang=pascal&amp;lan=tcl&amp;lang=yaml&amp;lan=basic&amp;lang=dart&amp;lan=lua&amp;lang=scala&amp;lang=wiki&amp;lang=tex"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
+            src="{{ APP_ROOT }}/static/js/run_prettify.js?lang=clj&amp;lbg=erlang&amp;lang=matlab&amp;lang=sql&amp;lang=vb&amp;lang=css&amp;lang=go&amp;lang=pascal&amp;lan=tcl&amp;lang=yaml&amp;lan=basic&amp;lang=dart&amp;lan=lua&amp;lang=scala&amp;lang=wiki&amp;lang=tex"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
 
 {% endblock %}
 {% block container %}
@@ -24,13 +24,13 @@
             <!-- div class="fr"-->
             <div class="gravatar">
                 <img src="{{ email | gravatar(size=100) }}"/>
-                {% if g.user.id == 1 and user['role'] != 'admin' and user['banned'] == False %}
+                {% if g.user.id == 'u1' and user['role'] != 'admin' and user['banned'] == False %}
                     <div id="ban">
                         <button class="btn btn-danger" id={{ user_id }}>
                             Ban User
                         </button>
                     </div>
-                {% elif g.user.id == 1 and user['role'] != 'admin' and user['banned'] == True %}
+                {% elif g.user.id == 'u1' and user['role'] != 'admin' and user['banned'] == True %}
                     <div id="unban">
                         <button class="btn btn-success" id="{{ user_id }}">
                             Unban User
@@ -45,7 +45,7 @@
         </div>
         <div class="edit-button">
             {% if g.user.id == user_id %}
-                <a href="/users/{{ user_id }}/edit_profile" class="btn"><i class="fa fa-edit"></i>Edit</a>
+                <a href="{{ APP_ROOT }}/users/{{ user_id }}/edit_profile" class="btn"><i class="fa fa-edit"></i>Edit</a>
             {% endif %}
         </div>
         <div class="data">
@@ -61,7 +61,7 @@
                     <td>Last Name:</td>
                     <td>{{ lname }}</td>
                 </tr>
-                {% if g.user.id == user_id or g.user.id == 1 %}
+                {% if g.user.id == user_id or g.user.id == 'u1' %}
                     <tr>
                         <th></th>
                         <td>Email:</td>
@@ -116,7 +116,7 @@
                         <th></th>
                         <td class="invite">
                             <form id="invite-form" class="invite" method="post"
-                                  action="/send_invites">
+                                  action="{{ APP_ROOT }}/send_invites">
                                 <input id="email_list"
                                        name="email_list"
                                        placeholder="Semicolon separated emails." type="text" value="">
@@ -142,9 +142,9 @@
         </div>
         <div class="user-nav">
             <ul class="nav nav-pills nav-stacked">
-                <li><a class="btn btn-default" href="/users/{{ user_id }}/{{ name }}/bookmarks"><i class="fa fa-bookmark"></i> Bookmarks</a></li>
-                <li><a class="btn btn-default" href="/users/{{ user_id }}/{{ name }}/messages"><i class="fa fa-envelope"></i> Messages</a></li>
-                <li><a class="btn btn-default" href="/users/{{ user_id }}/{{ name }}/skills"><i class="fa fa-thumbs-up"></i> Skills</a></li>
+                <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/bookmarks"><i class="fa fa-bookmark"></i> Bookmarks</a></li>
+                <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/messages"><i class="fa fa-envelope"></i> Messages</a></li>
+                <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/skills"><i class="fa fa-thumbs-up"></i> Skills</a></li>
             </ul>
         </div>
         <div style="clear:both">
@@ -160,7 +160,7 @@
                         </span>
                     </a>
                     <span class="endorse-item-name ">
-                        <a href="/vsearch/f?keywords={{ doc['tech'] }}" title="Search for {{ doc['tech'] }}" class="endorse-item-name-text">{{ doc['tech'] }}</a>
+                        <a href="{{ APP_ROOT }}/vsearch/f?keywords={{ doc['tech'] }}" title="Search for {{ doc['tech'] }}" class="endorse-item-name-text">{{ doc['tech'] }}</a>
                     </span>
                     {% if g.user.id != user_id %}
                     {% if doc['has_end'] %}
@@ -174,7 +174,7 @@
                     <ul class="endorsers-pics">
                     {% for endorsement in doc['endorsements'][:10] recursive %}
                         <li id="{{ endorsement['fuid'] }}-{{ doc['tech'] }}" rel=popover data-placement="top" data-html="true" data-content="<p style='float:left'><img src=' {{ endorsement['femail'] | gravatar(size=100) }}' ></p>
-                        <div style='float:right;margin-left:10px'><h4>{{ endorsement['user']['name'] }}</h4><p>{{ endorsement['user']['location'] }}</p><a class='btn' href='/users/{{ endorsement['fuid'] }}'>View Profile</a></div>">
+                        <div style='float:right;margin-left:10px'><h4>{{ endorsement['user']['name'] }}</h4><p>{{ endorsement['user']['location'] }}</p><a class='btn' href='{{ APP_ROOT }}/users/{{ endorsement['fuid'] }}'>View Profile</a></div>">
                         <img class="endorser small-thumbnail lazy-load" src="{{ endorsement['femail'] | gravatar(size=24) }}">
                         </li>
                     {% endfor %}
@@ -194,8 +194,8 @@
                                 <hr/>
                                 <ul>
                                 {% for endorsement in doc['endorsements'] %}
-                                    <p style='float:left'><img src=' {{ endorsement['femail'] | gravatar(size=70) }}' ></p>
-                                    <div style='margin-left:110px'><h4>{{ endorsement['user']['name'] }}</h4><p>{{ endorsement['user']['location'] }}</p><a class='btn' href='/users/{{ endorsement['fuid'] }}'>View Profile</a></div>
+                                    <p style='float:left'><img src='{{ APP_ROOT }}{{ endorsement['femail'] | gravatar(size=70) }}' ></p>
+                                    <div style='margin-left:110px'><h4>{{ endorsement['user']['name'] }}</h4><p>{{ endorsement['user']['location'] }}</p><a class='btn' href='{{ APP_ROOT }}/users/{{ endorsement['fuid'] }}'>View Profile</a></div>
                                     <div style="clear: both"></div>
                                     <hr/>
                                 {% endfor %}
@@ -227,12 +227,12 @@
                                 <td>
                                     <div class="user-info user-hover">
                                         <div class="user-gravatar32">
-                                            <a href="/users/{{ users[j + i]['id'] }}/{{ users[j + i]['name'] }}">
+                                            <a href="{{ APP_ROOT }}/users/{{ users[j + i]['id'] }}/{{ users[j + i]['name'] }}">
                                                 <img src="{{ users[j + i]['email'] | gravatar(size=48) }}"/>
                                             </a>
                                         </div>
                                         <div class="user-details">
-                                            <a href="/users/{{ users[j + i]['id'] }}/{{ users[j + i]['name'] }}">{{ users[j + i]['name'] }}</a><br>
+                                            <a href="{{ APP_ROOT }}/users/{{ users[j + i]['id'] }}/{{ users[j + i]['name'] }}">{{ users[j + i]['name'] }}</a><br>
                                             <span class="user-location">{{ users[j + i]['location'] }}</span><br>
                                                     <span class="reputation-score"
                                                           dir="ltr">{{ users[j + i]['rep'] }}</span>
@@ -254,7 +254,7 @@
     <script>
         $('body').on("click", ".btn-success", function () {
             id = $(this).attr('id');
-            $.getJSON('/ban', {
+            $.getJSON('{{ APP_ROOT }}/ban', {
                 id: $(this).attr('id')
             }, function (data) {
                 //$(id).removeClass('btn-success');
@@ -264,7 +264,7 @@
         });
         $('body').on("click", ".btn-danger", function () {
             id = $(this).attr('id');
-            $.getJSON('/ban', {
+            $.getJSON('{{ APP_ROOT }}/ban', {
                 id: $(this).attr('id')
             }, function (data) {
                 //$(id).removeClass('btn-danger');
@@ -275,7 +275,7 @@
         $('.skill-icon').on("click", function () {
             i = $(this).attr('id');
             icon = $(this).children('i');
-            $.getJSON('/endorse', {
+            $.getJSON('{{ APP_ROOT }}/endorse', {
                 id: $(this).attr('id')
             }, function (data) {
                 if(data['success']) {
@@ -286,7 +286,7 @@
                         $(icon).parent().prev().prev().children('span').text(parseInt($(icon).parent().prev().prev().children('span').text()) + 1);
                         $(icon).parent().parent().next().children('ul').prepend(
                                 '<li id="{{ g.user.id }}-' + i.slice(1, i.length) + '">' +
-                                    '<img class="endorser small-thumbnail lazy-load" src="{{ g.user.user_doc['email'] | gravatar(size=24) }}">\
+                                    '<img class="endorser small-thumbnail lazy-load" src="{{ APP_ROOT }}{{ g.user.user_doc['email'] | gravatar(size=24) }}">\
                                 </li>'
                         );
                     } else {
@@ -332,7 +332,7 @@
                 success: showResponse,  // post-submit callback
 
                 // other available options:
-                url: '/send_invites',         // override for form's 'action' attribute
+                url: '{{ APP_ROOT }}/send_invites',         // override for form's 'action' attribute
                 //type:      'post',        // 'get' or 'post', override for form's 'method' attribute
                 //dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
                 clearForm: true,        // clear all form fields after successful submit

@@ -453,9 +453,9 @@ def get_questions_for_tag(page, QUESTIONS_PER_PAGE, tag):
     skip = (page - 1) * QUESTIONS_PER_PAGE
     tag = urllib2.quote(tag, '')
     print tag
-    rows = urllib2.urlopen(memoir.DB_URL + 'questions/_design/dev_questions/_view/get_qid_from_tag?limit=' +
+    rows = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_qid_from_tag?limit=' +
                 str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key="' + tag + '"&reduce=false').read()
-    count = urllib2.urlopen(memoir.DB_URL + 'questions/_design/dev_questions/_view/get_qid_from_tag?key="' + tag + '"&reduce=true').read()
+    count = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_qid_from_tag?key="' + tag + '"&reduce=true').read()
     count = json.loads(count)['rows']
     if len(count) == 0:
         count = 0
@@ -528,7 +528,7 @@ def get_popular_tags():
 def filter_by(email):
 
     user = urllib2.urlopen(
-                memoir.DB_URL + 'users/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"').read()
+                memoir.DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"').read()
     try:
       id = json.loads(user)['rows'][0]['id']
     except:

@@ -3,13 +3,13 @@
 
 {% block css_site %}
     {{ super() }}
-    <script src="/static/js/jquery.cookie.js"></script>
-    <script src="/static/js/jquery.form.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/jquery.cookie.js"></script>
+    <script src="{{ APP_ROOT }}/static/js/jquery.form.js"></script>
     <script>
         $(document).ready(function () {
             var options = {
                 success: showResponse,  // post-submit callback
-                url: '/users/{{ user_id }}/{{ name }}/settings',         // override for form's 'action' attribute
+                url: '{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/settings',         // override for form's 'action' attribute
                 //type:      'post',        // 'get' or 'post', override for form's 'method' attribute
                 //dataType:  'json',        // 'xml', 'script', or 'json' (expected server response type)
                 clearForm: true,        // clear all form fields after successful submit
@@ -41,7 +41,7 @@
             </div>
             <div>
                 <form class="form-horizontal" id='passwd' class="passwd"
-                      action='/users/{{ user_id }}/{{ name }}/settings'
+                      action='{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/settings'
                       method="post">
                     <fieldset>
                         <div id="legend">
@@ -111,7 +111,7 @@
                 </div>
                 
                 {% for tag in tag_list %}
-                    <a href="/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
+                    <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
                         {{ tag['tag'] }} 
                         <span class="tag-count">{{ tag['count'] }}</span> 
                     </a>
@@ -124,7 +124,7 @@
             <div id="popular-tags" class="module">
                 <h4 id="h-popular-tags">Similar questions</h4>
                 {% for question in similar_questions %}
-                    <a href="/questions/{{ question[0] }}/{{ question[2] }}" class="post-tag"
+                    <a href="{{ APP_ROOT }}/questions/{{ question[0] }}/{{ question[2] }}" class="post-tag"
                        rel="tag">{{ question[1] }}</a>
                     <!-- br/ -->
                 {% endfor %}
@@ -161,7 +161,7 @@
                 }
             });
             $('#notify').click(function () {
-                $.getJSON('/notify', {
+                $.getJSON('{{ APP_ROOT }}/notify', {
                     id: $(this).attr('id'),
                     url: $(location).attr('href')
                 }, function (data) {
@@ -176,7 +176,7 @@
                 return false;
             });
             /*$('#invites').click(function () {
-                $.getJSON('/invites', {
+                $.getJSON('{{ APP_ROOT }}/invites', {
                     id: $(this).attr('id'),
                     url: $(location).attr('href')
                 }, function (data) {

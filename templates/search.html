@@ -7,14 +7,14 @@
 {% endblock %}
 
 {% block css_site %}
-    <link href="/static/css/wmd.css" rel="stylesheet">
-    <link href="/static/css/token-input.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/wmd.css" rel="stylesheet">
+    <link href="{{ APP_ROOT }}/static/css/token-input.css" rel="stylesheet">
     {{ super() }}
-    <script type="text/javascript" src="/static/js/Markdown.Converter.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Sanitizer.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Editor.js"></script>
-    <script type="text/javascript" src="/static/js/Markdown.Extra.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.tokeninput.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
+    <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
 {% endblock %}
 {% block container %}
     <div class="row">
@@ -45,7 +45,7 @@
                         </div>
                         <div class="summary">
                             <h4><a class="question-hyperlink"
-                                   href="/questions/{{ question['qid'] }}/{{ question['content']['url'] }}">
+                                   href="{{ APP_ROOT }}/questions/{{ question['qid'] }}/{{ question['content']['url'] }}">
                                 {% if 'sticky' in question and question['sticky'] == True %}
                                 <i class="fa fa-thumb-tack"></i> {{ question['title'] }}</a>
                                 {% else %}
@@ -55,12 +55,12 @@
                         <div class="tags">
                             <i class="fa fa-tags" style="color:#a4c639;"></i>
                             {% for tag in question['content']['tags'] %}
-                                <a class="post-tag" href="/questions/tagged/{{ tag|urlencode }}">{{ tag }}</a>
+                                <a class="post-tag" href="{{ APP_ROOT }}/questions/tagged/{{ tag|urlencode }}">{{ tag }}</a>
                             {% endfor %}
                         </div>
                         <div class="started">
                             <p>Asked on {{ question['tstamp'] }} by <a
-                                    href="/users/{{ question['op'] }}/{{ question['opname'] }}">{{ question['opname'] }}</a>
+                                    href="{{ APP_ROOT }}/users/{{ question['op'] }}/{{ question['opname'] }}">{{ question['opname'] }}</a>
                             </p>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
                 </div>
                 
                 {% for tag in tag_list %}
-                    <a href="/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
+                    <a href="{{ APP_ROOT }}/questions/tagged/{{ tag['tag']|urlencode }}" class="post-tag" title="show questions tagged '{{ tag['tag'] }}'" rel="tag">
                         {{ tag['tag'] }} 
                         <span class="tag-count">{{ tag['count'] }}</span> 
                     </a>
