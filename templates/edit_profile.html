@@ -24,11 +24,6 @@
             </div>
             <form class="form-horizontal col-md-12" id="tab" method="post" action="{{ APP_ROOT }}/users/{{ user['id'] }}/edit_profile">
                 <fieldset>
-                    <div id="legend">
-                        <legend class="">
-                            Edit Profile
-                        </legend>
-                    </div>
                     {{ form.csrf_token }}
                     <div class="control-group">
                         <label class="control-label" for="fname">First Name:</label>
