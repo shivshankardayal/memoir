@@ -1,5 +1,10 @@
 Memoir
 =======
+
+_It is pointless to continue with this because COuchbase has lots of new
+features and I intend to write a C++ version for this soon. Wait for the
+awesome._
+
 Memoir is port of Kunjika. The migration is because the database design is
 being changed completely. The reason of a new name is that if someone wants to work
 off Kunjika then this will not have any impact on their work. The new change will
