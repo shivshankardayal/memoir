@@ -1,7 +1,7 @@
 Memoir
 =======
 
-_It is pointless to continue with this because COuchbase has lots of new
+_It is pointless to continue with this because Couchbase has lots of new
 features and I intend to write a C++ version for this soon. Wait for the
 awesome._
 
