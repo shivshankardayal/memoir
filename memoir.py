@@ -2409,8 +2409,8 @@ def user_skills(uid, name):
     sids = []
     if 'skills' in user:
         for skill in user['skills']:
-            sid_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + str(user['id']) +
-                                      ',"' + urllib.quote(skill) + '"]&stale=false&reduce=false').read()
+            sid_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=%5b"' + str(user['id']) +
+                                      '","' + urllib.quote(skill) + '"%5d&stale=false&reduce=false').read()
             sid_doc = json.loads(sid_doc)
             for row in sid_doc['rows']:
                 sids.append(row['id'])
@@ -2428,8 +2428,8 @@ def user_skills(uid, name):
                     has_endorsement = True
 
             sids = []
-            count_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + str(user['id']) +
-                                        ',"' + urllib.quote(skill) + '"]&stale=false&reduce=true').read()
+            count_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=%5b"' + str(user['id']) +
+                                        '","' + urllib.quote(skill) + '"%5d&stale=false&reduce=true').read()
             count_doc = json.loads(count_doc)
             if len(count_doc['rows']) != 0:
                 count = count_doc['rows'][0]['value']

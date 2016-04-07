@@ -31,14 +31,13 @@
             {{ form.csrf_token }}
             <div class="form-group">
             	{{ render_field(form.question, class="form-control", style="margin-left:70px; width:80%", placeholder="Please ask your question here?") }}
-        	</div>
+        	  </div>
             <div id="similar_questions" style="display:none"><p style="font-weight:bold; margin-left: 80px">Similar Questions<br/></p></div>
             <div class="wmd-panel">
-                <div id="wmd-button-bar"></div>
+              <div id="wmd-button-bar"></div>
                 {{ render_field(form.description, class="wmd-input", id="wmd-input", stlyle="margin-left:5px;", placeholder="Please describe your question here.") }}
-                <div id="insertImageDialog" title="&nbsp;Insert Image or File">
-                    <h6>From the web</h6>
-
+              <div id="insertImageDialog" title="&nbsp;Insert Image or File">
+                <h6>From the web</h6>
                     <p>
                         <input type="text" placeholder="Enter url e.g. http://yoursite.com/image.jpg"/>
                     </p>
@@ -50,7 +49,7 @@
                 <div style="clear:both;"></div>
                 <div class="form-group">
                 	{{ render_field(form.tags, class="form-control", id="kunjika-tags", style="margin-left:70px", placeholder= "comma(,) to separate tags, hyphenation to join words, max 5 tags") }}
-            	</div>
+            	  </div>
                 <div class="form-group">
 	                <div class="controls">
 	                    <button class="btn btn-primary">

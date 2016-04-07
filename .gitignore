@@ -13,3 +13,5 @@ config.py*
 questions/
 .ropeproject/
 test_questions/
+couchbase/create_buckets.py
+couchbase/create_views.py

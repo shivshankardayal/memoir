@@ -236,7 +236,7 @@ def generate_url(title):
                 url += '-'
                 prev_dash = True
         elif ord(c) > 160:
-            c = c.decode('UTF-8').lower()
+            #c = c.decode('UTF-8').lower()
             url += c
             prev_dash = False
         if i == 80:
