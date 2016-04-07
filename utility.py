@@ -70,7 +70,7 @@ def common_rendering(results, query, page):
         return render_template('search.html', title='Search results for ' + query, qpage=True,
                                questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:(page-1)*memoir.QUESTIONS_PER_PAGE + memoir.QUESTIONS_PER_PAGE],
                                pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
-    elif g.user is not None and g.user.is_authenticated():
+    elif g.user is not None and g.user.is_authenticated:
         if (len(questions_list) - (page-1)*memoir.QUESTIONS_PER_PAGE) < memoir.QUESTIONS_PER_PAGE:
             return render_template('search.html', title='Search results for ' + query, qpage=True,
                                    questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:],
@@ -172,7 +172,7 @@ def search_user(query, page):
     if g.user is None:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:page*memoir.QUESTIONS_PER_PAGE],
                                pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
-    elif g.user is not None and g.user.is_authenticated():
+    elif g.user is not None and g.user.is_authenticated:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:page*memoir.QUESTIONS_PER_PAGE],
                                pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query,
                                name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
@@ -211,7 +211,7 @@ def search_tag(query, page):
     if g.user is None:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:],
                                pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
-    elif g.user is not None and g.user.is_authenticated():
+    elif g.user is not None and g.user.is_authenticated:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:],
                                pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, APP_ROOT=memoir.APP_ROOT)
     else:
@@ -750,7 +750,7 @@ def endorse():
 
 def write_article():
     articleForm = ArticleForm(request.form)
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         if articleForm.validate_on_submit() and request.method == 'POST':
             article = {}
             article['content'] = {}
@@ -779,7 +779,7 @@ def write_article():
             article['ts'] = int(time())
             article['updated'] = article['ts']
             article['ip'] = request.remote_addr
-            aid = mb.incr('acount').value
+            aid = memoir.mb.incr('acount').value
             article['aid'] = 'a-' + str(aid)
             article['opname'] = g.user.name
             article['cids'] = []
@@ -789,7 +789,7 @@ def write_article():
 
             memoir.es_conn.index({'title': title, 'content': article['content'], 'aid': article['aid'],
                                    'position': article['content']}, 'articles', 'articles-type', article['aid'])
-            memoir.es_conn.indices.refresh('articles')
+            #memoir.es_conn.indices.refresh('articles')
             memoir.mb.add(str(article['aid']), article)
 
             return redirect(url_for('browse_articles', aid=article['aid'], url=article['url']))
@@ -808,7 +808,7 @@ def browse_articles(page, aid, tag):
         if g.user is None:
             return render_template('browse_articles.html', title='Articles for tag ' + tag, qpage=True, articles=articles_list,
                                    pagination=pagination, APP_ROOT=memoir.APP_ROOT)
-        elif g.user is not None and g.user.is_authenticated():
+        elif g.user is not None and g.user.is_authenticated:
             return render_template('browse_articles.html', title='Articles for tag ' + tag, qpage=True, articles=articles_list,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         else:
@@ -828,7 +828,7 @@ def browse_articles(page, aid, tag):
         if g.user is None:
             return render_template('browse_articles.html', title='Articles', artpage=True, articles=articles_list,
                                    pagination=pagination, APP_ROOT=memoir.APP_ROOT)
-        elif g.user is not None and g.user.is_authenticated():
+        elif g.user is not None and g.user.is_authenticated:
             return render_template('browse_articles.html', title='Articles', artpage=True, articles=articles_list,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         else:
@@ -854,7 +854,7 @@ def browse_articles(page, aid, tag):
         if g.user is None:
             return render_template('single_article.html', title='Articles', artpage=True, article=article, APP_ROOT=memoir.APP_ROOT)
 
-        elif g.user is not None and g.user.is_authenticated():
+        elif g.user is not None and g.user.is_authenticated:
             return render_template('single_article.html', title='Articles', artpage=True, article=article, form=form,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
         else:
@@ -1040,7 +1040,7 @@ def edit_article(element):
                 memoir.mb.replace(str(article['aid']), article)
                 memoir.es_conn.index({'title':article['title'], 'content':article['content'], 'aid':article['aid'],
                                      'position':article['content']}, 'articles', 'articles-type', article['aid'])
-                memoir.es_conn.indices.refresh('articles')
+                #memoir.es_conn.indices.refresh('articles')
 
             return redirect(url_for('browse_articles', aid=aid, url=article['url']))
     else:
@@ -1063,7 +1063,7 @@ def article_tags(page):
         abort(404)
     pagination = Pagination(page, memoir.TAGS_PER_PAGE, tags_count)
     no_of_tags = len(tags)
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         logged_in = True
         return render_template('article_tags.html', title='Article Tags', logged_in=logged_in, pagination=pagination,
                                tags=tags, no_of_tags=no_of_tags, name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
@@ -1075,7 +1075,7 @@ def save_draft(element):
     if g.user.id == -1:
         return redirect(url_for('login'))
     articleForm = ArticleForm(request.form)
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         if articleForm.validate_on_submit() and request.method == 'POST':
             user = g.user.user_doc
             try:
@@ -1150,7 +1150,7 @@ def drafts(page, did, request):
         if g.user is None:
             return render_template('drafts.html', title='Drafts', artpage=True, articles=drafts_list,
                                    pagination=pagination, APP_ROOT=memoir.APP_ROOT)
-        elif g.user is not None and g.user.is_authenticated():
+        elif g.user is not None and g.user.is_authenticated:
             return render_template('drafts.html', title='Drafts', artpage=True, articles=drafts_list,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, APP_ROOT=memoir.APP_ROOT)
         else:
@@ -1166,7 +1166,7 @@ def drafts(page, did, request):
         if g.user is None:
             return render_template('single_draft.html', title='Articles', artpage=True, article=article, APP_ROOT=memoir.APP_ROOT)
 
-        elif g.user is not None and g.user.is_authenticated():
+        elif g.user is not None and g.user.is_authenticated:
             return render_template('single_draft.html', title='Articles', artpage=True, article=article,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
         else:
@@ -1241,7 +1241,7 @@ def publish(element):
             flash('You did not write this article!', 'error')
             return redirect(request.referrer)
 
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         if articleForm.validate_on_submit() and request.method == 'POST':
             article = {}
             article['content'] = {}
@@ -1281,7 +1281,7 @@ def publish(element):
 
             memoir.es_conn.index({'title': title, 'content': article['content'], 'aid': article['aid'],
                                    'position': article['content']}, 'articles', 'articles-type', article['aid'])
-            memoir.es_conn.indices.refresh('articles')
+            #memoir.es_conn.indices.refresh('articles')
             memoir.mb.add(str(article['aid']), article)
             memoir.mb.delete(element)
             dl = memoir.mb.get('dl-' + str(g.user.id)).value

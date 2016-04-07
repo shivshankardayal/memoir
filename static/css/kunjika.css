@@ -492,11 +492,13 @@ pre.prettyprint {
 .voteup-on, .voteup-on:hover{
     text-decoration:none;
     color: #070;
+    margin-left: 5px;
 }
 
 .votedown-on, .votedown-on:hover{
     text-decoration:none;
     color: #700;
+    margin-left:5px;
 }
 
 .hr {
@@ -690,6 +692,7 @@ input[type="radio"], input[type="checkbox"] {
 label {
     margin-bottom: 0px;
     font-size: 12px;
+    margin-left:5px;
 }
 /* .navbar .nav > li > a {
   padding-left: 8px;

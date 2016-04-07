@@ -179,8 +179,8 @@ questions_mapping = {
         'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
-        'type': 'integer',
-        "term_vector": "with_positions_offsets"
+        'type': 'integer'
+#        "term_vector": "with_positions_offsets"
     }
 }
 
@@ -196,8 +196,8 @@ users_mapping = {
         'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
-        'type': 'integer',
-        "term_vector": "with_positions_offsets"
+        'type': 'integer'
+#        "term_vector": "with_positions_offsets"
     }
 }
 
@@ -213,8 +213,8 @@ tags_mapping = {
         'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
-        'type': 'integer',
-        "term_vector": "with_positions_offsets"
+        'type': 'integer'
+#        "term_vector": "with_positions_offsets"
     }
 }
 
@@ -371,7 +371,7 @@ def load_user(uid):
 @kunjika.route('/questions/tagged/<string:tag>', defaults={'page': 1}, methods=['GET', 'POST'])
 @kunjika.route('/questions/tagged/<string:tag>/page/<int:page>')
 def questions(tag=None, page=None, qid=None, url=None):
-    if not g.user.is_authenticated() and 'displayed' not in session:
+    if not g.user.is_authenticated and 'displayed' not in session:
         flash('First time here. Consider joining and helping community.', 'info')
         session['displayed'] = True
 
@@ -387,7 +387,7 @@ def questions(tag=None, page=None, qid=None, url=None):
         if g.user is None:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
                                    pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
-        elif g.user is not None and g.user.is_authenticated():
+        elif g.user is not None and g.user.is_authenticated:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, qcount=qcount,
                                    ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
@@ -404,7 +404,7 @@ def questions(tag=None, page=None, qid=None, url=None):
         if g.user is None:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
                                    pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
-        elif g.user is not None and g.user.is_authenticated():
+        elif g.user is not None and g.user.is_authenticated:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
                                    name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination, qcount=qcount,
                                    ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
@@ -541,7 +541,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                     votes.append((option10_votes, option))
         if g.user is AnonymousUserMixin:
             return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict, ccount=ccount, APP_ROOT=APP_ROOT)
-        elif g.user is not None and g.user.is_authenticated():
+        elif g.user is not None and g.user.is_authenticated:
             user = mb.get(str(g.user.id)).value
             if 'mc' not in questions_dict['content'] and 'sc' not in questions_dict['content']:
                 answerForm = AnswerForm(request.form)
@@ -801,7 +801,7 @@ def users(qpage=None, apage=None, uid=None, uname=None):
         user['skills'] = user['skills'].sort()
     if uid in session:
         logged_in = True
-        if g.user.is_authenticated():
+        if g.user.is_authenticated:
             return render_template('users.html', title=user['name'], user_id=user['id'], name=user['name'], fname=user['fname'],
                                    lname=user['lname'], email=user['email'], gravatar=gravatar100, logged_in=logged_in,
                                    upage=True, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, user=user,
@@ -818,7 +818,7 @@ def users(qpage=None, apage=None, uid=None, uname=None):
 def ask():
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
     questionForm = QuestionForm(request.form)
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         user = mb.get(str(g.user.id)).value
         if questionForm.validate_on_submit() and request.method == 'POST':
             try:
@@ -887,7 +887,7 @@ def ask():
                 print question['qid']
                 es_conn.index({'title': title, 'description': question['content']['description'], 'qid': int(question['qid'][1:]),
                                'position': int(question['qid'][1:])}, 'questions', 'questions-type', int(question['qid'][1:]))
-                es_conn.indices.refresh('questions')
+                #es_conn.indices.refresh('questions')
                 mb.add(str(question['qid']), question)
 
                 mb.replace(str(g.user.id), user)
@@ -947,7 +947,7 @@ def create_profile():
             user = User(data['name'], data, data['id'])
             login_user(user, remember=True)
             es_conn.index({'name': data['name'], 'uid': did, 'position': did}, 'users', 'users-type', did)
-            es_conn.indices.refresh('users')
+            #es_conn.indices.refresh('users')
             g.user = user
             try:
                 msg = Message("Registration at Kunjika")
@@ -975,7 +975,7 @@ def create_profile():
             user = User(data['name'], data, did)
             login_user(user, remember=True)
             es_conn.index({'name': data['name'], 'uid':did, 'position': did}, 'users', 'users-type', did)
-            es_conn.indices.refresh('users')
+            #es_conn.indices.refresh('users')
             g.user = user
             try:
                 msg = Message("Registration at Kunjika")
@@ -1023,7 +1023,7 @@ def openid_login():
     registrationForm = RegistrationForm(request.form)
     loginForm = LoginForm(request.form)
 
-    if g.user is not AnonymousUserMixin and g.user.is_authenticated():
+    if g.user is not AnonymousUserMixin and g.user.is_authenticated:
         return redirect(oid.get_next_url())
     if request.method == 'POST':
         openid = request.form.get('openid_identifier')
@@ -1140,7 +1140,7 @@ def register():
             login_user(user, remember=True)
             g.user = user
             es_conn.index({'name': data['name'], 'uid': did, 'position': did}, 'users', 'users-type', did)
-            es_conn.indices.refresh('users')
+            #es_conn.indices.refresh('users')
             return redirect(url_for('questions'))
 
         document = urllib2.urlopen(
@@ -1163,7 +1163,7 @@ def register():
                 login_user(user, remember=True)
                 g.user = user
                 es_conn.index({'name': data['name'], 'uid': did, 'position': did}, 'users', 'users-type', did)
-                es_conn.indices.refresh('users')
+                #es_conn.indices.refresh('users')
                 flash('Thanks for registration. We hope you enjoy your stay here too.', 'success')
                 msg = Message("Registration at Kunjika")
                 msg.recipients = [data['email']]
@@ -1348,7 +1348,7 @@ def add_tags(tags_passed, qid):
 
             mb.add(tag, data)
             es_conn.index({'tag': tag, 'tid': tid, 'position': tid}, 'tags', 'tags-type', tid)
-            es_conn.indices.refresh('tags')
+            #es_conn.indices.refresh('tags')
 
 
 def replace_tags(tags_passed, qid, current_tags):
@@ -1372,7 +1372,7 @@ def replace_tags(tags_passed, qid, current_tags):
 
                 mb.add(tag, data)
                 es_conn.index({'tag': tag, 'tid': tid, 'position': tid}, 'tags', 'tags-type', tid)
-                es_conn.indices.refresh('tags')
+                #es_conn.indices.refresh('tags')
 
     for tag in current_tags:
         if tag not in tags_passed:
@@ -1526,7 +1526,7 @@ def edits(element):
                 mb.add(edit_list[1] + '_v' + str(question['version']), question)
                 es_conn.index({'title': question['title'], 'description': question['content']['description'], 'qid': int(question['qid'][1:]),
                                'position': int(question['qid'][1:])}, 'questions', 'questions-type', int(question['qid'][1:]))
-                es_conn.indices.refresh('questions')
+                #es_conn.indices.refresh('questions')
 
                 replace_tags(question['content']['tags'], question['qid'], current_tags)
             return redirect(url_for('questions', qid=qid, url=utility.generate_url(question['title'])))
@@ -1704,7 +1704,7 @@ def unanswered(page):
     if g.user is None:
         return render_template('unanswered.html', title='Unanswered questions', unpage=True, questions=questions_list,
                                pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
-    elif g.user is not None and g.user.is_authenticated():
+    elif g.user is not None and g.user.is_authenticated:
         return render_template('unanswered.html', title='Unanswered questions', unpage=True, questions=questions_list,
                                name=g.user.name, role=g.user.role, user_id=g.user.id, pagination=pagination,
                                qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
@@ -1723,7 +1723,7 @@ def show_users(page):
         abort(404)
     pagination = utility.Pagination(page, USERS_PER_PAGE, count)
     no_of_users = len(users)
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         logged_in = True
         return render_template('users.html', title='Users', gravatar32=gravatar32, logged_in=logged_in, upage=True,
                                pagination=pagination, users=users, no_of_users=no_of_users,
@@ -1755,7 +1755,7 @@ def show_tags(page):
         abort(404)
     pagination = utility.Pagination(page, TAGS_PER_PAGE, count)
     no_of_tags = len(tags)
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         logged_in = True
         return render_template('tags.html', title='Tags', logged_in=logged_in, tpage=True, pagination=pagination,
                                tags=tags, no_of_tags=no_of_tags, qcount=qcount, ucount=ucount, tcount=tcount,
@@ -1816,7 +1816,7 @@ def tag_info(tag=None):
     tag = mb.get(tid).value
     if g.user is AnonymousUserMixin:
         return render_template('tag_info.html', title='Info', tag=tag, tpage=True, APP_ROOT=APP_ROOT)
-    elif g.user is not None and g.user.is_authenticated():
+    elif g.user is not None and g.user.is_authenticated:
         return render_template('tag_info.html', title='Info', tag=tag, tpage=True, APP_ROOT=APP_ROOT)
     else:
         return render_template('tag_info.html', title='Info', tag=tag, tpage=True, APP_ROOT=APP_ROOT)
@@ -1830,7 +1830,7 @@ def edit_tag(tag):
     tid = json.loads(tag)['rows'][0]['id']
     tag = mb.get(tid).value
     tagForm = TagForm(request.form)
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         if tagForm.validate_on_submit() and request.method == 'POST':
             tag['info'] = tagForm.info.data
             tag['info-html'] = bleach.clean(markdown.markdown(tag['info'], extensions=['extra', 'codehilite'],
@@ -1910,7 +1910,7 @@ def editing_help():
 @kunjika.route('/search-help')
 def search_help():
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         return render_template('search-help.html', title='Search help', tpage=True, name=g.user.name,
                                user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     return render_template('search-help.html', title='Search help', tpage=True, name=g.user.name,
@@ -2009,7 +2009,7 @@ def poll(page=1):
     choices = []
     data = []
 
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         user = g.user.user_doc
         if pollForm.validate_on_submit() and request.method == 'POST':
             for i in range(0, int(pollForm.poll_answers.data)):
@@ -2353,7 +2353,7 @@ def user_bookmarks(uid, name, page=1):
     logged_in = False
     if uid in session:
         logged_in = True
-        if g.user.is_authenticated():
+        if g.user.is_authenticated:
             return render_template('bookmarks.html', title=user['name'], user_id=user['id'], name=user['name'], fname=user['fname'],
                                    lname=user['lname'], email=user['email'], gravatar=gravatar100, logged_in=logged_in,
                                    role=g.user.role, bookmarks_pagination=pagination, user=user, questions=questions_list, APP_ROOT=APP_ROOT)
@@ -2386,7 +2386,7 @@ def get_skills(uid=None):
 
 @kunjika.route('/users/<uid>/<name>/skills')
 def user_skills(uid, name):
-    if not g.user.is_authenticated():
+    if not g.user.is_authenticated:
         flash('You need to be logged in to view skills and endorsements.', 'error')
         return redirect(request.referrer)
     user = mb.get(str(uid)).value
@@ -2441,7 +2441,7 @@ def user_skills(uid, name):
                 skills.append({'endorsements': endorsements, 'count': count, 'has_end': False, 'tech': skill})
         skills = sorted(skills, key=lambda k: k['count'], reverse=True)
 
-    if g.user.is_authenticated():
+    if g.user.is_authenticated:
         return render_template('skills.html', title=user['name'], user_id=user['id'], name=user['name'], fname=user['fname'],
                                lname=user['lname'], email=user['email'], gravatar=gravatar100, logged_in=logged_in,
                                role=g.user.role, user=user, skills=skills, gravatar32=gravatar32, APP_ROOT=APP_ROOT)
@@ -2624,7 +2624,7 @@ def show_groups(page, uid, uname):
         abort(404)
     pagination = utility.Pagination(page, GROUPS_PER_PAGE, len(document))
     no_of_groups = len(document)
-    if g.user is not None and g.user.is_authenticated() and uid==str(g.user.id):
+    if g.user is not None and g.user.is_authenticated and uid==str(g.user.id):
         logged_in = True
         return render_template('groups.html', logged_in=logged_in, gpage=True, pagination=pagination,
                                groups=groups, no_of_groups=no_of_groups, qcount=qcount, ucount=ucount, tcount=tcount,
