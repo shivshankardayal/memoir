@@ -117,12 +117,12 @@ questions = json.loads(questions)
 ##print questions
 question_list = []
 for i in questions['rows']:
-    question_list.append(str(i['id']))
+    question_list.append(unicode(i['id']))
 
 val_res = qb.get_multi(question_list)
 questions = []
 for qid in question_list:
-	questions.append(val_res[str(qid)].value)
+	questions.append(val_res[unicode(qid)].value)
 for question in questions:
     #print question
     es_conn.index({'title':question['title'], 'description':question['content']['description'], 'qid':int(question['qid']),
@@ -134,7 +134,7 @@ rows = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id').r
 rows = json.loads(rows)['rows']
 tids_list = []
 for row in rows:
-    tids_list.append(str(row['id']))
+    tids_list.append(unicode(row['id']))
 
 if len(tids_list) != 0:
     val_res = tb.get_multi(tids_list)
@@ -142,7 +142,7 @@ if len(tids_list) != 0:
 tags = []
 
 for tid in tids_list:
-    tags.append(val_res[str(tid)].value)
+    tags.append(val_res[unicode(tid)].value)
 
 for tag in tags:
     es_conn.index({'tag':tag['tag'], 'tid':tag['tid'], 'position':tag['tid']}, 'tags', 'tags-type', tag['tid'])
@@ -153,7 +153,7 @@ rows = urllib2.urlopen(DB_URL + 'users/_design/dev_users/_view/get_by_reputation
 rows = json.loads(rows)['rows']
 uids_list = []
 for row in rows:
-    uids_list.append(str(row['id']))
+    uids_list.append(unicode(row['id']))
 
 if len(uids_list) != 0:
     val_res = cb.get_multi(uids_list)
@@ -161,7 +161,7 @@ if len(uids_list) != 0:
 users = []
 
 for uid in uids_list:
-    users.append(val_res[str(uid)].value)
+    users.append(val_res[unicode(uid)].value)
 
 for user in users:
     es_conn.index({'name':user['name'], 'uid':user['id'], 'position':user['id']}, 'users', 'users-type', user['id'])

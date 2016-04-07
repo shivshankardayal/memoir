@@ -47,8 +47,8 @@ def handle_vote(request):
         if answer['poster'] == g.user.id:
             return jsonify({'vote_count': answer['votes']})
         else:
-            user = memoir.mb.get(str(g.user.id)).value
-            receiver = memoir.mb.get(str(answer['poster'])).value
+            user = memoir.mb.get(unicode(g.user.id)).value
+            receiver = memoir.mb.get(unicode(answer['poster'])).value
             #for votes in user['votes']:
             for votes in answer['votes_list']:
                 if votes['uid'] == g.user.id:
@@ -65,9 +65,9 @@ def handle_vote(request):
                             user['votes_count']['down'] -= 1
                             user['votes_count']['answers'] -= 1
 
-                        memoir.mb.replace(str(g.user.id), user)
-                        memoir.mb.replace(str(answer['poster']), receiver)
-                        memoir.mb.replace(str(qid), question)
+                        memoir.mb.replace(unicode(g.user.id), user)
+                        memoir.mb.replace(unicode(answer['poster']), receiver)
+                        memoir.mb.replace(unicode(qid), question)
                         return jsonify({'vote_count': answer['votes']})
                     elif direction == 'up' and votes['value'] == 1:
                         return jsonify({'vote_count': answer['votes']})
@@ -84,9 +84,9 @@ def handle_vote(request):
                             user['votes_count']['up'] -= 1
                             user['votes_count']['answers'] -= 1
 
-                        memoir.mb.replace(str(g.user.id), user)
-                        memoir.mb.replace(str(answer['poster']), receiver)
-                        memoir.mb.replace(str(qid), question)
+                        memoir.mb.replace(unicode(g.user.id), user)
+                        memoir.mb.replace(unicode(answer['poster']), receiver)
+                        memoir.mb.replace(unicode(qid), question)
                         return jsonify({'vote_count': answer['votes']})
                     elif direction == 'down' and votes['value'] == -1:
                         return jsonify({'vote_count': answer['votes']})
@@ -103,9 +103,9 @@ def handle_vote(request):
                 user['votes_count']['answers'] += 1
 
                 answer['votes_list'].append(vote)
-                memoir.mb.replace(str(g.user.id), user)
-                memoir.mb.replace(str(answer['poster']), receiver)
-                memoir.mb.replace(str(qid), question)
+                memoir.mb.replace(unicode(g.user.id), user)
+                memoir.mb.replace(unicode(answer['poster']), receiver)
+                memoir.mb.replace(unicode(qid), question)
                 return jsonify({'vote_count': answer['votes']})
             else:
                 answer['votes'] -= 1
@@ -117,16 +117,16 @@ def handle_vote(request):
 
                 answer['votes_list'].append(vote)
 
-                memoir.mb.replace(str(g.user.id), user)
-                memoir.mb.replace(str(answer['poster']), receiver)
-                memoir.mb.replace(str(qid), question)
+                memoir.mb.replace(unicode(g.user.id), user)
+                memoir.mb.replace(unicode(answer['poster']), receiver)
+                memoir.mb.replace(unicode(qid), question)
                 return jsonify({'vote_count': answer['votes']})
 
     else:
-        if str(g.user.id) == question['content']['op']:
+        if unicode(g.user.id) == question['content']['op']:
             return jsonify({'vote_count': question['votes']})
         else:
-            user = memoir.mb.get(str(g.user.id)).value
+            user = memoir.mb.get(unicode(g.user.id)).value
             receiver = memoir.mb.get(question['content']['op']).value
             #for votes in user['votes']:
             for votes in question['votes_list']:
@@ -142,9 +142,9 @@ def handle_vote(request):
                         elif votes['value'] == 0:
                             user['votes_count']['down'] -= 1
                             user['votes_count']['question'] -= 1
-                        memoir.mb.replace(str(g.user.id), user)
-                        memoir.mb.replace(str(question['content']['op']), receiver)
-                        memoir.mb.replace(str(qid), question)
+                        memoir.mb.replace(unicode(g.user.id), user)
+                        memoir.mb.replace(unicode(question['content']['op']), receiver)
+                        memoir.mb.replace(unicode(qid), question)
                         return jsonify({'vote_count': question['votes']})
                     elif direction == 'up' and votes['value'] == 1:
                         return jsonify({'vote_count': question['votes']})
@@ -160,9 +160,9 @@ def handle_vote(request):
                             user['votes_count']['up'] -= 1
                             user['votes_count']['question'] -= 1
 
-                        memoir.mb.replace(str(g.user.id), user)
-                        memoir.mb.replace(str(question['content']['op']), receiver)
-                        memoir.mb.replace(str(qid), question)
+                        memoir.mb.replace(unicode(g.user.id), user)
+                        memoir.mb.replace(unicode(question['content']['op']), receiver)
+                        memoir.mb.replace(unicode(qid), question)
                         return jsonify({'vote_count': question['votes']})
                     elif direction == 'down' and votes['value'] == -1:
                         return jsonify({'vote_count': question['votes']})
@@ -180,9 +180,9 @@ def handle_vote(request):
                 user['votes_count']['question'] += 1
 
                 question['votes_list'].append(vote)
-                memoir.mb.replace(str(g.user.id), user)
-                memoir.mb.replace(str(question['content']['op']), receiver)
-                memoir.mb.replace(str(qid), question)
+                memoir.mb.replace(unicode(g.user.id), user)
+                memoir.mb.replace(unicode(question['content']['op']), receiver)
+                memoir.mb.replace(unicode(qid), question)
                 return jsonify({'vote_count': question['votes']})
             elif direction == 'down':
                 question['votes'] -= 1
@@ -193,7 +193,7 @@ def handle_vote(request):
                 user['votes_count']['question'] += 1
 
                 question['votes_list'].append(vote)
-                memoir.mb.replace(str(g.user.id), user)
-                memoir.mb.replace(str(question['content']['op']), receiver)
-                memoir.mb.replace(str(qid), question)
+                memoir.mb.replace(unicode(g.user.id), user)
+                memoir.mb.replace(unicode(question['content']['op']), receiver)
+                memoir.mb.replace(unicode(qid), question)
                 return jsonify({'vote_count': question['votes']})

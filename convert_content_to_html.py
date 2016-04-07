@@ -19,11 +19,11 @@ qcount = qb.get('qcount').value
 tcount = tb.get('tcount').value
 
 for i in xrange(1, ucount+1):
-    user = cb.get(str(i)).value
+    user = cb.get(unicode(i)).value
     if 'about-me' in user:
         user['about-me-html'] = bleach.clean(markdown.markdown(user['about-me'], extensions=['extra', 'codehilite'],
                                                                output_format='html5'), memoir.tags_wl, memoir.attrs_wl)
-        cb.set(str(i), user)
+        cb.set(unicode(i), user)
 
 doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id').read()
 doc = json.loads(doc)
@@ -36,7 +36,7 @@ for row in doc['rows']:
     tb.set(row['id'], tag)
 
 for i in xrange(1, qcount+1):
-    q = qb.get(str(i)).value
+    q = qb.get(unicode(i)).value
     q['content']['html'] = bleach.clean(markdown.markdown(q['content']['description'], extensions=['extra', 'codehilite'],
                                                           output_format='html5'), memoir.tags_wl, memoir.attrs_wl)
     if 'answers' in q:
@@ -53,7 +53,7 @@ for i in xrange(1, qcount+1):
             comment['html'] = bleach.clean(markdown.markdown(comment['comment'], extensions=['extra', 'codehilite'],
                                                              output_format='html5'), memoir.tags_wl, memoir.attrs_wl)
 
-    qb.set(str(i), q)
+    qb.set(unicode(i), q)
 
 doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_articles?reduce=false').read()
 doc = json.loads(doc)

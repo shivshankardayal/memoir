@@ -56,7 +56,7 @@ def common_rendering(results, query, page):
     questions_list = []
 
     for qid in results_set:
-        questions_list.append(memoir.mb.get(str(qid)).value)
+        questions_list.append(memoir.mb.get(unicode(qid)).value)
 
     for i in questions_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
@@ -150,16 +150,16 @@ def search_user(query, page):
 
     for uid in results:
         question_view = urllib2.urlopen(
-            memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions_by_userid?key=' + '"' + str(uid) + '"').read()
+            memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions_by_userid?key=' + '"' + unicode(uid) + '"').read()
         rows = json.loads(question_view)['rows']
         qids_list = []
         for row in rows:
-            qids_list.append(str(row['id']))
+            qids_list.append(unicode(row['id']))
         if len(qids_list) != 0:
             val_res = memoir.mb.get_multi(qids_list)
 
         for id in qids_list:
-            questions_list.append(val_res[str(id)].value)
+            questions_list.append(val_res[unicode(id)].value)
 
     for i in questions_list:
         i['ts'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
@@ -258,34 +258,34 @@ def accept_answer(idntfr):
 
     question = memoir.mb.get(qid).value
 
-    voter = memoir.mb.get(str(g.user.id)).value
+    voter = memoir.mb.get(unicode(g.user.id)).value
 
     if int(question['content']['op']) != g.user.id:
         return jsonify({"success": False})
     for answer in question['answers']:
         if answer['aid'] != int(aid):
             if answer['best'] == True:
-                receiver = memoir.mb.get(str(answer['poster'])).value
+                receiver = memoir.mb.get(unicode(answer['poster'])).value
                 receiver['rep'] -= 10
                 voter['rep'] -= 2
-                memoir.mb.replace(str(answer['poster']), receiver)
-                memoir.mb.replace(str(voter['id']), voter)
+                memoir.mb.replace(unicode(answer['poster']), receiver)
+                memoir.mb.replace(unicode(voter['id']), voter)
                 answer['best'] = False
 
         else:
             if answer['best'] != True:
                 answer['best'] = True
-                receiver = memoir.mb.get(str(answer['poster'])).value
+                receiver = memoir.mb.get(unicode(answer['poster'])).value
                 receiver['rep'] += 10
                 voter['rep'] += 2
-                memoir.mb.replace(str(answer['poster']), receiver)
-                memoir.mb.replace(str(voter['id']), voter)
+                memoir.mb.replace(unicode(answer['poster']), receiver)
+                memoir.mb.replace(unicode(voter['id']), voter)
             else:
-                receiver = memoir.mb.get(str(answer['poster'])).value
+                receiver = memoir.mb.get(unicode(answer['poster'])).value
                 receiver['rep'] -= 10
                 voter['rep'] -= 2
-                memoir.mb.replace(str(answer['poster']), receiver)
-                memoir.mb.replace(str(voter['id']), voter)
+                memoir.mb.replace(unicode(answer['poster']), receiver)
+                memoir.mb.replace(unicode(voter['id']), voter)
                 answer['best'] = False
 
 
@@ -301,7 +301,7 @@ def handle_favorite(idntfr):
 
     ##print qid
     question = memoir.mb.get(qid).value
-    #user = kunjika.cb.get(str(g.user.id)).value
+    #user = kunjika.cb.get(unicode(g.user.id)).value
 
     ##print question
     ##print user
@@ -324,7 +324,7 @@ def handle_favorite(idntfr):
     #    user['fav_q'] = []
     #    user['fav_q'].append(qid)
 
-    #kunjika.cb.replace(str(g.user.id), user)
+    #kunjika.cb.replace(unicode(g.user.id), user)
     memoir.mb.replace(qid, question)
 
     return jsonify({"success": True})
@@ -367,19 +367,19 @@ def get_questions_for_page(page, QUESTIONS_PER_PAGE, count):
     skip = (page - 1) * QUESTIONS_PER_PAGE
     questions = urllib2.urlopen(
                 memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions?limit=' +
-                str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&descending=true').read()
+                unicode(QUESTIONS_PER_PAGE) + '&skip=' + unicode(skip) + '&descending=true').read()
 
     rows = json.loads(questions)['rows']
     qids_list = []
     questions_list = []
     for row in rows:
         ##print row['id']
-        qids_list.append(str(row['id']))
+        qids_list.append(unicode(row['id']))
     if len(qids_list) != 0:
         val_res = memoir.mb.get_multi(qids_list)
 
     for id in qids_list:
-        questions_list.append(val_res[str(id)].value)
+        questions_list.append(val_res[unicode(id)].value)
 
 
     for i in questions_list:
@@ -389,10 +389,10 @@ def get_questions_for_page(page, QUESTIONS_PER_PAGE, count):
         i['opname'] = user['name']
         if i['views'] > 1000000:
             i['views'] /= 1000000
-            i['views'] = str(i['views']) + 'M'
+            i['views'] = unicode(i['views']) + 'M'
         elif i['views'] > 1000:
            i['views'] /= 1000
-           i['views'] = str(i['views']) + 'K'
+           i['views'] = unicode(i['views']) + 'K'
 
     return questions_list
 
@@ -402,18 +402,18 @@ def get_tags_per_page(page, TAGS_PER_PAGE, count):
     skip = (page - 1) * TAGS_PER_PAGE
     tags = urllib2.urlopen(
                 memoir.DB_URL + 'memoir/_design/dev_tags/_view/get_by_count?limit=' +
-                str(TAGS_PER_PAGE) + '&skip=' + str(skip) + '&descending=true').read()
+                unicode(TAGS_PER_PAGE) + '&skip=' + unicode(skip) + '&descending=true').read()
     rows = json.loads(tags)['rows']
     tids_list = []
     tags_list = []
 
     for row in rows:
-        tids_list.append(str(row['id']))
+        tids_list.append(unicode(row['id']))
 
     if len(tids_list) != 0:
         val_res = memoir.mb.get_multi(tids_list)
     for id in tids_list:
-        tags_list.append(val_res[str(id)].value)
+        tags_list.append(val_res[unicode(id)].value)
 
     return tags_list
 
@@ -437,13 +437,13 @@ def get_users_per_page(page, USERS_PER_PAGE, count):
     skip = (page - 1) * USERS_PER_PAGE
     ids = urllib2.urlopen(
                 memoir.DB_URL + 'memoir/_design/dev_users/_view/get_by_reputation?limit=' +
-                str(USERS_PER_PAGE) + '&skip=' + str(skip) + '&descending=true').read()
+                unicode(USERS_PER_PAGE) + '&skip=' + unicode(skip) + '&descending=true').read()
     rows = json.loads(ids)['rows']
 
     users_list = []
 
     for row in rows:
-        user = memoir.mb.get(str(row['id'])).value
+        user = memoir.mb.get(unicode(row['id'])).value
         users_list.append(user)
 
     return users_list
@@ -451,10 +451,10 @@ def get_users_per_page(page, USERS_PER_PAGE, count):
 def get_questions_for_tag(page, QUESTIONS_PER_PAGE, tag):
 
     skip = (page - 1) * QUESTIONS_PER_PAGE
-    tag = urllib2.quote(tag, '')
+    tag = urllib2.quote(tag.encode('utf8'), '')
     print tag
     rows = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_qid_from_tag?limit=' +
-                str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key="' + tag + '"&reduce=false').read()
+                unicode(QUESTIONS_PER_PAGE) + '&skip=' + unicode(skip) + '&key="' + tag + '"&reduce=false').read()
     count = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_qid_from_tag?key="' + tag + '"&reduce=true').read()
     count = json.loads(count)['rows']
     if len(count) == 0:
@@ -467,7 +467,7 @@ def get_questions_for_tag(page, QUESTIONS_PER_PAGE, tag):
     qids_list = []
     for row in rows:
         ##print row
-        qids_list.append(str(row['id']))
+        qids_list.append(unicode(row['id']))
 
     if len(qids_list) != 0:
         val_res = memoir.mb.get_multi(qids_list)
@@ -516,25 +516,25 @@ def get_popular_tags():
     tags_list = []
 
     for row in rows:
-        tids_list.append(str(row['id']))
+        tids_list.append(unicode(row['id']))
 
     if len(tids_list) != 0:
         val_res = memoir.mb.get_multi(tids_list)
     for id in tids_list:
-        tags_list.append(val_res[str(id)].value)
+        tags_list.append(val_res[unicode(id)].value)
 
     return tags_list[:25]
 
 def filter_by(email):
 
     user = urllib2.urlopen(
-                memoir.DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"').read()
+                memoir.DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email).encode('utf8') + '"').read()
     try:
       id = json.loads(user)['rows'][0]['id']
     except:
       return None
     try:
-        user = memoir.mb.get(str(id)).value
+        user = memoir.mb.get(unicode(id)).value
         return user
     except:
         return None
@@ -551,8 +551,8 @@ def get_user_questions_per_page(user, qpage, USER_QUESTIONS_PER_PAGE, qcount):
     skip = (qpage - 1) * USER_QUESTIONS_PER_PAGE
     question_list = []
     question_view = urllib2.urlopen(
-        memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions_by_userid?key=' + '"' +str(user['id'])
-        + '"' + '&desending=true&skip=' + str(skip) + '&limit=' + str(USER_QUESTIONS_PER_PAGE)
+        memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions_by_userid?key=' + '"' +unicode(user['id'])
+        + '"' + '&desending=true&skip=' + unicode(skip) + '&limit=' + unicode(USER_QUESTIONS_PER_PAGE)
     ).read()
     rows = json.loads(question_view)['rows']
     ##print rows
@@ -561,12 +561,12 @@ def get_user_questions_per_page(user, qpage, USER_QUESTIONS_PER_PAGE, qcount):
 
     for row in rows:
         ##print row['id']
-        qids_list.append(str(row['id']))
+        qids_list.append(unicode(row['id']))
     if len(qids_list) != 0:
         val_res = memoir.mb.get_multi(qids_list)
 
     for id in qids_list:
-        questions.append(val_res[str(id)].value)
+        questions.append(val_res[unicode(id)].value)
     ##print questions
     for q in questions:
         #print q
@@ -583,7 +583,7 @@ def get_user_questions_per_page(user, qpage, USER_QUESTIONS_PER_PAGE, qcount):
         question_list.append(question)
 
     #for qid in qid_list:
-    #    question = kunjika.qb.get(str(qid)).value
+    #    question = kunjika.qb.get(unicode(qid)).value
     #    question_list.append(question)
 
     ##print question_list
@@ -602,7 +602,7 @@ def get_user_answers_per_page(user, apage, USER_ANSWERS_PER_PAGE, acount):
     aids = []
     question_view = urllib2.urlopen(
         memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_ans_by_userid?key="' +user['id']
-        + '"&desending=true&skip=' + str(skip) + '&limit=' + str(USER_ANSWERS_PER_PAGE)
+        + '"&desending=true&skip=' + unicode(skip) + '&limit=' + unicode(USER_ANSWERS_PER_PAGE)
     ).read()
     question_view = json.loads(question_view)['rows']
     print question_view
@@ -640,7 +640,7 @@ def get_similar_questions(title, qid):
         if 'qid' in r:
             if r['qid'] != qid:
                 question_dict = {}
-                question_dict = question.get_question_by_id('q' + str(r['qid']), question_dict)
+                question_dict = question.get_question_by_id('q' + unicode(r['qid']), question_dict)
                 #print question_dict
                 results.append([r['qid'], r['title'], question_dict['content']['url']])
 
@@ -660,14 +660,14 @@ def get_autocomplete(request):
     if len(results) > 10:
         for i in range(0, len(results)):
             print i
-            question = memoir.mb.get('q' + str(results[i])).value
+            question = memoir.mb.get('q' + unicode(results[i])).value
             questions_list.append({'title':question['title'], 'qid': question['qid'], 'url':question['content']['url']})
-            ##print question['title'] + ' ' + question['content']['url'] + str(question['qid'])
+            ##print question['title'] + ' ' + question['content']['url'] + unicode(question['qid'])
     else:
         for i in range(0, len(results)):
-            question = memoir.mb.get('q' + str(results[i])).value
+            question = memoir.mb.get('q' + unicode(results[i])).value
             questions_list.append({'title':question['title'], 'qid': question['qid'], 'url':question['content']['url']})
-            ##print question['title'] + ' ' + question['content']['url'] + str(question['qid'])
+            ##print question['title'] + ' ' + question['content']['url'] + unicode(question['qid'])
     print results
     if len(results) > 10:
         return jsonify({'data': questions_list[0:10]})
@@ -676,7 +676,7 @@ def get_autocomplete(request):
 
 
 def send_invites(request):
-    user = memoir.mb.get(str(g.user.id)).value
+    user = memoir.mb.get(unicode(g.user.id)).value
     ##print user
     try:
         email_list = request.form['email_list']
@@ -700,7 +700,7 @@ def create_group(request):
         member = {}
 
         group['group_name'] = group_name
-        group['id'] = str(uuid1())
+        group['id'] = unicode(uuid1())
         group['owner'] = g.user.id
         group['member_count'] = 1
         group['type'] = 'private-group'
@@ -710,7 +710,7 @@ def create_group(request):
 
         memoir.mb.add(group['id'], group)
 
-        memoir.mb.add(str(member['member-id']) + ':' + str(group['id']), member)
+        memoir.mb.add(unicode(member['member-id']) + ':' + unicode(group['id']), member)
 
         return True
     except:
@@ -719,11 +719,11 @@ def create_group(request):
 
 def endorse():
     tuid = request.referrer.split('/')[4]
-    to_user = memoir.mb.get(str(tuid)).value
+    to_user = memoir.mb.get(unicode(tuid)).value
     skill = request.args['id'][1:]
 
-    sid_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + str(to_user['id']) +
-                              ',"' + urllib.quote(skill) + '"]&stale=false&reduce=false').read()
+    sid_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + unicode(to_user['id']) +
+                              ',"' + urllib.quote(skill).encode('utf8') + '"]&stale=false&reduce=false').read()
 
     sid_doc = json.loads(sid_doc)
 
@@ -737,7 +737,7 @@ def endorse():
                 break
     if endorsed is False:
         doc = {}
-        doc['id'] = 'e' + str(uuid1())
+        doc['id'] = 'e' + unicode(uuid1())
         doc['fuid'] = g.user.id
         doc['tuid'] = int(tuid)
         doc['femail'] = g.user.user_doc['email']
@@ -775,22 +775,22 @@ def write_article():
             url = generate_url(title)
 
             article['url'] = url
-            article['op'] = str(g.user.id)
+            article['op'] = unicode(g.user.id)
             article['ts'] = int(time())
             article['updated'] = article['ts']
             article['ip'] = request.remote_addr
             aid = memoir.mb.incr('acount').value
-            article['aid'] = 'a-' + str(aid)
+            article['aid'] = 'a-' + unicode(aid)
             article['opname'] = g.user.name
             article['cids'] = []
-            user = memoir.mb.get(str(g.user.id)).value
+            user = memoir.mb.get(unicode(g.user.id)).value
             user['rep'] += 25
-            memoir.mb.replace(str(g.user.id), user)
+            memoir.mb.replace(unicode(g.user.id), user)
 
             memoir.es_conn.index({'title': title, 'content': article['content'], 'aid': article['aid'],
                                    'position': article['content']}, 'articles', 'articles-type', article['aid'])
             #memoir.es_conn.indices.refresh('articles')
-            memoir.mb.add(str(article['aid']), article)
+            memoir.mb.add(unicode(article['aid']), article)
 
             return redirect(url_for('browse_articles', aid=article['aid'], url=article['url']))
 
@@ -847,7 +847,7 @@ def browse_articles(page, aid, tag):
         if(len(article['cids'])) != 0:
             val_res = memoir.mb.get_multi(article['cids'])
         for cid in article['cids']:
-            article['comments'].append(val_res[str(cid)].value)
+            article['comments'].append(val_res[unicode(cid)].value)
         article['comments'] = sorted(article['comments'], key=lambda k: k['ts'], reverse=True)
         for comment in article['comments']:
             comment['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(comment['ts']))
@@ -865,18 +865,18 @@ def get_articles_for_page(page, ARTICLES_PER_PAGE, count):
     skip = (page - 1) * ARTICLES_PER_PAGE
     articles = urllib2.urlopen(
         memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_articles?limit=' +
-        str(ARTICLES_PER_PAGE) + '&skip=' + str(skip) + '&descending=true&reduce=false&stale=false').read()
+        unicode(ARTICLES_PER_PAGE) + '&skip=' + unicode(skip) + '&descending=true&reduce=false&stale=false').read()
 
     rows = json.loads(articles)['rows']
     aids_list = []
     articles_list = []
     for row in rows:
-        aids_list.append(str(row['id']))
+        aids_list.append(unicode(row['id']))
     if len(aids_list) != 0:
         val_res = memoir.mb.get_multi(aids_list)
 
     for id in aids_list:
-        articles_list.append(val_res[str(id)].value)
+        articles_list.append(val_res[unicode(id)].value)
 
     for i in articles_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['ts']))
@@ -890,9 +890,9 @@ def get_articles_for_page(page, ARTICLES_PER_PAGE, count):
 def get_articles_for_tag(page, ARTICLES_PER_PAGE, tag):
 
     skip = (page - 1) * ARTICLES_PER_PAGE
-    tag = urllib2.quote(tag, '')
+    tag = urllib2.quote(tag.encode('utf8'), '')
     rows = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_aid_from_tag?limit=' +
-                           str(ARTICLES_PER_PAGE) + '&skip=' + str(skip) + '&key="' + tag + '"&reduce=false&stale=false').read()
+                           unicode(ARTICLES_PER_PAGE) + '&skip=' + unicode(skip) + '&key="' + tag + '"&reduce=false&stale=false').read()
     count_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_aid_from_tag?key="' + tag + '"&reduce=true').read()
     count_doc = json.loads(count_doc)
     count = 0
@@ -902,7 +902,7 @@ def get_articles_for_tag(page, ARTICLES_PER_PAGE, tag):
     rows = json.loads(rows)['rows']
     aids_list = []
     for row in rows:
-        aids_list.append(str(row['id']))
+        aids_list.append(unicode(row['id']))
 
     if len(aids_list) != 0:
         val_res = memoir.mb.get_multi(aids_list)
@@ -936,7 +936,7 @@ def article_comment():
     comment['ip'] = request.remote_addr
     comment['aid'] = aid
     comment['_type'] = 'ac'
-    cid = 'ac-' + str(uuid1())
+    cid = 'ac-' + unicode(uuid1())
     comment['cid'] = cid
     article = memoir.mb.get(aid).value
     article['cids'].append(cid)
@@ -944,15 +944,15 @@ def article_comment():
     memoir.mb.add(cid, comment)
 
     email_list = []
-    email_list.append(str(article['op']))
+    email_list.append(unicode(article['op']))
     if(len(article['cids'])) != 0:
         val_res = memoir.mb.get_multi(article['cids'])
     for cid in article['cids']:
-        email_list.append(str(val_res[str(cid)].value['poster']))
+        email_list.append(unicode(val_res[unicode(cid)].value['poster']))
 
     email_list = set(email_list)
 
-    current_user_list = [str(g.user.id)]
+    current_user_list = [unicode(g.user.id)]
     email_list = email_list - set(current_user_list)
     email_list = list(email_list)
 
@@ -961,14 +961,14 @@ def article_comment():
         email_list = []
 
         for id in email_users:
-            email_list.append(email_users[str(id)].value['email'])
+            email_list.append(email_users[unicode(id)].value['email'])
 
         msg = Message("A new comment has been posted to the article you have written or to the article where you" +
                       "have commented.")
         msg.recipients = email_list
         msg.sender = memoir.admin
         msg.html = "<p>Hi,<br/><br/> A new comment has been posted which you can read at " +\
-        memoir.HOST_URL + "articles/" + str(article['aid']) + '/' + article['url'] + \
+        memoir.HOST_URL + "articles/" + unicode(article['aid']) + '/' + article['url'] + \
         " <br/><br/>Best regards,<br/>Kunjika Team<p>"
         memoir.mail.send(msg)
 
@@ -1037,7 +1037,7 @@ def edit_article(element):
                 url = generate_url(title)
 
                 article['url'] = url
-                memoir.mb.replace(str(article['aid']), article)
+                memoir.mb.replace(unicode(article['aid']), article)
                 memoir.es_conn.index({'title':article['title'], 'content':article['content'], 'aid':article['aid'],
                                      'position':article['content']}, 'articles', 'articles-type', article['aid'])
                 #memoir.es_conn.indices.refresh('articles')
@@ -1056,7 +1056,7 @@ def article_tags(page):
     skip = (page - 1) * memoir.TAGS_PER_PAGE
     tags = urllib2.urlopen(
         memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_tags_from_article?limit=' +
-        str(memoir.TAGS_PER_PAGE) + '&skip=' + str(skip) + '&group=true').read()
+        unicode(memoir.TAGS_PER_PAGE) + '&skip=' + unicode(skip) + '&group=true').read()
     tags = json.loads(tags)['rows']
 
     if not tags and page != 1:
@@ -1086,14 +1086,14 @@ def save_draft(element):
                     doc = {}
                     doc['drafts_list'] = []
                     doc['drafts_list'].append(1)
-                    memoir.mb.add('dl-' + str(g.user.id), doc)
+                    memoir.mb.add('dl-' + unicode(g.user.id), doc)
                 else:
                     user['draft_count'] += 1
-                    drafts_list = memoir.mb.get('dl-' + str(g.user.id)).value
+                    drafts_list = memoir.mb.get('dl-' + unicode(g.user.id)).value
                     drafts_list['drafts_list'].append(user['draft_count'])
-                    memoir.mb.replace('dl-' + str(g.user.id), drafts_list)
+                    memoir.mb.replace('dl-' + unicode(g.user.id), drafts_list)
 
-            memoir.mb.replace(str(g.user.id), user)
+            memoir.mb.replace(unicode(g.user.id), user)
             article = {}
             article['content'] = {}
             title = articleForm.title.data
@@ -1117,15 +1117,15 @@ def save_draft(element):
             url = generate_url(title)
 
             article['url'] = url
-            article['op'] = str(g.user.id)
+            article['op'] = unicode(g.user.id)
             article['ts'] = int(time())
             article['updated'] = article['ts']
             article['ip'] = request.remote_addr
-            article['aid'] = 'ad-' + str(g.user.id) + '-' + str(user['draft_count'])
+            article['aid'] = 'ad-' + unicode(g.user.id) + '-' + unicode(user['draft_count'])
             article['opname'] = g.user.name
             article['cids'] = []
 
-            memoir.mb.set(str(article['aid']), article)
+            memoir.mb.set(unicode(article['aid']), article)
             return redirect(url_for('drafts', did=article['aid'], url=article['url']))
 
         return render_template('write_article.html', title='Write Artcile', form=articleForm, artpage=True, name=g.user.name, role=g.user.role,
@@ -1139,7 +1139,7 @@ def drafts(page, did, request):
 
     if did is None:
         try:
-            count = len(memoir.mb.get('dl-' + str(g.user.id)).value)
+            count = len(memoir.mb.get('dl-' + unicode(g.user.id)).value)
         except:
             flash('You have no drafts!', 'error')
             return redirect(request.referrer)
@@ -1175,18 +1175,18 @@ def drafts(page, did, request):
 
 def get_drafts_for_page(page, ARTICLES_PER_PAGE, count):
     skip = (page - 1) * ARTICLES_PER_PAGE
-    drafts_list = memoir.mb.get('dl-' + str(g.user.id)).value
+    drafts_list = memoir.mb.get('dl-' + unicode(g.user.id)).value
     dl = drafts_list['drafts_list']
     dids_list = dl[skip:skip+ARTICLES_PER_PAGE]
     articles_list = []
     dl = []
     for did in dids_list:
-        dl.append('ad-' + str(g.user.id) + '-' + str(did))
+        dl.append('ad-' + unicode(g.user.id) + '-' + unicode(did))
     if len(dl) != 0:
         val_res = memoir.mb.get_multi(dl)
 
     for id in dl:
-        articles_list.append(val_res[str(id)].value)
+        articles_list.append(val_res[unicode(id)].value)
 
     for i in articles_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['ts']))
@@ -1223,7 +1223,7 @@ def edit_draft(element):
             new_tag_list.append(''.join(tag))
         article['tags'] = new_tag_list
         article['ts'] = int(time())
-        memoir.mb.replace(str(article['aid']), article)
+        memoir.mb.replace(unicode(article['aid']), article)
 
         return redirect(url_for('drafts', did=did, url=article['url']))
     else:
@@ -1267,26 +1267,26 @@ def publish(element):
             url = generate_url(title)
             article['tags'] = [i for i in article['tags'] if i != "" ]
             article['url'] = url
-            article['op'] = str(g.user.id)
+            article['op'] = unicode(g.user.id)
             article['ts'] = int(time())
             article['updated'] = article['ts']
             article['ip'] = request.remote_addr
             aid = memoir.mb.incr('acount').value
-            article['aid'] = 'a-' + str(aid)
+            article['aid'] = 'a-' + unicode(aid)
             article['opname'] = g.user.name
             article['cids'] = []
-            user = memoir.mb.get(str(g.user.id)).value
+            user = memoir.mb.get(unicode(g.user.id)).value
             user['rep'] += 25
-            memoir.mb.replace(str(g.user.id), user)
+            memoir.mb.replace(unicode(g.user.id), user)
 
             memoir.es_conn.index({'title': title, 'content': article['content'], 'aid': article['aid'],
                                    'position': article['content']}, 'articles', 'articles-type', article['aid'])
             #memoir.es_conn.indices.refresh('articles')
-            memoir.mb.add(str(article['aid']), article)
+            memoir.mb.add(unicode(article['aid']), article)
             memoir.mb.delete(element)
-            dl = memoir.mb.get('dl-' + str(g.user.id)).value
+            dl = memoir.mb.get('dl-' + unicode(g.user.id)).value
             dl['drafts_list'].remove(int(did[0]))
-            memoir.mb.replace('dl-' + str(g.user.id), dl)
+            memoir.mb.replace('dl-' + unicode(g.user.id), dl)
             return redirect(url_for('browse_articles', aid=article['aid'], url=article['url']))
 
         return render_template('edit_draft.html', title='Edit', form=articleForm, article=article, type=type, aid=element,

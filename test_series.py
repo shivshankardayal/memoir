@@ -159,7 +159,7 @@ def add_objective_question():
     if g.user.id == 'u1':
         if oqForm.validate_on_submit() and request.method == 'POST':
             for i in range(0, int(oqForm.oq_answers.data)):
-                choices.append(str(i+1))
+                choices.append(unicode(i+1))
 
             return render_template('create_oq.html', title='Create Objective Question', form=questionForm, options=choices,
                                    ppage=True, name=g.user.name, role=g.user.role,  user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
@@ -199,11 +199,11 @@ def add_objective_question():
             question['content']['ts'] = int(time())
             question['updated'] = question['content']['ts']
             question['content']['ip'] = request.remote_addr
-            question['qid'] = 'tq-' + str(uuid1())  # tq stands for test question. prefix is used for increasing period
+            question['qid'] = 'tq-' + unicode(uuid1())  # tq stands for test question. prefix is used for increasing period
             # before uuid will repeat
             question['_type'] = 'tq'
 
-            # print str(question['qid'])
+            # print unicode(question['qid'])
             memoir.mb.add(question['qid'], question)
 
             return redirect(url_for('administration'))
@@ -225,10 +225,10 @@ def browse_objective_questions(page=None):
             tech = boqForm.tech.data
             cat = boqForm.cat.data
             questions = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_by_ts?limit=' +
-                                        str(memoir.QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key="' +
-                                        urllib2.quote(str(tech)) + '"&reduce=false').read()
+                                        unicode(memoir.QUESTIONS_PER_PAGE) + '&skip=' + unicode(skip) + '&key="' +
+                                        urllib2.quote(unicode(tech)) + '"&reduce=false').read()
             count = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_by_ts?key="' +
-                                    urllib2.quote(str(tech)) + '"&reduce=true').read()
+                                    urllib2.quote(unicode(tech)) + '"&reduce=true').read()
             count = json.loads(count)['rows']
             if len(count) != 0:
                 count = count[0]['value']
@@ -238,12 +238,12 @@ def browse_objective_questions(page=None):
             qids = []
             if len(questions) > 0:
                 for row in questions['rows']:
-                    qids.append(str(row['id']))
+                    qids.append(unicode(row['id']))
             if len(qids) > 0:
                 val_res = memoir.mb.get_multi(qids)
             questions_list = []
             for qid in qids:
-                questions_list.append(val_res[str(qid)].value)
+                questions_list.append(val_res[unicode(qid)].value)
 
             questions_list = [question for question in questions_list if question['cat'] == cat]
 
@@ -281,7 +281,7 @@ def edit_test(element):
     form = ChoiceForm(request.form)
     choices = []
     for i in range(0, options):
-        choices.append(str(i+1))
+        choices.append(unicode(i+1))
 
     if g.user.id == 'u1':
         if form.validate_on_submit() and request.method == 'POST':

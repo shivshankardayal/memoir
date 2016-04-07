@@ -317,7 +317,7 @@ def before_request():
 
 def get_user(uid):
     try:
-        user_from_db = mb.get(str(uid)).value
+        user_from_db = mb.get(unicode(uid)).value
         if 'role' in user_from_db:
             return User(user_from_db['name'], user_from_db, user_from_db['id'], user_from_db['role'])
         else:
@@ -422,11 +422,11 @@ def questions(tag=None, page=None, qid=None, url=None):
                     ccount += len(answer['comments'])
 
         try:
-            mb.get(str(g.user.id) + '_' + str(qid) + '_' + str(request.remote_addr))
+            mb.get(unicode(g.user.id) + '_' + unicode(qid) + '_' + unicode(request.remote_addr))
         except:
-            mb.set(str(g.user.id) + '_' + str(qid) + '_' + str(request.remote_addr), {"viewed": "true"}, ttl=900)
+            mb.set(unicode(g.user.id) + '_' + unicode(qid) + '_' + unicode(request.remote_addr), {"viewed": "true"}, ttl=900)
             questions_dict['views'] += 1
-            mb.replace(str(questions_dict['qid']), questions_dict)
+            mb.replace(unicode(questions_dict['qid']), questions_dict)
 
         choices = []
         votes = []
@@ -542,17 +542,17 @@ def questions(tag=None, page=None, qid=None, url=None):
         if g.user is AnonymousUserMixin:
             return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict, ccount=ccount, APP_ROOT=APP_ROOT)
         elif g.user is not None and g.user.is_authenticated:
-            user = mb.get(str(g.user.id)).value
+            user = mb.get(unicode(g.user.id)).value
             if 'mc' not in questions_dict['content'] and 'sc' not in questions_dict['content']:
                 answerForm = AnswerForm(request.form)
                 if answerForm.validate_on_submit() and request.method == 'POST':
                     try:
-                        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
+                        mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
                         flash('You are allowed only one post per 30 seconds.', 'error')
                         return redirect(request.referrer)
                     except:
                         if g.user.id !='u1':
-                            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+                            mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
                         answer = {}
                         if 'answers' in questions_dict:
                             answer['aid'] = questions_dict['acount'] + 1
@@ -567,7 +567,7 @@ def questions(tag=None, page=None, qid=None, url=None):
 
                             questions_dict['answers'].append(answer)
                             # Isuue 9
-                            # user['answers'].append(str(qid) + '-' + str(answer['aid']))
+                            # user['answers'].append(unicode(qid) + '-' + unicode(answer['aid']))
                             user['acount'] += 1
 
                         else:
@@ -584,30 +584,30 @@ def questions(tag=None, page=None, qid=None, url=None):
                             questions_dict['answers'] = []
                             questions_dict['answers'].append(answer)
                             # Issue 9
-                            # user['answers'].append(str(qid) + '-' + str(answer['aid']))
+                            # user['answers'].append(unicode(qid) + '-' + unicode(answer['aid']))
                             user['acount'] += 1
 
                         answer['html'] = bleach.clean(markdown.markdown(answer['answer'], extensions=['extra', 'codehilite'],
                                                                         output_format='html5'), tags_wl, attrs_wl)
                         questions_dict['updated'] = int(time())
                         user['rep'] += 4
-                        mb.replace(str(g.user.id), user)
-                        mb.replace(str(questions_dict['qid']), questions_dict)
+                        mb.replace(unicode(g.user.id), user)
+                        mb.replace(unicode(questions_dict['qid']), questions_dict)
 
                         email_list = []
-                        email_list.append(str(questions_dict['content']['op']))
+                        email_list.append(unicode(questions_dict['content']['op']))
                         if 'comments' in questions_dict:
                             for comment in questions_dict['comments']:
-                                email_list.append(str(comment['poster']))
+                                email_list.append(unicode(comment['poster']))
                         if 'answers' in questions_dict:
                             for answer in questions_dict['answers']:
-                                email_list.append(str(answer['poster']))
+                                email_list.append(unicode(answer['poster']))
                                 if 'comments' in answer:
                                     for comment in answer['comments']:
-                                        email_list.append(str(comment['poster']))
+                                        email_list.append(unicode(comment['poster']))
 
                         email_list = set(email_list)
-                        current_user_list = [str(g.user.id)]
+                        current_user_list = [unicode(g.user.id)]
                         email_list = email_list - set(current_user_list)
                         email_list = list(email_list)
                         email_users = None
@@ -616,18 +616,18 @@ def questions(tag=None, page=None, qid=None, url=None):
                         email_list = []
                         if email_users is not None:
                             for id in email_users:
-                                email_list.append(email_users[str(id)].value['email'])
+                                email_list.append(email_users[unicode(id)].value['email'])
 
                             msg = Message("A new answer has been posted to a question where you have answered or commented")
                             msg.recipients = email_list
                             msg.sender = admin
                             msg.html = "<p>Hi,<br/><br/> A new answer has been posted which you can read at " +\
-                                       HOST_URL + "questions/" + str(questions_dict['qid']) + '/' + questions_dict['content']['url'] + \
+                                       HOST_URL + "questions/" + unicode(questions_dict['qid']) + '/' + questions_dict['content']['url'] + \
                                        " <br/><br/>Best regards,<br/>Kunjika Team<p>"
                             mail.send(msg)
 
                         return redirect(url_for('questions', qid=questions_dict['qid'], url=questions_dict['content']['url'], ccount=ccount))
-                #qb.replace(str(questions_dict['qid']), questions_dict)
+                #qb.replace(unicode(questions_dict['qid']), questions_dict)
 
                 return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
                                        form=answerForm, name=g.user.name, role=g.user.role, user_id=unicode(g.user.id), gravatar=gravatar32,
@@ -636,40 +636,40 @@ def questions(tag=None, page=None, qid=None, url=None):
             elif 'sc' in questions_dict['content']:
                 class PollForm(Form):
                     pass
-                # print str(votes)
+                # print unicode(votes)
                 setattr(PollForm, 'radio', RadioField('radio', choices=choices))
                 answerForm = PollForm(request.form)
                 if answerForm.validate_on_submit() and request.method == 'POST':
 
                     vote = {}
                     questions_dict['acount'] += 1
-                    poll_id = str(questions_dict['qid']) + '-' + str(g.user.id)
+                    poll_id = unicode(questions_dict['qid']) + '-' + unicode(g.user.id)
 
-                    vote['qid'] = str(questions_dict['qid'])
-                    vote['uid'] = str(g.user.id)
+                    vote['qid'] = unicode(questions_dict['qid'])
+                    vote['uid'] = unicode(g.user.id)
 
                     i = 0
                     for choice in choices:
                         i += 1
-                        if i == 1 and choice[0] == str(answerForm.radio.data):
+                        if i == 1 and choice[0] == unicode(answerForm.radio.data):
                             vote['option1'] = True
-                        elif i == 2 and choice[0] == str(answerForm.radio.data):
+                        elif i == 2 and choice[0] == unicode(answerForm.radio.data):
                             vote['option2'] = True
-                        elif i == 3 and choice[0] == str(answerForm.radio.data):
+                        elif i == 3 and choice[0] == unicode(answerForm.radio.data):
                             vote['option3'] = True
-                        elif i == 4 and choice[0] == str(answerForm.radio.data):
+                        elif i == 4 and choice[0] == unicode(answerForm.radio.data):
                             vote['option4'] = True
-                        elif i == 5 and choice[0] == str(answerForm.radio.data):
+                        elif i == 5 and choice[0] == unicode(answerForm.radio.data):
                             vote['option5'] = True
-                        elif i == 6 and choice[0] == str(answerForm.radio.data):
+                        elif i == 6 and choice[0] == unicode(answerForm.radio.data):
                             vote['option6'] = True
-                        elif i == 7 and choice[0] == str(answerForm.radio.data):
+                        elif i == 7 and choice[0] == unicode(answerForm.radio.data):
                             vote['option7'] = True
-                        elif i == 8 and choice[0] == str(answerForm.radio.data):
+                        elif i == 8 and choice[0] == unicode(answerForm.radio.data):
                             vote['option8'] = True
-                        elif i == 9 and choice[0] == str(answerForm.radio.data):
+                        elif i == 9 and choice[0] == unicode(answerForm.radio.data):
                             vote['option9'] = True
-                        elif i == 10 and choice[0] == str(answerForm.radio.data):
+                        elif i == 10 and choice[0] == unicode(answerForm.radio.data):
                             vote['option10'] = True
 
                     if 'poll_votes' in user:
@@ -682,13 +682,13 @@ def questions(tag=None, page=None, qid=None, url=None):
 
                     try:
                         mb.add(poll_id, vote)
-                        mb.replace(str(g.user.id), user)
-                        mb.replace(str(questions_dict['qid']), questions_dict)
+                        mb.replace(unicode(g.user.id), user)
+                        mb.replace(unicode(questions_dict['qid']), questions_dict)
                     except:
                         flash('You have already voted on this question', 'error')
 
                     return redirect(url_for('questions', qid=questions_dict['qid'], url=questions_dict['content']['url'], ccount=ccount))
-                mb.replace(str(questions_dict['qid']), questions_dict)
+                mb.replace(unicode(questions_dict['qid']), questions_dict)
                 return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
                                        form=answerForm, name=g.user.name, role=g.user.role, user_id=unicode(g.user.id), gravatar=gravatar32,
                                        qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
@@ -700,10 +700,10 @@ def questions(tag=None, page=None, qid=None, url=None):
                 i = 0
                 for option in questions_dict['content']['options']:
                     i += 1
-                    setattr(PollForm, 'option' + str(i), BooleanField('option'+str(i)))
+                    setattr(PollForm, 'option' + unicode(i), BooleanField('option'+unicode(i)))
                     options.append(option)
                 i += 1
-                setattr(PollForm, 'option' + str(i), BooleanField('option'+str(i)))
+                setattr(PollForm, 'option' + unicode(i), BooleanField('option'+unicode(i)))
                 options.append(option)
                 answerForm = PollForm(request.form)
                 if answerForm.validate_on_submit() and request.method == 'POST':
@@ -739,29 +739,29 @@ def questions(tag=None, page=None, qid=None, url=None):
                     else:
                         user['poll_votes'] = 1
 
-                    poll_id = str(questions_dict['qid']) + '-' + str(g.user.id)
+                    poll_id = unicode(questions_dict['qid']) + '-' + unicode(g.user.id)
 
-                    vote['qid'] = str(questions_dict['qid'])
-                    vote['uid'] = str(g.user.id)
+                    vote['qid'] = unicode(questions_dict['qid'])
+                    vote['uid'] = unicode(g.user.id)
                     questions_dict['updated'] = int(time())
                     user['rep'] += 4
 
                     try:
                         mb.add(poll_id, vote)
-                        mb.replace(str(g.user.id), user)
-                        mb.replace(str(questions_dict['qid']), questions_dict)
+                        mb.replace(unicode(g.user.id), user)
+                        mb.replace(unicode(questions_dict['qid']), questions_dict)
                     except:
                         flash('You have already voted on this poll!', 'error')
 
                     return redirect(url_for('questions', qid=questions_dict['qid'], url=questions_dict['content']['url'], ccount=ccount))
-            mb.replace(str(questions_dict['qid']), questions_dict)
+            mb.replace(unicode(questions_dict['qid']), questions_dict)
             return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
                                        form=answerForm, name=g.user.name, role=g.user.role, user_id=unicode(g.user.id), gravatar=gravatar32,
                                        qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
                                        options=i, field_names=options, votes=votes, similar_questions=similar_questions, ccount=ccount, APP_ROOT=APP_ROOT)
 
         else:
-            mb.replace(str(questions_dict['qid']), questions_dict)
+            mb.replace(unicode(questions_dict['qid']), questions_dict)
             return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
                                    qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
                                    votes=votes, similar_questions=similar_questions, ccount=ccount, APP_ROOT=APP_ROOT)
@@ -778,7 +778,7 @@ def messages(qpage=None, apage=None, uid=None, uname=None):
 def users(qpage=None, apage=None, uid=None, uname=None):
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
     try:
-        user = mb.get(str(uid)).value
+        user = mb.get(unicode(uid)).value
     except:
         return render_template('502.html') 
     questions = utility.get_user_questions_per_page(user, qpage, USER_QUESTIONS_PER_PAGE, user['qcount'])
@@ -819,15 +819,15 @@ def ask():
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
     questionForm = QuestionForm(request.form)
     if g.user is not None and g.user.is_authenticated:
-        user = mb.get(str(g.user.id)).value
+        user = mb.get(unicode(g.user.id)).value
         if questionForm.validate_on_submit() and request.method == 'POST':
             try:
-                mb.get(str(g.user.id) + '_' + str(request.remote_addr))
+                mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
                 flash('You are allowed only one post per 30 seconds.', 'error')
                 return redirect(request.referrer)
             except:
                 if g.user.id !='u1':
-                    mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+                    mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
                 question = {}
                 question['content'] = {}
                 title = questionForm.question.data
@@ -849,9 +849,9 @@ def ask():
 
                 for tag in tag_list:
                     try:
-                        tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id?stale=false&key=' + urllib2.quote(str(tag))).read()
+                        tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id?stale=false&key=' + urllib2.quote(unicode(tag))).read()
                         tid = json.loads(tag)['rows'][0]['id']
-                        tag = mb.get(str(tid)).value
+                        tag = mb.get(unicode(tid)).value
                         new_tag_list.append(tag['tag'])
 
                     except:
@@ -864,12 +864,12 @@ def ask():
                 url = utility.generate_url(title)
 
                 question['content']['url'] = url
-                question['content']['op'] = str(g.user.id)
+                question['content']['op'] = unicode(g.user.id)
                 question['content']['ts'] = int(time())
                 question['updated'] = question['content']['ts']
                 question['content']['ip'] = request.remote_addr
                 question['qid'] = mb.incr('qcount', 1).value
-                question['qid'] = 'q' + str(question['qid'])
+                question['qid'] = 'q' + unicode(question['qid'])
                 question['votes'] = 0
                 question['acount'] = 0
                 question['views'] = 0
@@ -878,7 +878,7 @@ def ask():
                 question['close'] = False
                 question['type'] = 'q'
 
-                user = mb.get(str(g.user.id)).value
+                user = mb.get(unicode(g.user.id)).value
 
                 user['rep'] += 1
                 # Isuue 9
@@ -888,9 +888,9 @@ def ask():
                 es_conn.index({'title': title, 'description': question['content']['description'], 'qid': int(question['qid'][1:]),
                                'position': int(question['qid'][1:])}, 'questions', 'questions-type', int(question['qid'][1:]))
                 #es_conn.indices.refresh('questions')
-                mb.add(str(question['qid']), question)
+                mb.add(unicode(question['qid']), question)
 
-                mb.replace(str(g.user.id), user)
+                mb.replace(unicode(g.user.id), user)
                 add_tags(question['content']['tags'], question['qid'])
 
                 return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
@@ -941,7 +941,7 @@ def create_profile():
             populate_user_fields(data, profileForm)
 
             did = mb.incr('count', 1).value
-            data['id'] = 'u' + str(did)
+            data['id'] = 'u' + unicode(did)
             data['type'] = 'user'
             mb.add(data['id'], data)
             user = User(data['name'], data, data['id'])
@@ -969,7 +969,7 @@ def create_profile():
             populate_user_fields(data, profileForm)
 
             did = mb.incr('count', 1).value
-            data['id'] = 'u' + str(did)
+            data['id'] = 'u' + unicode(did)
             data['type'] = 'user'
             mb.add(data['id'], data)
             user = User(data['name'], data, did)
@@ -1047,7 +1047,7 @@ def login():
     if loginForm.validate_on_submit() and request.method == 'POST':
         try:
             document = urllib2.urlopen(
-                DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?stale=false&key=' + '"' + urllib2.quote(loginForm.email.data) + '"&stale=false').read()
+                DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?stale=false&key=' + '"' + urllib2.quote(loginForm.email.data).encode('utf8') + '"&stale=false').read()
             document = json.loads(document)['rows']
             if len(document) != 0:
                 document = mb.get(document[0]['id']).value
@@ -1132,7 +1132,7 @@ def register():
             populate_user_fields(data, registrationForm)
 
             did = mb.incr('count', 1).value
-            data['id'] = 'u' + str(did)
+            data['id'] = 'u' + unicode(did)
             data['type'] = 'user'
             mb.add(data['id'], data)
             session['admin'] = True
@@ -1154,11 +1154,11 @@ def register():
             populate_user_fields(data, registrationForm)
 
             did = mb.incr('count', 1).value
-            data['id'] = 'u' + str(did)
+            data['id'] = 'u' + unicode(did)
             data['type'] = 'user'
             mb.add(data['id'], data)
 
-            user = User(data['name'], data, 'u' + str(did))
+            user = User(data['name'], data, 'u' + unicode(did))
             try:
                 login_user(user, remember=True)
                 g.user = user
@@ -1187,7 +1187,7 @@ def check_email():
 
     try:
         document = urllib2.urlopen(
-            DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
+            DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email).encode('utf8') + '"&stale=false').read()
         document = json.loads(document)
         if 'id' in document['rows'][0]:
             try:
@@ -1221,7 +1221,7 @@ def image_upload():
         content = file.read()
         extension = file.filename.split(".")[-1]
         encoded_file = base64.b64encode(content)
-        id = 'upload-' + str(uuid1()) + "." + extension
+        id = 'upload-' + unicode(uuid1()) + "." + extension
         data = {}
         try:
             mb.add(id, {'content': encoded_file})
@@ -1258,7 +1258,7 @@ def image_upload():
                 try:
                     with open(pathname):
                         suffix += 1
-                        new_filename = f + '_' + str(suffix) + extension
+                        new_filename = f + '_' + unicode(suffix) + extension
                         new_pathname = os.path.join(kunjika.config['UPLOAD_FOLDER'], new_filename)
                         filename = new_filename
                         try:
@@ -1295,14 +1295,14 @@ def get_tags(qid=None):
     print request.url
     if qid is not None:
         print "hello"
-        question = mb.get(str(qid)).value
+        question = mb.get(unicode(qid)).value
 
         tags = question['content']['tags']
 
         tags_list = []
         tids_list = []
         for i in tags:
-            tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(i)) + '"&stale=false').read()
+            tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(unicode(i)) + '"&stale=false').read()
             tag = json.loads(tag)['rows'][0]['id']
             tids_list.append(tag)
 
@@ -1310,7 +1310,7 @@ def get_tags(qid=None):
             val_res = mb.get_multi(tids_list)
         tags = []
         for tid in tids_list:
-            tags_list.append({"id": val_res[str(tid)].value['tid'], "name": val_res[str(tid)].value['tag']})
+            tags_list.append({"id": val_res[unicode(tid)].value['tid'], "name": val_res[unicode(tid)].value['tag']})
         return json.dumps(tags_list)
 
 
@@ -1324,7 +1324,7 @@ def get_tags_ajax():
         results = []
         for r in tags_result:
             print r
-            results.append({'id': str(r['tid']), 'name': r['tag']})
+            results.append({'id': unicode(r['tid']), 'name': r['tag']})
 
         return json.dumps(results)
 
@@ -1377,7 +1377,7 @@ def replace_tags(tags_passed, qid, current_tags):
     for tag in current_tags:
         if tag not in tags_passed:
             print tag
-            tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(tag)) + '"&stale=false').read()
+            tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(unicode(tag)) + '"&stale=false').read()
             tid = json.loads(tag)['rows'][0]['id']
             tag = mb.get(tid).value
             tag['count'] -= 1
@@ -1451,12 +1451,12 @@ def edits(element):
                                                                                                 output_format='html5'), tags_wl, attrs_wl)
                     question['comments'][int(cid) - 1]['edited'] = True
 
-                editor = mb.get(str(g.user.id)).value
+                editor = mb.get(unicode(g.user.id)).value
                 editor['rep'] += 1
                 question['updated'] = int(time())
                 mb.replace(qid, question)
                 question['type'] = 'qb'  # question backup
-                mb.add(edit_list[1] + '_v' + str(question['version']), question)
+                mb.add(edit_list[1] + '_v' + unicode(question['version']), question)
 
             return redirect(url_for('questions', qid=int(qid), url=utility.generate_url(question['title'])))
         elif type == 'ae':
@@ -1470,13 +1470,13 @@ def edits(element):
                                                                                            output_format='html5'), tags_wl, attrs_wl)
                 question['answers'][int(aid) - 1]['edited'] = True
 
-                editor = mb.get(str(g.user.id)).value
+                editor = mb.get(unicode(g.user.id)).value
                 editor['rep'] += 1
                 question['updated'] = int(time())
                 mb.replace(qid, question)
                 question['type'] = 'qb'  # question backup
 
-                mb.add(edit_list[1] + '_v' + str(question['version']), question)
+                mb.add(edit_list[1] + '_v' + unicode(question['version']), question)
 
             return redirect(url_for('questions', qid=int(qid), url=utility.generate_url(question['title'])))
         else:
@@ -1508,9 +1508,9 @@ def edits(element):
                 for tag in tag_list:
                     try:
                         # tag = int(tag)
-                        tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id?stale=false&key=' + str(tag)).read()
+                        tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id?stale=false&key=' + unicode(tag)).read()
                         tid = json.loads(tag)['rows'][0]['id']
-                        tag = mb.get(str(tid)).value
+                        tag = mb.get(unicode(tid)).value
                         new_tag_list.append(tag['tag'])
 
                     except:
@@ -1518,12 +1518,12 @@ def edits(element):
 
                 question['updated'] = int(time())
                 question['content']['tags'] = new_tag_list
-                editor = mb.get(str(g.user.id)).value
+                editor = mb.get(unicode(g.user.id)).value
                 editor['rep'] += 1
-                mb.replace(str(qid), question)
+                mb.replace(unicode(qid), question)
                 question['type'] = 'qb'  # question backup
 
-                mb.add(edit_list[1] + '_v' + str(question['version']), question)
+                mb.add(edit_list[1] + '_v' + unicode(question['version']), question)
                 es_conn.index({'title': question['title'], 'description': question['content']['description'], 'qid': int(question['qid'][1:]),
                                'position': int(question['qid'][1:])}, 'questions', 'questions-type', int(question['qid'][1:]))
                 #es_conn.indices.refresh('questions')
@@ -1550,10 +1550,10 @@ def favorited():
 def flag():
     idntfr = request.args.get('id')
     url = request.args.get('url')
-    user = mb.get(str(g.user.id)).value
+    user = mb.get(unicode(g.user.id)).value
     idntfr_list = idntfr.split('-')
 
-    question = mb.get(str(idntfr_list[1])).value
+    question = mb.get(unicode(idntfr_list[1])).value
     op_id = 0
     if idntfr_list[0] == '#qqf':
         op_id = question['content']['op']
@@ -1571,19 +1571,19 @@ def flag():
                 for comment in answer['comments']:
                     if unicode(comment['cid']) == idntfr_list[3]:
                         op_id = comment['poster']
-    flagged_user = mb.get(str(op_id)).value
+    flagged_user = mb.get(unicode(op_id)).value
 
-    msg = Message("Inappropriate content flag for element " + str(idntfr))
+    msg = Message("Inappropriate content flag for element " + unicode(idntfr))
     msg.recipients = [admin]
     msg.sender = admin
     msg.html = '<p>Hi,<br/><br/>' \
                'URL: ' + url + '<br/><br/>' \
-               'Flagger Name: ' + str(user['name']) + '<br/>' \
-               'Flagger Email: ' + str(user['email']) + '<br/>' \
-               'Flagger ID: ' + str(user['id']) + '<br/><br/>' \
-               'Flagged User Name: ' + str(flagged_user['name']) + '<br/>' \
-               'Flagger User Email: ' + str(flagged_user['email']) + '<br/>' \
-               'Flagger User ID: ' + str(flagged_user['id']) + '<br/>' \
+               'Flagger Name: ' + unicode(user['name']) + '<br/>' \
+               'Flagger Email: ' + unicode(user['email']) + '<br/>' \
+               'Flagger ID: ' + unicode(user['id']) + '<br/><br/>' \
+               'Flagged User Name: ' + unicode(flagged_user['name']) + '<br/>' \
+               'Flagger User Email: ' + unicode(flagged_user['email']) + '<br/>' \
+               'Flagger User ID: ' + unicode(flagged_user['id']) + '<br/>' \
                '<br/> Admin<p>'
     mail.send(msg)
 
@@ -1593,11 +1593,11 @@ def flag():
 @kunjika.route('/postcomment', methods=['GET', 'POST'])
 def postcomment():
     try:
-        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
         return json.dumps({"result": "false"})
     except:
         if g.user.id !='u1':
-            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+            mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         if len(request.form['comment']) < 10 or len(request.form['comment']) > 5000:
             return "Comment must be between 10 and 5000 characters."
         elif g.user.id == -1:
@@ -1642,21 +1642,21 @@ def postcomment():
                 question['comments'].append(comment)
 
         question['updated'] = int(time())
-        mb.replace(str(qid), question)
+        mb.replace(unicode(qid), question)
         email_list = []
-        email_list.append(str(question['content']['op']))
+        email_list.append(unicode(question['content']['op']))
         if 'comments' in question:
             for comment in question['comments']:
-                email_list.append(str(comment['poster']))
+                email_list.append(unicode(comment['poster']))
         if 'answers' in question:
             for answer in question['answers']:
-                email_list.append(str(answer['poster']))
+                email_list.append(unicode(answer['poster']))
                 if 'comments' in answer:
                     for comment in answer['comments']:
-                        email_list.append(str(comment['poster']))
+                        email_list.append(unicode(comment['poster']))
 
         email_list = set(email_list)
-        current_user_list = [str(g.user.id)]
+        current_user_list = [unicode(g.user.id)]
         email_list = email_list - set(current_user_list)
         email_list = list(email_list)
 
@@ -1665,13 +1665,13 @@ def postcomment():
             email_list = []
 
             for id in email_users:
-                email_list.append(email_users[str(id)].value['email'])
+                email_list.append(email_users[unicode(id)].value['email'])
 
             msg = Message("A new answer has been posted to a question where you have answered or commented")
             msg.recipients = email_list
             msg.sender = admin
             msg.html = "<p>Hi,<br/><br/> A new comment has been posted which you can read at " +\
-                       HOST_URL + "questions/" + str(question['qid']) + '/' + question['content']['url'] + \
+                       HOST_URL + "questions/" + unicode(question['qid']) + '/' + question['content']['url'] + \
                        " <br/><br/>Best regards,<br/>Kunjika Team<p>"
             mail.send(msg)
 
@@ -1811,7 +1811,7 @@ def tag_info(tag=None):
         tag = request.args.get('tag')
     tag_list = []
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
-    tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(str(tag)) + '"&stale=false').read()
+    tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(unicode(tag)) + '"&stale=false').read()
     tid = json.loads(tag)['rows'][0]['id']
     tag = mb.get(tid).value
     if g.user is AnonymousUserMixin:
@@ -1826,7 +1826,7 @@ def tag_info(tag=None):
 def edit_tag(tag):
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
 
-    tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(tag) + '"&stale=false').read()
+    tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(tag).encode('utf8') + '"&stale=false').read()
     tid = json.loads(tag)['rows'][0]['id']
     tag = mb.get(tid).value
     tagForm = TagForm(request.form)
@@ -1836,7 +1836,7 @@ def edit_tag(tag):
             tag['info-html'] = bleach.clean(markdown.markdown(tag['info'], extensions=['extra', 'codehilite'],
                                                               output_format='html5'), tags_wl, attrs_wl)
             mb.replace(tag['tag'], tag)
-            return redirect(url_for('tag_info', tag=str(tag['tag'])))
+            return redirect(url_for('tag_info', tag=unicode(tag['tag'])))
 
         return render_template('edit_tag.html', title='Edit tag', form=tagForm, tpage=True, name=g.user.name, role=g.user.role, tag=tag,
                                user_id=g.user.id, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
@@ -1852,7 +1852,7 @@ def reset_password(token=None):
         if emailForm.validate_on_submit() and request.method == 'POST':
             email = emailForm.email.data
             document = urllib2.urlopen(
-                DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
+                DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email).encode('utf8') + '"&stale=false').read()
             document = json.loads(document)
             if len(document['rows']) != 0:
                 if 'id' in document['rows'][0]:
@@ -1882,16 +1882,16 @@ def reset_password(token=None):
                 email = s.unsign(token, max_age=86400)
 
                 document = urllib2.urlopen(
-                    DB_URL + 'users/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email) + '"&stale=false').read()
+                    DB_URL + 'users/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email).encode('utf8') + '"&stale=false').read()
                 document = json.loads(document)
                 if 'id' in document['rows'][0]:
                     try:
-                        document = mb.get(str(document['rows'][0]['id'])).value
+                        document = mb.get(unicode(document['rows'][0]['id'])).value
                     except:
                         return redirect(url_for('questions'))
                     passwd_hash = bcrypt.generate_password_hash(passwordResetForm.password.data)
                     document['password'] = passwd_hash
-                    mb.replace(str(document['id']), document)
+                    mb.replace(unicode(document['id']), document)
             except:
                 return redirect(url_for('questions'))
 
@@ -1921,7 +1921,7 @@ def search_help():
 def stikcy():
     if g.user.id == 'u1':
         qid = request.args.get('id')[2:]
-        question = mb.get(str(qid)).value
+        question = mb.get(unicode(qid)).value
         if 'sticky' not in question:
             question['sticky'] = True
         elif question['sticky'] is False:
@@ -1929,7 +1929,7 @@ def stikcy():
         else:
             question['sticky'] = False
 
-        mb.replace(str(qid), question)
+        mb.replace(unicode(qid), question)
 
         return jsonify({"success": True})
     else:
@@ -1940,13 +1940,13 @@ def stikcy():
 def close():
     if g.user.id == 'u1':
         qid = request.args.get('id')[2:]
-        question = mb.get(str(qid)).value
+        question = mb.get(unicode(qid)).value
         if question['close'] is False:
             question['close'] = True
         elif question['close'] is True:
             question['close'] = False
 
-        mb.replace(str(qid), question)
+        mb.replace(unicode(qid), question)
 
         return jsonify({"success": True})
     else:
@@ -1971,8 +1971,8 @@ def poll(page=1):
     pid_list = []
     pagination = None
     if poll_count > 0:
-        polls = urllib2.urlopen(DB_URL + 'memoir/_design/dev_questions/_view/get_polls?reduce=False&skip=' + str(skip) + '&limit=' +
-                                str(QUESTIONS_PER_PAGE)).read()
+        polls = urllib2.urlopen(DB_URL + 'memoir/_design/dev_questions/_view/get_polls?reduce=False&skip=' + unicode(skip) + '&limit=' +
+                                unicode(QUESTIONS_PER_PAGE)).read()
         polls = json.loads(polls)
         # print polls
         pagination = utility.Pagination(page, QUESTIONS_PER_PAGE, int(poll_count))
@@ -1984,7 +1984,7 @@ def poll(page=1):
     if len(pid_list) != 0:
         polls = mb.get_multi(pid_list)
     for pid in pid_list:
-        poll_list.append(polls[str(pid)].value)
+        poll_list.append(polls[unicode(pid)].value)
 
     print poll_list
 
@@ -2013,7 +2013,7 @@ def poll(page=1):
         user = g.user.user_doc
         if pollForm.validate_on_submit() and request.method == 'POST':
             for i in range(0, int(pollForm.poll_answers.data)):
-                choices.append(str(i+1))
+                choices.append(unicode(i+1))
                 data.append("")
             cd_list = zip(choices, data)
             return render_template('create_poll.html', title='Create Poll', form=questionForm, ppage=True, name=g.user.name, role=g.user.role,
@@ -2064,13 +2064,13 @@ def poll(page=1):
             url = utility.generate_url(title)
 
             question['content']['url'] = url
-            question['content']['op'] = str(g.user.id)
+            question['content']['op'] = unicode(g.user.id)
             question['content']['ts'] = int(time())
             question['updated'] = question['content']['ts']
             question['content']['ip'] = request.remote_addr
 
             question['qid'] = mb.incr('qcount', 1).value
-            question['qid'] = 'q' + str(question['qid'])
+            question['qid'] = 'q' + unicode(question['qid'])
             question['votes'] = 0
             question['acount'] = 0
             question['views'] = 0
@@ -2080,39 +2080,39 @@ def poll(page=1):
             user['rep'] += 1
             user['qcount'] += 1
 
-            mb.add(str(question['qid']), question)
-            mb.replace(str(g.user.id), user)
+            mb.add(unicode(question['qid']), question)
+            mb.replace(unicode(g.user.id), user)
             add_tags(question['content']['tags'], question['qid'])
 
             return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
         if not questionForm.validate_on_submit() and request.method == 'POST':
-            choices.append(str(1))
-            choices.append(str(2))
+            choices.append(unicode(1))
+            choices.append(unicode(2))
             data.append(questionForm.option_1.data)
             data.append(questionForm.option_2.data)
             if questionForm.option_3.data != "":
-                choices.append(str(3))
+                choices.append(unicode(3))
                 data.append(questionForm.option_3.data)
                 if questionForm.option_4.data != "":
-                    choices.append(str(4))
+                    choices.append(unicode(4))
                     data.append(questionForm.option_4.data)
                     if questionForm.option_5.data != "":
-                        choices.append(str(5))
+                        choices.append(unicode(5))
                         data.append(questionForm.option_5.data)
                         if questionForm.option_6.data != "":
-                            choices.append(str(6))
+                            choices.append(unicode(6))
                             data.append(questionForm.option_6.data)
                             if questionForm.option_7.data != "":
-                                choices.append(str(7))
+                                choices.append(unicode(7))
                                 data.append(questionForm.option_7.data)
                                 if questionForm.option_8.data != "":
-                                    choices.append(str(8))
+                                    choices.append(unicode(8))
                                     data.append(questionForm.option_8.data)
                                     if questionForm.option_9.data != "":
-                                        choices.append(str(9))
+                                        choices.append(unicode(9))
                                         data.append(questionForm.option_9.data)
                                         if questionForm.option_10.data != "":
-                                            choices.append(str(10))
+                                            choices.append(unicode(10))
                                             data.append(questionForm.option_10.data)
             cd_list = zip(choices, data)
             return render_template('create_poll.html', title='Create Poll', form=questionForm, ppage=True, name=g.user.name, role=g.user.role,
@@ -2151,7 +2151,7 @@ def send_invites():
         flash('Your invites were successfully sent.', 'success')
     else:
         flash('Your invites could not be sent.', 'error')
-    return redirect(url_for('users', uid=str(g.user.id)))
+    return redirect(url_for('users', uid=unicode(g.user.id)))
 
 
 @kunjika.route('/administration', methods=['GET', 'POST'])
@@ -2217,7 +2217,7 @@ def edit_profile(uid=None):
                     else:
                         user['skills'].append(skill)
             user['skills'].sort()
-            mb.replace(str(g.user.id), user)
+            mb.replace(unicode(g.user.id), user)
 
             return redirect(url_for('users', uid=g.user.id, uname=g.user.name))
         return render_template('edit_profile.html', title='Edit Profile', form=form, user=user, name=g.user.name, role=g.user.role,
@@ -2242,7 +2242,7 @@ def settings(uid=None, uname=None):
                 passwd_hash = bcrypt.generate_password_hash(passwd)
                 user['password'] = passwd_hash
                 try:
-                    mb.replace(str(g.user.id), user)
+                    mb.replace(unicode(g.user.id), user)
                     flash('Your password was successfuly chnaged.', 'success')
                 except:
                     flash('Your password could not be changed. Contact admin', 'error')
@@ -2268,7 +2268,7 @@ def notify():
         response = {'success': 'false'}
 
     try:
-        mb.replace(str(g.user.id), user)
+        mb.replace(unicode(g.user.id), user)
 
         return jsonify(response)
     except:
@@ -2280,7 +2280,7 @@ def bookmark():
     qid = request.args.get('id')
     print qid.split('-')[1]
     bookmark = mb.get(qid.split('-')[1]).value
-    bid = 'bq-' + qid.split('-')[1] + '-' + str(g.user.id)  # bq stands for bookmark question
+    bid = 'bq-' + qid.split('-')[1] + '-' + unicode(g.user.id)  # bq stands for bookmark question
 
     try:
         bookmark_doc = mb.get(bid).value
@@ -2314,10 +2314,10 @@ def user_bookmarks(uid, name, page=1):
         return redirect(request.referrer)
     skip = (page - 1) * QUESTIONS_PER_PAGE
     questions = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_bookmarks_by_uid?limit=' +
-                                str(QUESTIONS_PER_PAGE) + '&skip=' + str(skip) + '&key="' +
-                                str(uid) + '"&reduce=false').read()
+                                unicode(QUESTIONS_PER_PAGE) + '&skip=' + unicode(skip) + '&key="' +
+                                unicode(uid) + '"&reduce=false').read()
     count = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_bookmarks_by_uid?key="' +
-                            str(uid) + '"').read()
+                            unicode(uid) + '"').read()
     count = json.loads(count)['rows']
     if len(count) != 0:
         count = count[0]['value']
@@ -2327,14 +2327,14 @@ def user_bookmarks(uid, name, page=1):
     qids = []
     if len(questions) > 0:
         for row in questions['rows']:
-            qids.append((str(row['id'])).split('-')[1])
+            qids.append((unicode(row['id'])).split('-')[1])
 
     print qids
     if len(qids) != 0:
         val_res = mb.get_multi(qids)
     questions_list = []
     for qid in qids:
-        questions_list.append(val_res[str(qid)].value)
+        questions_list.append(val_res[unicode(qid)].value)
 
     if not questions_list and page != 1:
         abort(404)
@@ -2346,7 +2346,7 @@ def user_bookmarks(uid, name, page=1):
                            force_default=False,
                            force_lower=False)
     try:
-        user = mb.get(str(g.user.id)).value
+        user = mb.get(unicode(g.user.id)).value
     except:
         pass
 
@@ -2366,7 +2366,7 @@ def user_bookmarks(uid, name, page=1):
 @kunjika.route('/get_skills/<uid>', methods=['GET', 'POST'])
 def get_skills(uid=None):
     if uid is not None:
-        user = mb.get(str(uid)).value
+        user = mb.get(unicode(uid)).value
         if 'skills' in user and len(user['skills']) > 0:
             skills = user['skills']
             sids = []
@@ -2376,7 +2376,7 @@ def get_skills(uid=None):
 
             skills_list = zip(sids, skills)
             for id, skill in skills_list:
-                skill_list.append({"id": str(id), "name": skill})
+                skill_list.append({"id": unicode(id), "name": skill})
             return json.dumps(skill_list)
         else:
             return json.dumps({})
@@ -2389,7 +2389,7 @@ def user_skills(uid, name):
     if not g.user.is_authenticated:
         flash('You need to be logged in to view skills and endorsements.', 'error')
         return redirect(request.referrer)
-    user = mb.get(str(uid)).value
+    user = mb.get(unicode(uid)).value
     gravatar100 = Gravatar(kunjika,
                            size=100,
                            rating='g',
@@ -2409,8 +2409,8 @@ def user_skills(uid, name):
     sids = []
     if 'skills' in user:
         for skill in user['skills']:
-            sid_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=%5b"' + str(user['id']) +
-                                      '","' + urllib.quote(skill) + '"%5d&stale=false&reduce=false').read()
+            sid_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=%5b"' + unicode(user['id']) +
+                                      '","' + urllib.quote(skill).encode('utf8') + '"%5d&stale=false&reduce=false').read()
             sid_doc = json.loads(sid_doc)
             for row in sid_doc['rows']:
                 sids.append(row['id'])
@@ -2421,15 +2421,15 @@ def user_skills(uid, name):
             endorsements = []
             has_endorsement = False
             for id in sids:
-                endorsement = val_res[str(id)].value
-                endorsement['user'] = mb.get(str(endorsement['fuid'])).value
+                endorsement = val_res[unicode(id)].value
+                endorsement['user'] = mb.get(unicode(endorsement['fuid'])).value
                 endorsements.append(endorsement)
                 if g.user.id == endorsement['fuid']:
                     has_endorsement = True
 
             sids = []
-            count_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=%5b"' + str(user['id']) +
-                                        '","' + urllib.quote(skill) + '"%5d&stale=false&reduce=true').read()
+            count_doc = urllib2.urlopen(DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=%5b"' + unicode(user['id']) +
+                                        '","' + urllib.quote(skill).encode('utf8') + '"%5d&stale=false&reduce=true').read()
             count_doc = json.loads(count_doc)
             if len(count_doc['rows']) != 0:
                 count = count_doc['rows'][0]['value']
@@ -2455,12 +2455,12 @@ def endorse():
 @kunjika.route('/write', methods=['GET', 'POST'])
 def write_article():
     try:
-        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
         flash('You are allowed only one post per 30 seconds.', 'error')
         return redirect(request.referrer)
     except:
         if g.user.id !='u1':
-            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+            mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.write_article()
 
 
@@ -2477,23 +2477,23 @@ def browse_articles(page=None, aid=None, tag=None, url=None):
 @kunjika.route('/article_comment', methods=['GET', 'POST'])
 def article_comment():
     try:
-        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
         return json.dumps({"result":"false"})
     except:
         if g.user.id !='u1':
-            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+            mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.article_comment()
 
 
 @kunjika.route('/edit_article/<element>', methods=['GET', 'POST'])
 def edit_article(element):
     try:
-        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
         flash('You are allowed only one post per 30 seconds.', 'error')
         return redirect(request.referrer)
     except:
         if g.user.id !='u1':
-            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+            mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.edit_article(element)
 
 
@@ -2507,12 +2507,12 @@ def article_tags(page=1):
 @kunjika.route('/save_draft', methods=['POST'])
 def save_draft(element=None):
     try:
-        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
         flash('You are allowed only one post per 30 seconds.', 'error')
         return redirect(request.referrer)
     except:
         if g.user.id !='u1':
-            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+            mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.save_draft(element)
 
 
@@ -2524,7 +2524,7 @@ def edit_draft(element):
 def discard_draft(did):
     op = did.split('-')[1]
     draft_id = did.split('-')[2]
-    if(op == str(g.user.id)):
+    if(op == unicode(g.user.id)):
         try:
             mb.delete(did)
         except:
@@ -2548,12 +2548,12 @@ def drafts(page=None, did=None, url=None):
 @kunjika.route('/publish/<string:element>', methods=['GET', 'POST'])
 def publish(element):
     try:
-        mb.get(str(g.user.id) + '_' + str(request.remote_addr))
+        mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
         flash('You are allowed only one post per 30 seconds.', 'error')
         return redirect(request.referrer)
     except:
         if g.user.id !='u1':
-            mb.set(str(g.user.id) + '_' + str(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
+            mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         return utility.publish(element)
 
 
@@ -2567,7 +2567,7 @@ def sitemap():
 @kunjika.route('/invites')
 def invites():
     invites = request.args.get('#id')
-    user = cb.get(str(g.user.id)).value
+    user = cb.get(unicode(g.user.id)).value
 
     if user['receive-invites'] is False:
         user['receive-invites'] = True
@@ -2577,7 +2577,7 @@ def invites():
         response = {'success': 'false'}
 
     try:
-        cb.replace(str(g.user.id), user)
+        cb.replace(unicode(g.user.id), user)
 
         return jsonify(response)
     except:
@@ -2590,7 +2590,7 @@ def check_group_name():
     try:
         document = urllib2.urlopen(
             DB_URL + 'memoir/_design/dev_sundries/_view/get_doc_by_group_name?key=' + '"' + group_name +
-            '"&stale=false&type=group&owner=' + str(g.user.id)).read()
+            '"&stale=false&type=group&owner=' + unicode(g.user.id)).read()
         document = json.loads(document)
         if len(document['rows']) != 0:
             return jsonify({'success': 'false'})
@@ -2607,7 +2607,7 @@ def create_group():
         flash('Your group was successfully created.', 'success')
     else:
         flash('Your group could not be created. Please contact admin with group name.', 'error')
-    return redirect(url_for('users', uid=str(g.user.id)))
+    return redirect(url_for('users', uid=unicode(g.user.id)))
 
 
 @kunjika.route('/users/<uid>/<uname>/groups', defaults={'page': 1})
@@ -2616,7 +2616,7 @@ def show_groups(page, uid, uname):
     (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
     document = urllib2.urlopen(DB_URL +
                                'memoir/_design/dev_sundries/_view/get_doc_by_type?key="group-member"&reduce=false&member-id=' +
-                               str(g.user.id)).read()
+                               unicode(g.user.id)).read()
     document = json.loads(document)['rows']
 
     groups = utility.get_groups_per_page(page, GROUPS_PER_PAGE, document)
@@ -2624,7 +2624,7 @@ def show_groups(page, uid, uname):
         abort(404)
     pagination = utility.Pagination(page, GROUPS_PER_PAGE, len(document))
     no_of_groups = len(document)
-    if g.user is not None and g.user.is_authenticated and uid==str(g.user.id):
+    if g.user is not None and g.user.is_authenticated and uid==unicode(g.user.id):
         logged_in = True
         return render_template('groups.html', logged_in=logged_in, gpage=True, pagination=pagination,
                                groups=groups, no_of_groups=no_of_groups, qcount=qcount, ucount=ucount, tcount=tcount,
@@ -2641,7 +2641,7 @@ def get_qcount():
 @kunjika.route('/get_account')
 def get_account():
     qid = request.args.get('qid')
-    questions_dict = mb.get(str(qid)).value
+    questions_dict = mb.get(unicode(qid)).value
     ccount = 0
     acount = questions_dict['acount']
     if 'comments' in questions_dict:

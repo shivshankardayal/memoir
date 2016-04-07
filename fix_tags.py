@@ -55,7 +55,7 @@ rows = urllib2.urlopen('http://localhost:8092/memoir/_design/dev_tags/_view/get_
 rows = json.loads(rows)['rows']
 tids_list = []
 for row in rows:
-    tids_list.append(str(row['id']))
+    tids_list.append(unicode(row['id']))
 
 if len(tids_list) != 0:
     val_res = tb.get_multi(tids_list)
@@ -63,7 +63,7 @@ if len(tids_list) != 0:
 tags = []
 
 for tid in tids_list:
-    tags.append(val_res[str(tid)].value)
+    tags.append(val_res[unicode(tid)].value)
 
 for tag in tags:
     es_conn.index({'tag':tag['tag'], 'tid':tag['tid'], 'position':tag['tid']}, 'tags', 'tags-type', tag['tid'])
