@@ -31,6 +31,7 @@ from forms import *
 import urllib
 import markdown
 import bleach
+import re
 
 def common_data():
     tag_list = []
@@ -454,9 +455,10 @@ def get_questions_for_tag(page, QUESTIONS_PER_PAGE, tag):
     tag = urllib2.quote(tag.encode('utf8'), '')
     print tag
     rows = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_qid_from_tag?limit=' +
-                unicode(QUESTIONS_PER_PAGE) + '&skip=' + unicode(skip) + '&key="' + tag + '"&reduce=false').read()
-    count = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_qid_from_tag?key="' + tag + '"&reduce=true').read()
+                unicode(QUESTIONS_PER_PAGE) + '&skip=' + unicode(skip) + '&key="' + unicode(tag) + '"&reduce=false').read()
+    count = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_qid_from_tag?key="' + unicode(tag) + '"&reduce=true').read()
     count = json.loads(count)['rows']
+    print rows
     if len(count) == 0:
         count = 0
     else:
@@ -467,7 +469,9 @@ def get_questions_for_tag(page, QUESTIONS_PER_PAGE, tag):
     qids_list = []
     for row in rows:
         ##print row
-        qids_list.append(unicode(row['id']))
+        m = re.search(r"""_v\d+$""", row['id'])
+        if m is None:
+            qids_list.append(unicode(row['id']))
 
     if len(qids_list) != 0:
         val_res = memoir.mb.get_multi(qids_list)

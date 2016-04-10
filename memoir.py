@@ -15,8 +15,9 @@
 # along with this program. If not, see http://www.gnu.org/licenses/.
 
 from flask import (Flask, session, render_template, abort, redirect, url_for, flash,
-                   make_response, request, g, jsonify, send_file)
+                   make_response, request, g, jsonify, send_file, send_from_directory)
 import io
+import os
 import json
 from forms import *
 from flask.ext.bcrypt import Bcrypt
@@ -48,6 +49,7 @@ import base64
 from test_series import test_series
 import markdown
 import bleach
+from werkzeug import secure_filename
 
 kunjika = Flask(__name__)
 kunjika.config.from_object('config')
@@ -66,9 +68,7 @@ APP_ROOT = kunjika.config['APPLICATION_ROOT']
 
 from oauth_impl import OA
 
-ALLOWED_EXTENSIONS = set(['gif', 'png', 'jpg', 'jpeg', 'txt', 'c', 'cc', 'cpp', 'C', 'java', 'php', 'py', 'rb',
-                          'zip', 'gz', 'bz2', '7z', 'pdf', 'epub', 'css', 'js', 'html', 'h', 'hh', 'hpp', 'svg',
-                          'tar.gz', 'tar.bz2', 'tgz', 'tbz', 'doc', 'docx', 'odf', 'odt', 'ppt', 'pptx', 'djvu'])
+ALLOWED_EXTENSIONS = set(['gif', 'png', 'jpg', 'jpeg'])
 
 DB_URL = kunjika.config['DB_URL']
 HOST_URL = kunjika.config['HOST_URL']
@@ -76,6 +76,7 @@ ES_URL = kunjika.config['ES_URL']
 MAIL_SERVER_IP = kunjika.config['MAIL_SERVER_IP']
 POST_INTERVAL = kunjika.config['POST_INTERVAL']
 kunjika.debug = kunjika.config['DEBUG_MODE']
+UPLOAD_FOLDER = kunjika.config['UPLOAD_FOLDER']
 kunjika.add_url_rule('/uploads/<filename>', 'uploaded_file',
                      build_only=True)
 #kunjika.wsgi_app = SharedDataMiddleware(kunjika.wsgi_app, {
@@ -91,7 +92,7 @@ USER_ANSWERS_PER_PAGE = kunjika.config['USER_ANSWERS_PER_PAGE']
 ARTICLES_PER_PAGE = kunjika.config['ARTICLES_PER_PAGE']
 
 is_maintenance_mode = kunjika.config['MAINTENANCE_MODE']
-
+kunjika.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 ADMIN_EMAIL = kunjika.config['ADMIN_EMAIL']
 
 #oid = OpenID(kunjika, '/tmp')
@@ -1218,28 +1219,77 @@ def allowed_file(filename):
 def image_upload():
     if request.method == 'POST':
         file = request.files['file']
-        content = file.read()
-        extension = file.filename.split(".")[-1]
-        encoded_file = base64.b64encode(content)
-        id = 'upload-' + unicode(uuid1()) + "." + extension
-        data = {}
-        try:
-            mb.add(id, {'content': encoded_file})
-            data['success'] = "true"
-            data['imagePath'] = HOST_URL + "uploads/" + id
-        except:
-            data['success'] = "false"
-            data['mesage'] = "Invalid image file"
+        now = datetime.now()
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            monthdir = kunjika.config['UPLOAD_FOLDER'] + unicode(now.year) + unicode(now.month)
+            if not os.path.isdir(monthdir):
+                os.makedirs(monthdir)
+            pathname = os.path.join(monthdir, filename)
+            saved = False
+            suffix = 0
+            extension = os.path.splitext(os.path.basename(pathname))[1]
+            filename = os.path.splitext(os.path.basename(filename))[0]
+            f = filename
+            new_filename = ""
+            while saved is False:
+                try:
+                    with open(pathname):
+                        suffix += 1
+                        new_filename = f + '_' + unicode(suffix) + extension
+                        new_pathname = os.path.join(kunjika.config['UPLOAD_FOLDER'], new_filename)
+                        filename = new_filename
+                        try:
+                            with open(new_pathname):
+                                next
+                        except IOError:
+                            file.save(new_pathname)
+                            saved = True
+                            break
+                except IOError:
+                    try:
+                        file.save(pathname)
+                        filename = os.path.splitext(os.path.basename(pathname))[0] + os.path.splitext(os.path.basename(pathname))[1]
+                        saved = True
+                        break
+                    except IOError:
+                        saved = False
+                        break
+            data = {}
+            if new_filename:
+                filename = new_filename
+
+            if saved is True:
+                data['success'] = "true"
+                data['imagePath'] = HOST_URL + monthdir + '/' +filename
+            else:
+                data['success'] = "false"
+                data['mesage'] = "Invalid image file"
+
+            return json.dumps(data)
+        #encoded_file = base64.b64encode(content)
+        #id = 'upload-' + unicode(uuid1()) + "." + extension
+        #data = {}
+        #try:
+        #    mb.add(id, {'content': encoded_file})
+        #    data['success'] = "true"
+        #    data['imagePath'] = HOST_URL + "uploads/" + id
+        #except:
+        #    data['success'] = "false"
+        #    data['mesage'] = "Invalid image file"
 
         return json.dumps(data)
 
 
-@kunjika.route('/uploads/<string:filename>', methods=['GET'])
-def get_uploads(filename):
-    content = mb.get(filename).value['content']
-    content = base64.b64decode(content)
+@kunjika.route('/uploads/<string:dirname>/<string:filename>', methods=['GET'])
+def get_uploads(dirname, filename):
+    print dirname
+    filedir = kunjika.config['UPLOAD_FOLDER'] + '/' + dirname + '/'
+    return send_from_directory(filedir, filename)
+    #content = mb.get(filename).value['content']
+    #content = base64.b64decode(content)
 
-    return send_file(io.BytesIO(content))
+    # return send_file(io.BytesIO(content))
 
 '''
 def image_upload():
@@ -1478,7 +1528,7 @@ def edits(element):
 
                 mb.add(edit_list[1] + '_v' + unicode(question['version']), question)
 
-            return redirect(url_for('questions', qid=int(qid), url=utility.generate_url(question['title'])))
+            return redirect(url_for('questions', qid=qid, url=utility.generate_url(question['title'])))
         else:
             if form.validate_on_submit():
                 if question['content']['op'] != g.user.id and g.user.id !='u1':

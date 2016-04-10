@@ -459,6 +459,10 @@ pre.prettyprint {
     width: 100%;
 }
 
+img {
+    max-width: 780px;
+}
+
 .hidden-comment-form {
     display: none;
 }
