@@ -75,7 +75,7 @@
                                 {{user['votes_count']['question']}}
                             </div>
                             <div class="text-sm">
-                                Questions
+                                Questions' votes
                             </div>
                         </div>
                         <div class="col-xs-3 text-center text-success lead">
@@ -83,7 +83,7 @@
                                 {{user['votes_count']['answers']}}
                             </div>
                             <div class="text-sm">
-                                Answers
+                                Answers' votes
                             </div>
                         </div>
                         <div class="col-xs-3 text-center text-info lead">
@@ -118,9 +118,9 @@
                         <a href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/bookmarks"><i class="fa fa-bookmark"></i> Bookmarks</a>
                     </li>
                      {% endif %}
-                    <li>
+                    <!--li>
                         <a href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/messages"><i class="fa fa-envelope"></i> Messages</a>
-                    </li>
+                    </li-->
                     <li>
                         <a href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name|urlencode }}/skills"><i class="fa fa-thumbs-up"></i> Skills</a>
                     </li>

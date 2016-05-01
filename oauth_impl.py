@@ -83,6 +83,7 @@ def g_authorized():
         session['email'] = me.data['email']
         session['fname'] = me.data['given_name']
         session['lname'] = me.data['family_name']
+        print me.data['email'] + ':' + me.data['given_name'] + ':' + me.data['family_name']
     return redirect(url_for('create_or_login'))
 
 
@@ -111,8 +112,8 @@ def fb_authorized():
 
     if 'email' in me.data:
         session['email'] = me.data['email']
-        session['fname'] = me.data['last_name']
-        session['lname']  = me.data['first_name']
+        session['fname'] = me.data['first_name']
+        session['lname']  = me.data['last_name']
     return redirect(url_for('create_or_login'))
 
 

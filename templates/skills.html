@@ -143,7 +143,7 @@
         <div class="user-nav">
             <ul class="nav nav-pills nav-stacked">
                 <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/bookmarks"><i class="fa fa-bookmark"></i> Bookmarks</a></li>
-                <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/messages"><i class="fa fa-envelope"></i> Messages</a></li>
+                <!--li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/messages"><i class="fa fa-envelope"></i> Messages</a></li-->
                 <li><a class="btn btn-default" href="{{ APP_ROOT }}/users/{{ user_id }}/{{ name }}/skills"><i class="fa fa-thumbs-up"></i> Skills</a></li>
             </ul>
         </div>
@@ -183,7 +183,7 @@
                                 <i class="fa fa-caret-right"></i>
                             </a>
                         </li>
-                        <div id="{{ doc['tech'] }}-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="{{ doc['tech'] }}Label" aria-hidden="true" style="max-height:400px;position:fixed;
+                        <div id="{{ doc['tech'] }}-modal" class="hide fade" tabindex="-1" role="dialog" aria-labelledby="{{ doc['tech'] }}Label" aria-hidden="true" style="max-height:400px;position:fixed;
                             overflow-x:auto;overflow-y:scroll; z-index:9999;">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -194,7 +194,7 @@
                                 <hr/>
                                 <ul>
                                 {% for endorsement in doc['endorsements'] %}
-                                    <p style='float:left'><img src='{{ APP_ROOT }}{{ endorsement['femail'] | gravatar(size=70) }}' ></p>
+                                    <p style='float:left'><img src='{{ endorsement["femail"] | gravatar(size=70) }}' ></p>
                                     <div style='margin-left:110px'><h4>{{ endorsement['user']['name'] }}</h4><p>{{ endorsement['user']['location'] }}</p><a class='btn' href='{{ APP_ROOT }}/users/{{ endorsement['fuid'] }}'>View Profile</a></div>
                                     <div style="clear: both"></div>
                                     <hr/>
@@ -279,19 +279,19 @@
                 id: $(this).attr('id')
             }, function (data) {
                 if(data['success']) {
-                    if($(icon).attr('class') == 'icon-plus') {
-                        $(icon).removeClass('icon-plus');
-                        $(icon).addClass('icon-minus');
+                    if($(icon).attr('class') == 'fa fa-plus') {
+                        $(icon).removeClass('fa-plus');
+                        $(icon).addClass('fa-minus');
                         $(icon).parent().prop('title', 'Remove Endorsement');
                         $(icon).parent().prev().prev().children('span').text(parseInt($(icon).parent().prev().prev().children('span').text()) + 1);
                         $(icon).parent().parent().next().children('ul').prepend(
                                 '<li id="{{ g.user.id }}-' + i.slice(1, i.length) + '">' +
-                                    '<img class="endorser small-thumbnail lazy-load" src="{{ APP_ROOT }}{{ g.user.user_doc['email'] | gravatar(size=24) }}">\
+                                    '<img class="endorser small-thumbnail lazy-load" src="{{ g.user.user_doc['email'] | gravatar(size=24) }}">\
                                 </li>'
                         );
                     } else {
-                        $(icon).removeClass('icon-minus');
-                        $(icon).addClass('icon-plus');
+                        $(icon).removeClass('fa-minus');
+                        $(icon).addClass('fa-plus');
                         $(icon).parent().prop('title', 'Add Endorsement');
                         $(icon).parent().prev().prev().children('span').text(parseInt($(icon).parent().prev().prev().children('span').text()) - 1);
                         $('#' + '{{ g.user.id }}-' + i.slice(1, i.length)).remove();

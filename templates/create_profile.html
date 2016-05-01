@@ -7,16 +7,19 @@
             <div class="modal-header">
                 <h3>Create Your Profile</h3>
             </div>
-            <div class="modal-body">
-                <div class="well">
+            <!--div class="modal-body">
+                <div class="well"-->
                     <ul class="nav nav-tabs">
                         <li class="active">
                             <a href="#create" data-toggle="tab">Create Profile</a>
                         </li>
                     </ul>
                     <div id="myTabContent" class="tab-content">
-                    <div class="tab-pane active in" id="create">
+                    <div class="tab-pane active in login-form" id="create">
+                        <div class="row">
+                        <div class="main">
                         <form class="form-horizontal" id="tab" method="post" action="{{ APP_ROOT }}/create_profile">
+                            <div class="form-group">
                             <fieldset>
                                 <div id="legend">
                                     <legend class="">
@@ -25,17 +28,17 @@
                                 </div>
                                 {% from "macros.html" import render_field %}
                                 {{ form.csrf_token }}
-                                {{ render_field(form.email1, class="input-xlarge", value=session['email'] ) }}
                                 <div class="control-group">
                                     <div class="controls">
-                                        <input type="button" name="check_availability" class="btn btn-info"
-                                               id="check_availability" value="Check Availability">
+                                        <a name="check_availability" class="pull-right" 
+                                               id="check_availability" href="#">Check availability</a>
 
                                         <div id="availability_result"></div>
                                     </div>
                                 </div>
-                                {{ render_field(form.fname, class="input-xlarge", value=session['fname'] ) }}
-                                {{ render_field(form.lname, class="input-xlarge"), value=session['lname']) }}
+                                {{ render_field(form.email1, class="form-control", value=session['email'] ) }}
+                                {{ render_field(form.fname, class="form-control", value=session['fname'] ) }}
+                                {{ render_field(form.lname, class="form-control", value=session['lname']) }}
                                 <label class="control-label">ReCaptcha</label>
 
                                 <div class="control-group">
@@ -56,14 +59,17 @@
                                     policy</a> and <a href="{{ APP_ROOT }}/legal/terms-of-service">terms of service</a>.
                                 </p>
                             </fieldset>
+                            </div>
                         </form>
+                        </div>
+                        </div>
                     </div>
                     </div>
-                </div>
-            </div>
+                <!--/div>
+            </div-->
         </div>
     </div>
-    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#tab').validate({

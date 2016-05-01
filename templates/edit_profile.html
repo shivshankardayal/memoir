@@ -147,17 +147,17 @@
                     
                 {% endfor %}
             </div>
-            <div id="popular-tags" class="module">
+            <!--div id="popular-tags" class="module">
                 <h3><a href="/tests">Tests</a></h3>
-            </div>
-            <div id="popular-tags" class="module">
+            </div-->
+            <!--div id="popular-tags" class="module">
                 <h4 id="h-popular-tags">Similar questions</h4>
                 {% for question in similar_questions %}
                     <a href="{{ APP_ROOT }}/questions/{{ question[0] }}/{{ question[2] }}" class="post-tag"
                        rel="tag">{{ question[1] }}</a>
                     <!-- br/ -->
                 {% endfor %}
-            </div>
+            </div-->
         </div>
     </div>
     <script>
@@ -334,7 +334,7 @@
         var JSONdata;
         //alert(url);
         var urlsplit = url.split("/");
-        var uid = urlsplit[4];
+        var uid = urlsplit[5];
         $.getJSON('{{ APP_ROOT }}/get_skills/' + String(uid), {
         }, function (data) {
             $("#token-input-kunjika-tags").tokenInput("{{ APP_ROOT }}/get_skills/", {

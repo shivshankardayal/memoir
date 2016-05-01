@@ -50,6 +50,7 @@ from test_series import test_series
 import markdown
 import bleach
 from werkzeug import secure_filename
+import traceback
 
 kunjika = Flask(__name__)
 kunjika.config.from_object('config')
@@ -627,7 +628,9 @@ def questions(tag=None, page=None, qid=None, url=None):
                                        " <br/><br/>Best regards,<br/>Kunjika Team<p>"
                             mail.send(msg)
 
-                        return redirect(url_for('questions', qid=questions_dict['qid'], url=questions_dict['content']['url'], ccount=ccount))
+                        resp = make_response(redirect(url_for('questions', qid=questions_dict['qid'], url=questions_dict['content']['url'], ccount=ccount)))
+                        resp.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
+                        return resp
                 #qb.replace(unicode(questions_dict['qid']), questions_dict)
 
                 return render_template('single_question.html', title='Questions', qpage=True, questions=questions_dict,
@@ -1205,7 +1208,7 @@ def check_email():
 @kunjika.route('/logout', methods=['POST'])
 def logout():
     logout_user()
-    resp = make_response(redirect(request.referrer))
+    resp = make_response(redirect(url_for('questions')))
     resp.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
     return resp
 
@@ -1381,6 +1384,7 @@ def get_tags_ajax():
 
 def add_tags(tags_passed, qid):
     for tag in tags_passed:
+        tag = tag.lower().encode('utf8')
         try:
             document = mb.get(tag).value
             document['count'] += 1
@@ -1403,6 +1407,7 @@ def add_tags(tags_passed, qid):
 
 def replace_tags(tags_passed, qid, current_tags):
     for tag in tags_passed:
+        tag = tag.lower().encode('utf8')
         if tag not in current_tags:
             tid = 0
             try:
@@ -1425,6 +1430,7 @@ def replace_tags(tags_passed, qid, current_tags):
                 #es_conn.indices.refresh('tags')
 
     for tag in current_tags:
+        tag = tag.lower().encode('utf8')
         if tag not in tags_passed:
             print tag
             tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + '"' + urllib2.quote(unicode(tag)) + '"&stale=false').read()
@@ -1538,10 +1544,10 @@ def edits(element):
                 question['content']['html'] = bleach.clean(markdown.markdown(question['content']['description'], extensions=['extra', 'codehilite'],
                                                            output_format='html5'), tags_wl, attrs_wl)
                 # title editing disabled so that existing links do not break
-                # title = form.question.data
-                # url = utility.generate_url(title)
-                # question['content']['url'] = url
-                # question['title'] = title
+                title = form.question.data
+                url = utility.generate_url(title)
+                question['content']['url'] = url
+                question['title'] = title
                 tags = form.tags.data.split(',')
                 tags = [tag.strip(' \t').lower() for tag in tags]
                 tag_list = []
@@ -1583,7 +1589,7 @@ def edits(element):
     else:
         return render_template('edit.html', title='Edit', form=form, question=question, type=type, qid=qid,
                                aid=int(aid), cid=int(cid), qcount=qcount, ucount=ucount, tcount=tcount,
-                               acount=acount, tag_list=tag_list, name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=APP_ROOT)
+                               acount=acount, tag_list=tag_list, name=g.user.name, user_id=g.user.id, APP_ROOT=APP_ROOT)
 
 
 @kunjika.route('/answer_accepted')
@@ -1930,19 +1936,23 @@ def reset_password(token=None):
         if passwordResetForm.validate_on_submit() and request.method == 'POST':
             try:
                 email = s.unsign(token, max_age=86400)
-
+                # print email
+                print DB_URL + 'users/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email).encode('utf8') + '"&stale=false'
                 document = urllib2.urlopen(
-                    DB_URL + 'users/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email).encode('utf8') + '"&stale=false').read()
+                    DB_URL + 'memoir/_design/dev_users/_view/get_id_from_email?key=' + '"' + urllib2.quote(email).encode('utf8') + '"&stale=false').read()
                 document = json.loads(document)
+                # print document
                 if 'id' in document['rows'][0]:
                     try:
                         document = mb.get(unicode(document['rows'][0]['id'])).value
+                        print document
                     except:
                         return redirect(url_for('questions'))
                     passwd_hash = bcrypt.generate_password_hash(passwordResetForm.password.data)
                     document['password'] = passwd_hash
                     mb.replace(unicode(document['id']), document)
             except:
+                print traceback.print_exc()
                 return redirect(url_for('questions'))
 
             return redirect(url_for('questions'))
@@ -2709,7 +2719,7 @@ def hide(id):
     question = mb.get(id_list[1]).value
     print g.user.id
     if id_list[0] == 'h':
-        if g.user.id == 'u1' or g.user.id == int(question['content']['op']):
+        if g.user.id == 'u1' or g.user.id == question['content']['op']:
             if 'hidden' not in question:
                 question['hidden'] = True
             elif question['hidden']:
@@ -2720,7 +2730,7 @@ def hide(id):
             flash('Either admin or OP is allowed to hide!', 'error')
             return redirect(url_for('questions', qid=question['qid'], url=question['content']['url']))
     elif id_list[0] == 'ch':
-        if g.user.id == 'u1' or g.user.id == ['comments'][int(id_list[2]) - 1]['op']:
+        if g.user.id == 'u1' or g.user.id == question['comments'][int(id_list[2]) - 1]['poster']:
             if 'hidden' not in question['comments'][int(id_list[2]) - 1]:
                 question['comments'][int(id_list[2]) - 1]['hidden'] = True
             elif question['comments'][int(id_list[2]) - 1]['hidden']:

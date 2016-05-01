@@ -212,7 +212,7 @@
             <span class="fa fa-stack">
               {% if g.user.id != -1%}
               <a class="voteup-on"
-                 title="This question shows research effort. It is useful and clear (click again to take back your vote)"
+                 title="This question shows research effort. It is useful and clear."
                  href="#" id="v-{{ questions['qid'] }}">
                 <i class="fa fa-thumbs-up fa-lg"></i>
               </a>
@@ -230,7 +230,7 @@
             <span class="fa fa-stack">
               {% if g.user.id != -1%}
               <a class="votedown-on"
-                 title="This question shows no research effort. It is not useful and unclear (click again to take back your vote)"
+                 title="This question shows no research effort. It is not useful and unclear."
                  href="#" id="v-{{ questions['qid'] }}">
                 <i class="fa fa-thumbs-down fa-lg"></i>
               </a>
@@ -325,7 +325,7 @@
                      onclick="toggleDiv('{{ questions['qid'] }}');"><i class="fa fa-comment"
                                                                        style="color:#a4c639"></i> Comment</a>
                 </td>
-                {% if g.user.id == questions['content']['op']|int or g.user.id == 'u1' %}
+                {% if g.user.id == questions['content']['op'] or g.user.id == 'u1' %}
                 <td class="vt">
                   <a class="tohide" href="{{ APP_ROOT }}/hide/h-{{ questions['qid'] }}" id="h-{{ questions['qid'] }}">
                     Hide/Unhide</a>
@@ -423,7 +423,8 @@
     <div class="answers">
         <div class="answer-header"></div>
         <div class="subheader answer-subheader">
-            <h4>Know someone who can share his knowledge or you want to share it with others?</h4>
+            <h4>Know someone who can share his knowledge or you want to share it with others? Share a link to this question via
+               <a href="mailto:?subject=10hash%20Kunjika%20Question&body={{ questions['title']|urlencode }}">email</a>.</h4>
         </div>
 
         {% if 'sc' in questions['content'] %}
@@ -461,7 +462,7 @@
                         <div class="vote">
                             <span class="fa fa-stack">
                                 <a class="voteup-on"
-                                   title="This answer shows research effort. It is useful and clear (click again to take back your vote)"
+                                   title="This answer shows research effort. It is useful and clear."
                                    href="#" id="v-{{ questions['qid'] }}-{{ answer['aid'] }}">
                                     <i class="fa fa-thumbs-up icon-large"></i>
                                 </a>
@@ -471,7 +472,7 @@
                             <div>votes</div>
                             <span class="fa fa-stack">
                                 <a class="votedown-on"
-                                   title="This answer shows no research effort. It is not useful and unclear (click again to take back your vote)"
+                                   title="This answer shows no research effort. It is not useful and unclear."
                                    href="#" id="v-{{ questions['qid'] }}-{{ answer['aid'] }}">
                                     <i class="fa fa-thumbs-down icon-large"></i>
                                 </a>
@@ -510,7 +511,7 @@
                        {% elif answer['hidden'] == False %}
                        <div id="answer-{{ answer['aid'] }}" class="answer"> {{ answer['html']|safe }}</div>
                        {% else %}
-                       <div id="answer-{{ answer['aid'] }}" class="answer" style="color:#c00"> This answre has been hidden by admin or poster.</div>
+                       <div id="answer-{{ answer['aid'] }}" class="answer" style="color:#c00"> This answer has been hidden by admin or poster.</div>
                        {% endif %}
                         <table class="poster">
                             <tbody>
@@ -533,7 +534,7 @@
                                            onclick="toggleDiv('{{ questions['qid'] }}-{{ answer['aid'] }}');"><i
                                                 class="fa fa-comment" style="color:#a4c639"></i> Comment</a>
                                     </td>
-                                    {% if g.user.id == questions['content']['op']|int or g.user.id == 'u1' %}
+                                    {% if g.user.id == answer['poster'] or g.user.id == 'u1' %}
                                       <td class="vt">
                                       <a class="tohide" href="{{ APP_ROOT }}/hide/ah-{{ questions['qid'] }}-{{ answer['aid'] }}" id="ah-{{ questions['qid'] }}-{{ answer['aid'] }}">
                                         Hide/Unhide</a>
@@ -596,7 +597,7 @@
         <a title="Edit"
            href="{{ APP_ROOT }}/edit/ce-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}"><i
           class="fa fa-edit"></i></a>
-        <a class="tohide" href="/hide/ach-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}" id="ach-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}">Hide/Unhide</a>
+        <a class="tohide" href="{{ APP_ROOT }}/hide/ach-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}" id="ach-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}">Hide/Unhide</a>
         {% endif %}
         {% if 'edited' in comment %}
         <p class="edited">Edited</p>
@@ -747,9 +748,9 @@
                     <span class="summary-text">tags</span>
                 </div>
             </div>
-            <div id="popular-tags" class="module">
+            <!--div id="popular-tags" class="module">
                 <h3><a href="{{ APP_ROOT}}/tests">Tests</a></h3>
-            </div>
+            </div-->
         <div style="clear:both"></div>
         <div class="popular-tags" class="module">
             <div class="page-header">
@@ -768,7 +769,7 @@
         <div id="popular-tags" class="module">
             <h4 id="h-popular-tags">Similar questions</h4>
             {% for question in similar_questions %}
-                <a href="{{ APP_ROOT }}/questions/{{ question[0] }}/{{ question[2] }}" class="post-tag"
+                <a href="{{ APP_ROOT }}/questions/q{{ question[0] }}/{{ question[2] }}" class="post-tag"
                     rel="tag">{{ question[1] }}</a>
                 <br />
             {% endfor %}

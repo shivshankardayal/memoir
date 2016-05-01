@@ -358,6 +358,7 @@ body {
 .q-desc {
     padding-top: 10px;
     max-width: 100%;
+    font-size: 15px;
 }
 
 .poster {

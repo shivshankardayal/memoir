@@ -57,7 +57,7 @@ def common_rendering(results, query, page):
     questions_list = []
 
     for qid in results_set:
-        questions_list.append(memoir.mb.get(unicode(qid)).value)
+        questions_list.append(memoir.mb.get(u'q' + unicode(qid)).value)
 
     for i in questions_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
@@ -92,8 +92,8 @@ def common_rendering(results, query, page):
 
 
 def search(query, page):
-    title_q = pyes.PrefixQuery('title', query)
-    question_q = pyes.PrefixQuery('description', query)
+    title_q = pyes.MatchQuery('title', query)
+    question_q = pyes.MatchQuery('description', query)
     title_results = memoir.es_conn.search(query=title_q)
     question_results = memoir.es_conn.search(query=question_q)
 
@@ -110,8 +110,8 @@ def search(query, page):
 
 
 def search_title(query, page):
-    title = query[6:]
-    q = pyes.PrefixQuery('title', title)
+    title = query[6:].strip()
+    q = pyes.MatchQuery('title', title)
     title_results = memoir.es_conn.search(query=q)
     results = []
 
@@ -123,8 +123,8 @@ def search_title(query, page):
 
 
 def search_description(query, page):
-    description = query[12:]
-    q = pyes.PrefixQuery('description', description)
+    description = query[12:].strip()
+    q = pyes.MatchQuery('description', description)
     question_results = memoir.es_conn.search(query=q)
 
     results = []
@@ -138,7 +138,7 @@ def search_description(query, page):
 
 def search_user(query, page):
     (qcount, acount, tcount, ucount, tag_list) = common_data()
-    user = query[5:]
+    user = query[5:].strip()
     q = pyes.PrefixQuery('name', user)
     question_results = memoir.es_conn.search(query=q)
 
@@ -151,7 +151,7 @@ def search_user(query, page):
 
     for uid in results:
         question_view = urllib2.urlopen(
-            memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions_by_userid?key=' + '"' + unicode(uid) + '"').read()
+            memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_questions_by_userid?key=' + '"u' + unicode(uid) + '"').read()
         rows = json.loads(question_view)['rows']
         qids_list = []
         for row in rows:
@@ -179,13 +179,13 @@ def search_user(query, page):
                                name=g.user.name, role=g.user.role, user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
     else:
         return render_template('search.html', title='Search results for ' + query, qpage=True, questions=questions_list[(page-1)*memoir.QUESTIONS_PER_PAGE:page*memoir.QUESTIONS_PER_PAGE],
-                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, name=g.user.name, role=g.user.role,
+                               pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, query=query, name=g.user.name,
                                user_id=g.user.id, APP_ROOT=memoir.APP_ROOT)
 
 
 def search_tag(query, page):
     (qcount, acount, tcount, ucount, tag_list) = common_data()
-    tag = query[4:]
+    tag = query[4:].strip()
     q = pyes.MatchQuery('tag', tag)
     question_results = memoir.es_conn.search(query=q)
 
@@ -722,13 +722,16 @@ def create_group(request):
 
 
 def endorse():
-    tuid = request.referrer.split('/')[4]
+    tuid = request.referrer.split('/')[5]
     to_user = memoir.mb.get(unicode(tuid)).value
+    print request.args['id']
+    
     skill = request.args['id'][1:]
 
-    sid_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + unicode(to_user['id']) +
-                              ',"' + urllib.quote(skill).encode('utf8') + '"]&stale=false&reduce=false').read()
-
+    print 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=[' + unicode(to_user['id'])
+    print ',"' + urllib.quote(skill).encode('utf8') + '"]&stale=false&reduce=false'
+    sid_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_end_by_uid?key=["' + unicode(to_user['id']) +
+                              '","' + urllib.quote(skill).encode('utf8') + '"]&stale=false&reduce=false').read()
     sid_doc = json.loads(sid_doc)
 
     endorsed = False
@@ -743,7 +746,7 @@ def endorse():
         doc = {}
         doc['id'] = 'e' + unicode(uuid1())
         doc['fuid'] = g.user.id
-        doc['tuid'] = int(tuid)
+        doc['tuid'] = tuid
         doc['femail'] = g.user.user_doc['email']
         doc['_type'] = 'e'
         doc['skill'] = skill
@@ -1054,7 +1057,14 @@ def edit_article(element):
 
 def article_tags(page):
     tags_count = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_unique_article_tag_count?reduce=true').read()
-    tags_count = json.loads(tags_count)['rows'][0]['value']
+    tags_count = json.loads(tags_count)
+
+    if 'rows' in tags_count and len(tags_count['rows']):
+        if 'value' in tags_count['rows'][0]:
+            tags_count = tags_count['rows'][0]['value']
+    else:
+        tags_count = 0
+    print tags_count
     tags = {}
 
     skip = (page - 1) * memoir.TAGS_PER_PAGE
