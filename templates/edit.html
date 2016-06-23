@@ -308,7 +308,8 @@
             {% else %}
             var lastPart = urlsplit[4];
             {% endif %}
-            var qid = lastPart.replace(/qe-/, '');
+            var qid = lastPart.split('-');
+            var qid = qid[1];
             $.getJSON('{{ APP_ROOT }}/get_tags/' + String(qid), {
             }, function (data) {
                 $("#token-input-kunjika-tags").tokenInput("{{ APP_ROOT }}/get_tags/", {

@@ -1293,8 +1293,8 @@ def get_uploads(dirname, filename):
     #content = base64.b64decode(content)
 
     # return send_file(io.BytesIO(content))
-
 '''
+
 def image_upload():
     if request.method == 'POST':
         file = request.files['file']
@@ -1347,7 +1347,7 @@ def image_upload():
 def get_tags(qid=None):
     print request.url
     if qid is not None:
-        print "hello"
+        print qid
         question = mb.get(unicode(qid)).value
 
         tags = question['content']['tags']
@@ -1514,7 +1514,7 @@ def edits(element):
                 question['type'] = 'qb'  # question backup
                 mb.add(edit_list[1] + '_v' + unicode(question['version']), question)
 
-            return redirect(url_for('questions', qid=int(qid), url=utility.generate_url(question['title'])))
+            return redirect(url_for('questions', qid=qid, url=utility.generate_url(question['title'])))
         elif type == 'ae':
             if form.validate_on_submit():
                 if question['answers'][int(aid) - 1]['poster'] != g.user.id and g.user.id !='u1':
@@ -1723,7 +1723,7 @@ def postcomment():
             for id in email_users:
                 email_list.append(email_users[unicode(id)].value['email'])
 
-            msg = Message("A new answer has been posted to a question where you have answered or commented")
+            msg = Message("A new comment has been posted to a question where you have answered or commented")
             msg.recipients = email_list
             msg.sender = admin
             msg.html = "<p>Hi,<br/><br/> A new comment has been posted which you can read at " +\

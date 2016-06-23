@@ -657,7 +657,8 @@ def get_autocomplete(request):
     results=[]
 
     for r in title_results:
-        results.append(r['qid'])
+        if 'qid' in r:
+            results.append(r['qid'])
 
     questions_list = []
 
@@ -1000,8 +1001,9 @@ def edit_article(element):
             return redirect(request.referrer)
         form = CommentForm(request.form)
     elif type == 'ae':
+        print article['op'] + ' ' + g.user.id
         if g.user.id !='u1':
-            if int(article['op']) != int(g.user.id):
+            if article['op'] != g.user.id:
                 flash('You did not write this article!', 'error')
                 return redirect(request.referrer)
         form = ArticleForm(request.form)

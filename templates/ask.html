@@ -213,7 +213,7 @@
         $(function () {
             $("#question").keyup(function () {
                 value = $(this).val();
-                $.getJSON('/get_autocomplete', {
+                $.getJSON('{{ APP_ROOT }}/get_autocomplete', {
                     val: value
                 }, function (data) {
                     sq = "";
