@@ -142,7 +142,7 @@
                         {% endif %}
                         <div class="col-xs-12">
                             <br>
-                            <div class="user-about-me note" id="about-me">{{ user['about-me'] }}</div>
+                            <div class="user-about-me note" id="about-me">{{ user['about-me-html']|safe }}</div>
                         </div>
                         <div class="col-xs-12">
                             <table class="table-user">

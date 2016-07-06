@@ -1744,9 +1744,11 @@ def unanswered(page):
     q = Query(descending=True, limit=50)
     questions_list = []
     count = 0
-    for result in View(mb, "dev_questions", "get_questions", include_docs=True, query=q):
-        questions_list.append(result.doc.value)
-        count += 1
+    for result in View(mb, "dev_questions", "get_unanswered", include_docs=True, query=q):
+        if result.doc.value['acount'] == 0:
+            questions_list.append(result.doc.value)
+            count += 1
+    print count
 
     for i in questions_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(float(i['content']['ts'])))
