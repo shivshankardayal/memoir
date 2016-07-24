@@ -1608,14 +1608,14 @@ def flag():
     url = request.args.get('url')
     user = mb.get(unicode(g.user.id)).value
     idntfr_list = idntfr.split('-')
-
+    print idntfr_list
     question = mb.get(unicode(idntfr_list[1])).value
     op_id = 0
     if idntfr_list[0] == '#qqf':
         op_id = question['content']['op']
     elif idntfr_list[0] == '#qcf':
         for comment in question['comments']:
-            if unicode(comment['cid']) == idntfr_list[1]:
+            if unicode(comment['cid']) == idntfr_list[2]:
                 op_id = comment['poster']
     elif idntfr_list[0] == '#qaf':
         for answer in question['answers']:
@@ -1652,6 +1652,7 @@ def postcomment():
         mb.get(unicode(g.user.id) + '_' + unicode(request.remote_addr))
         return json.dumps({"result": "false"})
     except:
+        (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
         if g.user.id !='u1':
             mb.set(unicode(g.user.id) + '_' + unicode(request.remote_addr), {"posted": "true"}, ttl=POST_INTERVAL)
         if len(request.form['comment']) < 10 or len(request.form['comment']) > 5000:
@@ -1732,6 +1733,10 @@ def postcomment():
             mail.send(msg)
 
         ts = strftime("%a, %d %b %Y %H:%M", localtime(comment['ts']))
+#        return render_template('single_question.html', title='Questions', qpage=True, questions=question,
+#                                       name=g.user.name, role=g.user.role, user_id=unicode(g.user.id), gravatar=gravatar32,
+#                                       qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list,
+#                                       APP_ROOT=APP_ROOT, form=request.form)
         return json.dumps({"id": comment['cid'], "comment": comment['html'], "user_id": g.user.id,
                            "uname": g.user.name, "ts": ts})
 

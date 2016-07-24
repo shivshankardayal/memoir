@@ -16,6 +16,7 @@
 <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
 <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Extra.js"></script>
 <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.tokeninput.js"></script>
+<script type="text/javascript" src="{{ APP_ROOT }}/static/js/bootstrap-flash.js"></script>
 <script src="{{ APP_ROOT }}/static/js/jquery.form.js"></script>
 <script type="text/javascript" src="{{ APP_ROOT }}/static/js/highlight.js"></script>
 <script type="text/javascript">
@@ -390,7 +391,7 @@
     {% endfor %}
     {% if user_id is defined and questions['close'] != True %}
         <form class="comment-form" id="f-{{ questions['qid'] }}" method="post"
-              aciton="{{ APP_ROOT }}/postcomment">
+              action="{{ APP_ROOT }}/postcomment">
             {% from "macros.html" import render_field %}
             {{ form.csrf_token }}
             <div class="wmd-panel hidden-comment-form" id="{{ questions['qid'] }}">
@@ -607,7 +608,7 @@
       {% endfor %}
       {% if user_id is defined and questions['close'] != True %}
       <form class="comment-form" id="f-{{ questions['qid'] }}-{{ answer['aid'] }}" method="post"
-            aciton="{{ APP_ROOT }}/postcomment">
+            action="{{ APP_ROOT }}/postcomment">
         {% from "macros.html" import render_field %}
         {{ form.csrf_token }}
         <div class="wmd-panel hidden-comment-form" id="{{ questions['qid'] }}-{{ answer['aid'] }}">
