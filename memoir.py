@@ -309,7 +309,7 @@ def check_for_maintenance():
 
 @kunjika.route('/maintenance')
 def maintenance():
-    return 'Sorry, off for maintenance!', 503
+    return 'Sorry, off for maintenance! We will bw back soon.', 503
 
 
 @kunjika.before_request
