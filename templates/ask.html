@@ -235,7 +235,7 @@
                     });
                     $(".ui-menu").addClass("dropdown-menu");*/
                             $("#similar_questions").css("display", "inline");
-                            href = "/questions/" + data[i][j].qid + "/" + data[i][j].url;
+                            href = "{{ APP_ROOT }}/questions/" + data[i][j].qid + "/" + data[i][j].url;
                             sq += '<a href="' + href + '">' + data[i][j].title + "</a><br/>";
                         }
                         $("#similar_questions").find("p").html("Similar quesitons<br/>" + sq);

@@ -35,18 +35,24 @@ import re
 
 def common_data():
     tag_list = []
-    qcount = memoir.mb.get('qcount').value
-    ucount = memoir.mb.get('count').value
-    tcount = memoir.mb.get('tcount').value
-    acount = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_acount?reduce=true').read()
-    acount = json.loads(acount)
-    if len(acount['rows']) is not 0:
-        acount = acount['rows'][0]['value']
-    else:
-        acount = 0
+    done = None
+    while done is None:
+        try:
+            qcount = memoir.mb.get('qcount').value
+            ucount = memoir.mb.get('count').value
+            tcount = memoir.mb.get('tcount').value
+            acount = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_acount?reduce=true').read()
+            acount = json.loads(acount)
+            if len(acount['rows']) is not 0:
+                acount = acount['rows'][0]['value']
+            else:
+                acount = 0
 
-    if tcount > 0:
-        tag_list = get_popular_tags()
+            if tcount > 0:
+                tag_list = get_popular_tags()
+            done = True
+        except:
+            pass
 
     return (qcount, acount, tcount, ucount, tag_list)
 

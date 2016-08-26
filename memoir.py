@@ -304,12 +304,13 @@ if not kunjika.debug:
 @kunjika.before_request
 def check_for_maintenance():
     if is_maintenance_mode and request.path != url_for('maintenance'):
-        return redirect(url_for('maintenance'))
+        return 'Sorry, off for maintenance! We will be back soon.', 503
+        return redirect(url_for('maintenance'), code=302)
 
 
 @kunjika.route('/maintenance')
 def maintenance():
-    return 'Sorry, off for maintenance! We will bw back soon.', 503
+    return 'Sorry, off for maintenance! We will bw back soon.'
 
 
 @kunjika.before_request
@@ -628,6 +629,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                                        " <br/><br/>Best regards,<br/>Kunjika Team<p>"
                             mail.send(msg)
 
+                        (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
                         resp = make_response(redirect(url_for('questions', qid=questions_dict['qid'], url=questions_dict['content']['url'], ccount=ccount)))
                         resp.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
                         return resp
@@ -2813,9 +2815,9 @@ def page_502(e):
     return render_template('502.html', APP_ROOT=APP_ROOT), 502
 
 
-@kunjika.errorhandler(503)
-def page_503(e):
-    return render_template('503.html', APP_ROOT=APP_ROOT), 503
+#@kunjika.errorhandler(503)
+#def page_503(e):
+#    return render_template('503.html', APP_ROOT=APP_ROOT), 503
 
 kunjika.register_blueprint(test_series)
 kunjika.register_blueprint(OA)

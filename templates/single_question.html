@@ -589,7 +589,7 @@
         -
         <a href="{{ APP_ROOT }}/users/{{ comment['poster'] }}/{{ comment['opname']|urlencode }}">{{ comment['opname'] }} </a>
         {{ comment['tstamp'] }}&nbsp;
-        {% if user_id != -1 %}
+        {% if user_id is defined %}
         <a title="Flag for inappropriate comment" class="flag" style="color:#d00"
            id="qac-{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}"
            href="{{ APP_ROOT }}/flag/{{ questions['qid'] }}-{{ answer['aid'] }}-{{ comment['cid'] }}"><i
