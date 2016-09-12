@@ -69,7 +69,7 @@ APP_ROOT = kunjika.config['APPLICATION_ROOT']
 
 from oauth_impl import OA
 
-ALLOWED_EXTENSIONS = set(['gif', 'png', 'jpg', 'jpeg'])
+ALLOWED_EXTENSIONS = set(['gif', 'png', 'jpg', 'jpeg', 'GIF', 'PNG', 'JPG', 'JPEG'])
 
 DB_URL = kunjika.config['DB_URL']
 HOST_URL = kunjika.config['HOST_URL']
@@ -1500,7 +1500,9 @@ def edits(element):
                                                                                                                          output_format='html5'), tags_wl, attrs_wl)
                     question['answers'][int(aid) - 1]['comments'][int(cid) - 1]['edited'] = True
                 else:
-                    if question['comments'][int(cid) - 1] != g.user.id and g.user.id !='u1':
+                    print question['comments'][int(cid) - 1]['poster']
+                    if question['comments'][int(cid) - 1]['poster'] != g.user.id and g.user.id !='u1':
+                        print g.user.id
                         flash('You are not author of this comment!', 'error')
                         return redirect(request.referrer)
                     question['comments'][int(cid) - 1]['comment'] = form.comment.data
