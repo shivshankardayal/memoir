@@ -7,7 +7,7 @@
     {% if pagination is not defined %}
     {% else %}
         <div id="tags" style="width:100%">
-            <table>
+            <table class="topics">
                 {% set i = 0 %}
                 {% for tag in tags %}
                     {% if i < no_of_tags %}
@@ -19,7 +19,7 @@
                         <tr>
                             {% for j in range(0, k) %}
                                 <td class="tag-cell col-sm-3 col-xs-6">
-                                    <a href="{{ APP_ROOT }}/articles/tagged/{{ tags[i+j]['key']|urlencode }}" class="post-tags" title="" rel="tag">{{ tags[i+j]['key'] }}</a><span class="item-multiplier-x">×</span>&nbsp;<span
+                                    <a href="{{ APP_ROOT }}/articles/tagged/{{ tags[i+j]['key']|urlencode }}" class="post-tags" title="" rel="tag" style="font-size:16px">{{ tags[i+j]['key'] }}</a><span
                                         class="item-multiplier-count">{{ tags[i+j]['value'] }}</span>
 
                                     <!--a href="/info/{{ tags[i+j]['key'] }}">info</a>

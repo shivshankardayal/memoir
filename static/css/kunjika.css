@@ -538,10 +538,10 @@ img {
 
 .tag-cell {
     width: 230px;
-    border-bottom: 1px dotted rgb(224, 224, 224);
-    padding-bottom: 12px;
-    padding-right: 6px;
-    padding-top: 6px;
+    border: 1px solid rgb(224, 224, 224);
+    padding-bottom: 12px !important;
+    padding-right: 6px!important;
+    padding-top: 12px!important;
     vertical-align: top;
 }
 
@@ -1276,4 +1276,14 @@ pre {
 
 input.gsc-input {
     font-size: 14px;
+}
+
+.item-multiplier-count {
+  margin-right:10px;
+  float: right;
+}
+
+.topics {
+  border-collapse: separate;
+  border-spacing: 30px;
 }
