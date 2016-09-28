@@ -398,11 +398,11 @@ def questions(tag=None, page=None, qid=None, url=None):
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
                                    pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     if qid is None:
-        count = mb.get('qcount').value
-        questions_list = utility.get_questions_for_page(page, QUESTIONS_PER_PAGE, count)
+        #count = mb.get('qcount').value
+        questions_list = utility.get_questions_for_page(page, QUESTIONS_PER_PAGE, qcount)
         if not questions_list and page != 1:
             abort(404)
-        pagination = utility.Pagination(page, QUESTIONS_PER_PAGE, count)
+        pagination = utility.Pagination(page, QUESTIONS_PER_PAGE, qcount)
         # questions_list = question.get_questions()
         if g.user is None:
             return render_template('questions.html', title='Questions', qpage=True, questions=questions_list,
@@ -2314,7 +2314,7 @@ def settings(uid=None, uname=None):
                 user['password'] = passwd_hash
                 try:
                     mb.replace(unicode(g.user.id), user)
-                    flash('Your password was successfuly chnaged.', 'success')
+                    flash('Your password was successfuly changed.', 'success')
                 except:
                     flash('Your password could not be changed. Contact admin', 'error')
             else:

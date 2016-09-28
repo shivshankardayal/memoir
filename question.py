@@ -27,19 +27,19 @@ def get_question_by_id(qid, question):
     question = memoir.mb.get(qid).value
 
     question['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(question['content']['ts']))
-    user = memoir.mb.get(question['content']['op']).value
-    question['email'] = user['email']
-    question['opname'] = user['name']
+    #user = memoir.mb.get(question['content']['op']).value
+    #question['email'] = user['email']
+    #question['opname'] = user['name']
 
     if'comments' in question:
         for i in question['comments']:
             i['tstamp'] = strftime("%a, %d %b %Y %H:%M:%S", localtime(i['ts']))
     if 'answers' in question:
         for i in question['answers']:
-            user = memoir.mb.get(unicode(i['poster'])).value
+            #user = memoir.mb.get(unicode(i['poster'])).value
             #user = json.loads(user)
-            i['opname'] = user['name']
-            i['email'] = user['email']
+            #i['opname'] = user['name']
+            #i['email'] = user['email']
             i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['ts']))
             if 'comments' in i:
                 for i in i['comments']:
@@ -58,8 +58,8 @@ def get_questions():
     for i in question_list:
         i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['content']['ts']))
 
-        user = memoir.mb.get(i['content']['op']).value
-        i['opname'] = user['name']
+        #user = memoir.mb.get(i['content']['op']).value
+        #i['opname'] = user['name']
 
     return question_list
 

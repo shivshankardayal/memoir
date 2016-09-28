@@ -38,9 +38,14 @@ def common_data():
     done = None
     while done is None:
         try:
-            qcount = memoir.mb.get('qcount').value
-            ucount = memoir.mb.get('count').value
-            tcount = memoir.mb.get('tcount').value
+            #qcount = memoir.mb.get('qcount').value
+            #ucount = memoir.mb.get('count').value
+            #tcount = memoir.mb.get('tcount').value
+            val_res = memoir.mb.get_multi(['qcount', 'count', 'tcount'])
+            qcount = val_res[u'qcount'].value
+            ucount = val_res[u'count'].value
+            tcount = val_res[u'tcount'].value
+            #print(val_res)
             acount = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_questions/_view/get_acount?reduce=true').read()
             acount = json.loads(acount)
             if len(acount['rows']) is not 0:
