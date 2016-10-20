@@ -74,6 +74,7 @@ def g_authorized():
         flash('OAuth login is denied!', 'error')
         return redirect(url_for('questions'))
 
+    print(resp)
     session['google_token'] = (resp['access_token'], '')
     me = google.get('userinfo')
     if 'error' in me.data:

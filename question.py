@@ -36,7 +36,7 @@ def get_question_by_id(qid, question):
             i['tstamp'] = strftime("%a, %d %b %Y %H:%M:%S", localtime(i['ts']))
     if 'answers' in question:
         for i in question['answers']:
-            #user = memoir.mb.get(unicode(i['poster'])).value
+            user = memoir.mb.get(unicode(i['poster'])).value
             #user = json.loads(user)
             #i['opname'] = user['name']
             #i['email'] = user['email']
