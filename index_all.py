@@ -25,70 +25,90 @@ import urllib2
 import json
 from memoir import DB_URL
 
-cb = Couchbase.connect("default")
-qb = Couchbase.connect("questions")
-tb = Couchbase.connect("tags")
-pb = Couchbase.connect("polls")
+mb = Couchbase.connect("memoir")
 es_conn = pyes.ES('http://localhost:9200/')
 
 questions_mapping = {
-     'title': {
-         'boost': 1.0,
-         'index': 'analyzed',
-         'store': 'yes',
-         'type': 'string',
-         "term_vector": "with_positions_offsets"
-     },
-     'description': {
-         'boost': 1.0,
-         'index': 'analyzed',
-         'store': 'yes',
-         'type': 'string',
-         "term_vector": "with_positions_offsets"
-     },
-     'qid': {
-         'boost': 1.0,
-         'index': 'not_analyzed',
-         'store': 'yes',
-         'type': 'integer',
-         "term_vector": "with_positions_offsets"
-     }
+    'title': {
+        'boost': 1.0,
+        'index': 'analyzed',
+        'store': 'yes',
+        'type': 'string',
+        "term_vector": "with_positions_offsets"
+    },
+    'description': {
+        'boost': 1.0,
+        'index': 'analyzed',
+        'store': 'yes',
+        'type': 'string',
+        "term_vector": "with_positions_offsets"
+    },
+    'qid': {
+        'boost': 1.0,
+        'index': 'not_analyzed',
+        'store': 'yes',
+        'type': 'integer'
+#        "term_vector": "with_positions_offsets"
+    }
 }
 
 users_mapping = {
-     'name': {
-         'boost': 1.0,
-         'index': 'analyzed',
-         'store': 'yes',
-         'type': 'string',
-         "term_vector": "with_positions_offsets"
-     },
-     'uid': {
-         'boost': 1.0,
-         'index': 'not_analyzed',
-         'store': 'yes',
-         'type': 'integer',
-         "term_vector": "with_positions_offsets"
-     }
+    'name': {
+        'boost': 1.0,
+        'index': 'analyzed',
+        'store': 'yes',
+        'type': 'string',
+        "term_vector": "with_positions_offsets"
+    },
+    'uid': {
+        'boost': 1.0,
+        'index': 'not_analyzed',
+        'store': 'yes',
+        'type': 'integer'
+#        "term_vector": "with_positions_offsets"
+    }
 }
 
 tags_mapping = {
-     'tag': {
-         'boost': 1.0,
-         'index': 'analyzed',
-         'store': 'yes',
-         'type': 'string',
-         "term_vector": "with_positions_offsets"
-     },
-     'tid': {
-         'boost': 1.0,
-         'index': 'not_analyzed',
-         'store': 'yes',
-         'type': 'integer',
-         "term_vector": "with_positions_offsets"
-     }
+    'tag': {
+        'boost': 1.0,
+        'index': 'analyzed',
+        'store': 'yes',
+        'type': 'string',
+        "term_vector": "with_positions_offsets"
+    },
+    'tid': {
+        'boost': 1.0,
+        'index': 'not_analyzed',
+        'store': 'yes',
+        'type': 'integer'
+#        "term_vector": "with_positions_offsets"
+    }
 }
 
+articles_mapping = {
+    'title': {
+        'boost': 1.0,
+        'index': 'analyzed',
+        'store': 'yes',
+        'type': 'string',
+        "term_vector": "with_positions_offsets"
+    },
+    'content': {
+        'boost': 1.0,
+        'index': 'analyzed',
+        'store': 'yes',
+        'type': 'string',
+        "term_vector": "with_positions_offsets"
+    },
+    'qid': {
+        'boost': 1.0,
+        'index': 'not_analyzed',
+        'store': 'yes',
+        'type': 'string',
+        "term_vector": "with_positions_offsets"
+    }
+}
 # Initialize indices for different buckets
 try:
     es_conn.indices.delete_index("questions")
@@ -119,16 +139,17 @@ question_list = []
 for i in questions['rows']:
     question_list.append(unicode(i['id']))
 
-val_res = qb.get_multi(question_list)
+val_res = mb.get_multi(question_list)
 questions = []
 for qid in question_list:
 	questions.append(val_res[unicode(qid)].value)
 for question in questions:
     #print question
-    es_conn.index({'title':question['title'], 'description':question['content']['description'], 'qid':int(question['qid']),
-                   'position':int(question['qid'])}, 'questions', 'questions-type', int(question['qid']))
+    #print type(es_conn)
+    es_conn.index({'title': question['title'], 'description': question['content']['description'], 'qid': int(question['qid'][1:]),
+                               'position': int(question['qid'][1:])}, 'questions', 'questions-type', int(question['qid'][1:]))
 
-es_conn.indices.refresh('questions')
+#es_conn.indices.refresh('questions')
 
 rows = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_tag_by_id').read()
 rows = json.loads(rows)['rows']
@@ -137,7 +158,7 @@ for row in rows:
     tids_list.append(unicode(row['id']))
 
 if len(tids_list) != 0:
-    val_res = tb.get_multi(tids_list)
+    val_res = mb.get_multi(tids_list)
 
 tags = []
 
@@ -147,16 +168,16 @@ for tid in tids_list:
 for tag in tags:
     es_conn.index({'tag':tag['tag'], 'tid':tag['tid'], 'position':tag['tid']}, 'tags', 'tags-type', tag['tid'])
 
-es_conn.indices.refresh('tags')
+#es_conn.indices.refresh('tags')
 
-rows = urllib2.urlopen(DB_URL + 'users/_design/dev_users/_view/get_by_reputation').read()
+rows = urllib2.urlopen(DB_URL + 'memoir/_design/dev_users/_view/get_by_reputation').read()
 rows = json.loads(rows)['rows']
 uids_list = []
 for row in rows:
     uids_list.append(unicode(row['id']))
 
 if len(uids_list) != 0:
-    val_res = cb.get_multi(uids_list)
+    val_res = mb.get_multi(uids_list)
 
 users = []
 
@@ -164,5 +185,5 @@ for uid in uids_list:
     users.append(val_res[unicode(uid)].value)
 
 for user in users:
-    es_conn.index({'name':user['name'], 'uid':user['id'], 'position':user['id']}, 'users', 'users-type', user['id'])
-es_conn.indices.refresh('users')
+    es_conn.index({'name':user['name'], 'uid':int(user['id'][1:]), 'position':int(user['id'][1:])}, 'users', 'users-type', int(user['id'][1:]))
+#es_conn.indices.refresh('users')

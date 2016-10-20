@@ -1443,9 +1443,21 @@ def replace_tags(tags_passed, qid, current_tags):
             mb.replace(tag['tag'], tag)
             # deletion of tag decreases counter which produces duplicate ids
             # this causes bad tagging while asking question. Disabling
-            # if tag['count'] == 0:
-            #    tb.delete(tag['tag'])
-            #    tb.decr('tcount')
+            if tag['count'] == 0:
+            #    mb.delete(tag['tag'])
+                deleted_tag_id = tag['tid']
+            #    tcount = mb.get('tcount').value
+                print (deleted_tag_id)
+                if tag['tid'] != tcount:
+                    highest_tag = urllib2.urlopen(DB_URL + 'memoir/_design/dev_tags/_view/get_doc_from_tag?key=' + str(tcount) + '&stale=false').read()
+                    highest_tag_id = json.loads(highest_tag)['rows'][0]['id']
+                    highest_tag = mb.get(highest_tag_id).value
+            #        highest_tag['tid'] = deleted_tag_id
+            #        mb.replace(highest_tag_id, highest_tag)
+            #        tb.decr('tcount')
+                else:
+                     pass
+                     #tb.decr('tcount')
 
 
 @kunjika.route('/vote_clicked', methods=['GET', 'POST'])
@@ -2314,7 +2326,7 @@ def settings(uid=None, uname=None):
                 user['password'] = passwd_hash
                 try:
                     mb.replace(unicode(g.user.id), user)
-                    flash('Your password was successfuly chnaged.', 'success')
+                    flash('Your password was successfuly changed.', 'success')
                 except:
                     flash('Your password could not be changed. Contact admin', 'error')
             else:
