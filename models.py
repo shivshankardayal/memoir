@@ -23,6 +23,7 @@ class User(UserMixin):
         self.name = name
         self.id = id
         self.role = role
+        self.email = user_from_db['email']
         self.active = active
         self.user_doc = user_from_db
     def is_authenticated(self):

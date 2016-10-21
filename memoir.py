@@ -359,7 +359,7 @@ def load_user(uid):
 #        message = contactForm.message.data
 
 #        msg = Message("A new query from" + name)
-#        msg.recipients = [ADMIN_EMAIL]
+#        msg.bcc = [ADMIN_EMAIL]
 #        msg.sender = admin
 #        msg.html = "A new query from " + email + "is below</br>" + message
 #        mail.send(msg)
@@ -622,7 +622,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                                 email_list.append(email_users[unicode(id)].value['email'])
 
                             msg = Message("A new answer has been posted to a question where you have answered or commented")
-                            msg.recipients = email_list
+                            msg.bcc = email_list
                             msg.sender = admin
                             msg.html = "<p>Hi,<br/><br/> A new answer has been posted which you can read at " +\
                                        HOST_URL + "questions/" + unicode(questions_dict['qid']) + '/' + questions_dict['content']['url'] + \
@@ -957,7 +957,7 @@ def create_profile():
             g.user = user
             try:
                 msg = Message("Registration at Kunjika")
-                msg.recipients = [data['email']]
+                msg.bcc = [data['email']]
                 msg.sender = admin
                 msg.html = "<p>Hi,<br/> Thanks for registering at kunjika. Congratulations on" \
                            "being the first user. Since you are the first by default you are admin" \
@@ -985,7 +985,7 @@ def create_profile():
             g.user = user
             try:
                 msg = Message("Registration at Kunjika")
-                msg.recipients = [data['email']]
+                msg.bcc = [data['email']]
                 msg.sender = admin
                 msg.html = "<p>Hi,<br/> Thanks for registering at kunjika. If you have not " \
                            "registered please email at " + admin + " .<br/>Best regards," \
@@ -1090,7 +1090,7 @@ def login():
                     if user['login_attempts'] == kunjika.config['MAX_FAILED_LOGINS']:
                         document['password'] = kunjika.config['RESET_PASSWORD']
                         msg = Message("Account banned")
-                        msg.recipients = [user['email']]
+                        msg.bcc = [user['email']]
                         msg.sender = admin
                         msg.html = "<p>Hi,<br/> Your account has been banned because more than " + kunjika.config['MAX_FAILED_LOGINS'] + " attempts " \
                                    "of login have failed in 10 minutes. Please reset your password to login. <br/>Best regards," \
@@ -1172,7 +1172,7 @@ def register():
                 #es_conn.indices.refresh('users')
                 flash('Thanks for registration. We hope you enjoy your stay here too.', 'success')
                 msg = Message("Registration at Kunjika")
-                msg.recipients = [data['email']]
+                msg.bcc = [data['email']]
                 msg.sender = admin
                 msg.html = "<p>Hi,<br/> Thanks for registering at kunjika. If you have not " \
                            "registered please email at " + admin + " .<br/>Best regards," \
@@ -1646,7 +1646,7 @@ def flag():
     flagged_user = mb.get(unicode(op_id)).value
 
     msg = Message("Inappropriate content flag for element " + unicode(idntfr))
-    msg.recipients = [admin]
+    msg.bcc = [admin]
     msg.sender = admin
     msg.html = '<p>Hi,<br/><br/>' \
                'URL: ' + url + '<br/><br/>' \
@@ -1741,7 +1741,7 @@ def postcomment():
                 email_list.append(email_users[unicode(id)].value['email'])
 
             msg = Message("A new comment has been posted to a question where you have answered or commented")
-            msg.recipients = email_list
+            msg.bcc = email_list
             msg.sender = admin
             msg.html = "<p>Hi,<br/><br/> A new comment has been posted which you can read at " +\
                        HOST_URL + "questions/" + unicode(question['qid']) + '/' + question['content']['url'] + \
@@ -1939,7 +1939,7 @@ def reset_password(token=None):
                 if document['email'] == email:
                     token = s.sign(email)
                     msg = Message("Password reset")
-                    msg.recipients = [email]
+                    msg.bcc = [email]
                     msg.sender = admin
                     msg.html = "<p>Hi,<br/>A password reset request has been initiated " \
                                "by you. You can reset your password at " \
@@ -2256,7 +2256,7 @@ def administration():
                 #if each_doc['receive-email'] is True:
                 email_list.append(each_doc['email'])
             msg = Message(form.subject.data)
-            msg.recipients = email_list
+            msg.bcc = email_list
             msg.sender = admin
             msg.html = form.bulk_mail.data
             try:

@@ -11,6 +11,8 @@
     {{ super() }}
 <link href="{{ APP_ROOT }}/static/css/kunjika.css" rel="stylesheet">
 <link href="{{ APP_ROOT }}/static/css/pygments.css" rel="stylesheet">
+{% endblock %}
+{% block js_head %}
 <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
 <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
 <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>

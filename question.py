@@ -38,8 +38,8 @@ def get_question_by_id(qid, question):
         for i in question['answers']:
             user = memoir.mb.get(unicode(i['poster'])).value
             #user = json.loads(user)
-            #i['opname'] = user['name']
-            #i['email'] = user['email']
+            i['opname'] = user['name']
+            i['email'] = user['email']
             i['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(i['ts']))
             if 'comments' in i:
                 for i in i['comments']:

@@ -57,27 +57,27 @@
         {% block css_extra %}
         {% endblock %}
         {% block js_jquery %}
-            <script async src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-            <script async src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+            <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+            <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
             <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.22/jquery-ui.min.js"></script>
             <!--script>window.jQuery || document.write('<script src="{{ APP_ROOT }}/static/js/jquery-ui.min.js"><\/script>')</script-->
-            <script async type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.ajaxfileupload.js"></script>
+            <script type="text/javascript" src="{{ APP_ROOT }}/static/js/jquery.ajaxfileupload.js"></script>
             <!--script>window.jQuery || document.write('<script src="{{ APP_ROOT }}/static/js/jquery-migrate-1.2.1.js"><\/script>')</script-->
 
-            <script async type="text/javascript"
+            <script type="text/javascript"
                     src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
             <!--script>window.jQuery || document.write('<script src="{{ APP_ROOT }}/static/js/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')</script-->
-            <script async type="text/x-mathjax-config">
+            <script type="text/x-mathjax-config">
                 MathJax.Hub.Config({
                 tex2jax: {inlineMath: [['\\(','\\)'], ['\\[','\\]']]},
                 processEscapes: true
                 });
 
             </script>
-            <script async type="text/javascript" src="{{ APP_ROOT }}/static/js/bootstrap-flash.js">
+            <script type="text/javascript" src="{{ APP_ROOT }}/static/js/bootstrap-flash.js">
             </script>
             <script type="text/javascript">if ( $.attrFn ) { $.attrFn.text = true; }</script>
-            <script async src="https://apis.google.com/js/plusone.js"></script>
+            <script src="https://apis.google.com/js/plusone.js"></script>
         {% endblock %}
 
         {% block js_html5_shim %}
