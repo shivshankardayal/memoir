@@ -6,6 +6,8 @@
     <link href="{{ APP_ROOT }}/static/css/prettify.css" rel="stylesheet">
     <link href="{{ APP_ROOT }}/static/css/skills.css" rel="stylesheet">
     {{ super() }}
+{% endblock %}
+{% block js_head %}
     <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Converter.js"></script>
     <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Sanitizer.js"></script>
     <script type="text/javascript" src="{{ APP_ROOT }}/static/js/Markdown.Editor.js"></script>
