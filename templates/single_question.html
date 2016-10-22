@@ -192,6 +192,7 @@
                     str += "</div> &mdash; <a href='{{ APP_ROOT }}/users/" + responseJSON.user_id + "/" + responseJSON.uname + "'>" + responseJSON.uname + "</a>"
                     str += " " + responseJSON.ts + "</div>"
                     $(str).insertBefore('#f-' + id);
+                    $(".wmd-preview").html("");
                     flash('Your comment has been successfully posted.', 'info')
                 }
             }
