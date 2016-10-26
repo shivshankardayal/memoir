@@ -10,11 +10,7 @@ Note that in code the app name is still kunjika just the module kunjika.py is
 renamed memoir.py. I have decided to keep the same name in code so that people
 willing to adapt code from Memoir to Kunjika should have little problem.
 
-Note
-----
-The server hosting original demo of Kunjika was getting hacked repeatedly which
-forced me to take a break. I am back to development after 3 months break and hope
-to make it much better this time.
+It is hosted at http://10hash.com/kunjika
 
 Kunjika's Readme
 ===============
