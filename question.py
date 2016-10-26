@@ -27,9 +27,9 @@ def get_question_by_id(qid, question):
     question = memoir.mb.get(qid).value
 
     question['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(question['content']['ts']))
-    #user = memoir.mb.get(question['content']['op']).value
-    #question['email'] = user['email']
-    #question['opname'] = user['name']
+    user = memoir.mb.get(question['content']['op']).value
+    question['email'] = user['email']
+    question['opname'] = user['name']
 
     if'comments' in question:
         for i in question['comments']:
