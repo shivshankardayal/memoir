@@ -911,7 +911,7 @@ def get_articles_for_tag(page, ARTICLES_PER_PAGE, tag):
     skip = (page - 1) * ARTICLES_PER_PAGE
     tag = urllib2.quote(tag.encode('utf8'), '')
     rows = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_aid_from_tag?limit=' +
-                           unicode(ARTICLES_PER_PAGE) + '&skip=' + unicode(skip) + '&key="' + tag + '"&reduce=false&stale=false').read()
+                           unicode(ARTICLES_PER_PAGE) + '&skip=' + unicode(skip) + '&key="' + tag + '"&reduce=false&stale=false&descending=true').read()
     count_doc = urllib2.urlopen(memoir.DB_URL + 'memoir/_design/dev_kunjika/_view/get_aid_from_tag?key="' + tag + '"&reduce=true').read()
     count_doc = json.loads(count_doc)
     count = 0

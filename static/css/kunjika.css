@@ -3,6 +3,10 @@ body {
     font-size: 13px;
 }
 
+pre {
+    font-size: 16px;
+}
+
 .userheader{
     margin-bottom:10px;
     border-bottom:1px solid #ccc;
@@ -358,7 +362,7 @@ body {
 .q-desc {
     padding-top: 10px;
     max-width: 100%;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .poster {
