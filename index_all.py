@@ -23,28 +23,27 @@ from couchbase import Couchbase
 from couchbase.exceptions import *
 import urllib2
 import json
-from memoir import DB_URL
 
 mb = Couchbase.connect("memoir")
 es_conn = pyes.ES('http://localhost:9200/')
+DB_URL = 'http://localhost:8092/'
 
 questions_mapping = {
     'title': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
     },
     'description': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     },
     'qid': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
         'type': 'integer'
@@ -54,14 +53,14 @@ questions_mapping = {
 
 users_mapping = {
     'name': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
+        'type': 'text',
         "term_vector": "with_positions_offsets"
     },
     'uid': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
         'type': 'integer'
@@ -71,14 +70,14 @@ users_mapping = {
 
 tags_mapping = {
     'tag': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
+        'type': 'text',
         "term_vector": "with_positions_offsets"
     },
     'tid': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
         'type': 'integer'
@@ -88,45 +87,46 @@ tags_mapping = {
 
 articles_mapping = {
     'title': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     },
     'content': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     },
     'qid': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     }
 }
 # Initialize indices for different buckets
 try:
-    es_conn.indices.delete_index("questions")
+#    es_conn.indices.delete_index("questions")
     es_conn.indices.create_index("questions")
 except:
     pass
 
 try:
-    es_conn.indices.delete_index("users")
+#    es_conn.indices.delete_index("users")
     es_conn.indices.create_index("users")
 except:
     pass
 
 try:
-    es_conn.indices.delete_index("tags")
+#    es_conn.indices.delete_index("tags")
     es_conn.indices.create_index("tags")
 except:
     pass
+
 
 es_conn.indices.put_mapping("questions-type", {'properties':questions_mapping}, ["questions"])
 es_conn.indices.put_mapping("users-type", {'properties':users_mapping}, ["users"])

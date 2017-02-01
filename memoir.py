@@ -157,28 +157,28 @@ except:
     pass
 
 try:
-    # es_conn.indices.delete_index("tags")
-    es_conn.indices.create_index("articles")
+    es_conn.indices.delete_index("articles")
+    #es_conn.indices.create_index("articles")
 except:
     pass
 
 questions_mapping = {
     'title': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     },
     'description': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     },
     'qid': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
         'type': 'integer'
@@ -188,14 +188,14 @@ questions_mapping = {
 
 users_mapping = {
     'name': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
+        'type': 'text',
         "term_vector": "with_positions_offsets"
     },
     'uid': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
         'type': 'integer'
@@ -205,14 +205,14 @@ users_mapping = {
 
 tags_mapping = {
     'tag': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
+        'type': 'text',
         "term_vector": "with_positions_offsets"
     },
     'tid': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
         'type': 'integer'
@@ -222,25 +222,25 @@ tags_mapping = {
 
 articles_mapping = {
     'title': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     },
     'content': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     },
     'qid': {
-        'boost': 1.0,
+#        'boost': 1.0,
         'index': 'not_analyzed',
         'store': 'yes',
-        'type': 'string',
-        "term_vector": "with_positions_offsets"
+        'type': 'text',
+#        "term_vector": "with_positions_offsets"
     }
 }
 
@@ -252,7 +252,7 @@ tags_wl = [
 
 attrs_wl = {
     '*': ['class'],
-    'a': ['href', 'rel'],
+    'a': ['href', 'rel', 'id'],
     'img': ['src', 'alt'],
     'iframe': ['width', 'height', 'src', 'feature', 'frameborder']
 }
@@ -260,7 +260,7 @@ attrs_wl = {
 es_conn.indices.put_mapping("questions-type", {'properties': questions_mapping}, ["questions"])
 es_conn.indices.put_mapping("users-type", {'properties': users_mapping}, ["users"])
 es_conn.indices.put_mapping("tags-type", {'properties': tags_mapping}, ["tags"])
-es_conn.indices.put_mapping("articles-type", {'properties': articles_mapping}, ["articles"])
+#es_conn.indices.put_mapping("articles-type", {'properties': articles_mapping}, ["articles"])
 
 gravatar32 = Gravatar(kunjika,
                       size=32,
