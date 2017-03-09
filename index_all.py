@@ -110,19 +110,19 @@ articles_mapping = {
 }
 # Initialize indices for different buckets
 try:
-#    es_conn.indices.delete_index("questions")
+    es_conn.indices.delete_index("questions")
     es_conn.indices.create_index("questions")
 except:
     pass
 
 try:
-#    es_conn.indices.delete_index("users")
+    es_conn.indices.delete_index("users")
     es_conn.indices.create_index("users")
 except:
     pass
 
 try:
-#    es_conn.indices.delete_index("tags")
+    es_conn.indices.delete_index("tags")
     es_conn.indices.create_index("tags")
 except:
     pass
@@ -146,6 +146,7 @@ for qid in question_list:
 for question in questions:
     #print question
     #print type(es_conn)
+    print question['qid']
     es_conn.index({'title': question['title'], 'description': question['content']['description'], 'qid': int(question['qid'][1:]),
                                'position': int(question['qid'][1:])}, 'questions', 'questions-type', int(question['qid'][1:]))
 

@@ -1077,7 +1077,7 @@ def article_tags(page):
             tags_count = tags_count['rows'][0]['value']
     else:
         tags_count = 0
-    print tags_count
+    #print tags_count
     tags = {}
 
     skip = (page - 1) * memoir.TAGS_PER_PAGE
@@ -1089,6 +1089,8 @@ def article_tags(page):
     if not tags and page != 1:
         abort(404)
     pagination = Pagination(page, memoir.TAGS_PER_PAGE, tags_count)
+    #print tags
+    tags = sorted(tags, key=lambda k: k['value'], reverse=True)
     no_of_tags = len(tags)
     if g.user is not None and g.user.is_authenticated:
         logged_in = True

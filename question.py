@@ -25,7 +25,7 @@ from flask_gravatar import Gravatar
 
 def get_question_by_id(qid, question):
     question = memoir.mb.get(qid).value
-
+    print (type(question))
     question['tstamp'] = strftime("%a, %d %b %Y %H:%M", localtime(question['content']['ts']))
     user = memoir.mb.get(question['content']['op']).value
     question['email'] = user['email']

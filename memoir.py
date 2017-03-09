@@ -416,6 +416,7 @@ def questions(tag=None, page=None, qid=None, url=None):
                                    pagination=pagination, qcount=qcount, ucount=ucount, tcount=tcount, acount=acount, tag_list=tag_list, APP_ROOT=APP_ROOT)
     else:
         questions_dict = question.get_question_by_id(qid, questions_dict)
+        print questions_dict
         ccount = 0
         if 'comments' in questions_dict:
             ccount += len(questions_dict['comments'])
@@ -624,9 +625,9 @@ def questions(tag=None, page=None, qid=None, url=None):
                             msg = Message("A new answer has been posted to a question where you have answered or commented")
                             msg.bcc = email_list
                             msg.sender = admin
-                            msg.html = "<p>Hi,<br/><br/> A new answer has been posted which you can read at " +\
+                            msg.html = "<p>Hi,<br/><br/> A new answer has been posted which you can read at <a href='" + \
                                        HOST_URL + "questions/" + unicode(questions_dict['qid']) + '/' + questions_dict['content']['url'] + \
-                                       " <br/><br/>Best regards,<br/>Kunjika Team<p>"
+                                       "'>" + questions_dict['title'] + "</a><br/><br/>Best regards,<br/>Kunjika Team<p>"
                             mail.send(msg)
 
                         (qcount, acount, tcount, ucount, tag_list) = utility.common_data()
@@ -1743,9 +1744,9 @@ def postcomment():
             msg = Message("A new comment has been posted to a question where you have answered or commented")
             msg.bcc = email_list
             msg.sender = admin
-            msg.html = "<p>Hi,<br/><br/> A new comment has been posted which you can read at " +\
+            msg.html = "<p>Hi,<br/><br/> A new comment has been posted which you can read at <a href='" +\
                        HOST_URL + "questions/" + unicode(question['qid']) + '/' + question['content']['url'] + \
-                       " <br/><br/>Best regards,<br/>Kunjika Team<p>"
+                       "'>" + question['title'] + "</a><br/><br/>Best regards,<br/>Kunjika Team<p>"
             mail.send(msg)
 
         ts = strftime("%a, %d %b %Y %H:%M", localtime(comment['ts']))
