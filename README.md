@@ -10,7 +10,8 @@ Note that in code the app name is still kunjika just the module kunjika.py is
 renamed memoir.py. I have decided to keep the same name in code so that people
 willing to adapt code from Memoir to Kunjika should have little problem.
 
-It is hosted at http://10hash.com/kunjika
+Please see <a href="https://github.com/Nalanda-Labs/kunjika">Kunjika</a> for
+a brand new implementation. Memoior is abandoned.
 
 Kunjika's Readme
 ===============
